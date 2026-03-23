@@ -1,4 +1,4 @@
- <?php
+<?php
 /**
  * Theme functions and definitions
  *
@@ -88,9 +88,6 @@ function dcwd_nav_menu_link_attributes( $atts, $item, $args, $depth ) {
           $atts[ 'href' ] = do_shortcode('[region_kundenportal_registrierung_url]');
      }
 
-     if ( false !== strpos( $atts[ 'href' ], '[region_partnerportal_login_url]' ) ) {
-          $atts[ 'href' ] = do_shortcode('[region_partnerportal_login_url]');
-     }
 
      if ( false !== strpos( $atts[ 'href' ], '[region_partnerportal_registrierung_url]' ) ) {
           $atts[ 'href' ] = do_shortcode('[region_partnerportal_registrierung_url]');
@@ -109,25 +106,24 @@ function dcwd_nav_menu_link_attributes( $atts, $item, $args, $depth ) {
 
 
 add_filter('woocommerce_disable_admin_bar', '_wc_disable_admin_bar', 10, 1);
- 
 function _wc_disable_admin_bar($prevent_admin_access) {
     if (!current_user_can('view_admin_dashboard')) {
         return true;
     }
     return false;
 }
+
  
 add_filter('woocommerce_prevent_admin_access', '_wc_prevent_admin_access', 10, 1);
- 
 function _wc_prevent_admin_access($prevent_admin_access) {
-    if (!current_user_can('view_admin_dashboard')) {
+    if (!current_user_can('view_admin_dashboard') && ! defined( 'DOING_AJAX' )) {
         return true;
     }
     return false;
 }
 
+
 add_filter('woo_vou_assigned_admin_roles', 'voucher_assigned_admin_roles', 21);
- 
 function voucher_assigned_admin_roles() {
      //add user role tm-support to access to woocommerce voucher codes page
      return array('administrator', 'tm-support');
@@ -249,6 +245,7 @@ function get_white_label_kundenportal_registrierung_url() {
      return $region_kundenportal_registrierung_url;
 }
 
+
 function get_white_label_interessenten_registrierung_url() {
      $region_interessenten_registrierung_url = get_option('region_interessenten_registrierung_url', '');
      return $region_interessenten_registrierung_url;
@@ -339,7 +336,7 @@ function add_white_label_settings_fields(){
 
      register_setting( 'general', 'region_kundenportal_registrierung_url', 'esc_attr' );
      add_settings_field('region_kundenportal_registrierung_url', '<label for="region_kundenportal_registrierung_url">Kundenportal Registrierung URL  ([region_kundenportal_registrierung_url])</label>' , 'callback_input_kundenportal_registrierung_url' , 'general' );
-
+	
      register_setting( 'general', 'region_interessenten_registrierung_url', 'esc_attr' );
      add_settings_field('region_interessenten_registrierung_url', '<label for="region_interessenten_registrierung_url">Interessenten Registrierung URL  ([region_interessenten_registrierung_url])</label>' , 'callback_input_interessenten_registrierung_url' , 'general' );
 
@@ -466,6 +463,7 @@ function callback_input_kundenportal_registrierung_url() {
      $value = get_white_label_kundenportal_registrierung_url();
      echo '<input type="text" id="region_kundenportal_registrierung_url" name="region_kundenportal_registrierung_url" value="' . $value . '" size="110" />';
 }
+
 
 function callback_input_interessenten_registrierung_url() {
      $value = get_white_label_interessenten_registrierung_url();
@@ -710,20 +708,17 @@ add_shortcode('region_paypal_fee_text', 'white_label_paypal_fee');
 
 
 add_action('wpcf7_init', 'custom_add_form_white_label_form_tags');
- 
 function custom_add_form_white_label_form_tags()
 {
     wpcf7_add_form_tag('white_label_email_address', 'custom_white_label_email_address_form_tag_handler');
     wpcf7_add_form_tag('region_name', 'custom_white_label_card_name_form_tag_handler');
 }
  
-function custom_white_label_email_address_form_tag_handler($tag)
-{
+function custom_white_label_email_address_form_tag_handler($tag) {
     return get_white_label_email_address();
 }
 
-function custom_white_label_card_name_form_tag_handler($tag)
-{
+function custom_white_label_card_name_form_tag_handler($tag) {
     return get_white_label_card_name();
 }
 
@@ -755,18 +750,15 @@ function wpcf7_tag_white_label_email_address($output, $name, $html)
 }
 
 
-
-
 add_filter( 'woocommerce_enable_order_notes_field', '__return_false' );
+
 
 if (!class_exists('WPWEB_TCPDF')) { //If class not exist
      if(defined("WOO_VOU_DIR")) {
         //include tcpdf file
           require_once WOO_VOU_DIR . '/includes/tcpdf/tcpdf.php';
      }
-        
- }
-
+}
 
  /**
  * Adding Custom shortcode value in PDF voucher
@@ -841,17 +833,13 @@ function woo_vou_pdf_template_preview_replace_shortcodes( $voucher_template_html
 add_filter( 'woo_vou_pdf_template_preview_html', 'woo_vou_pdf_template_preview_replace_shortcodes', 10, 2 );
 
 
-
 /** 
 * Handles to change download button text on downloads page
 */
 function woo_vou_download_page_vou_download_btn_func($btn_name, $product_id, $product_name, $download_file, $voucher_number, $order_date){
-
   return __("Gutschein downloaden", 'woovoucher');
 }
 add_filter( 'woo_vou_download_page_vou_download_btn', 'woo_vou_download_page_vou_download_btn_func', 10, 6 );
-
-
 
 
 function woocommerce_template_loop_product_title() {
@@ -885,17 +873,11 @@ function change_checkout_fields( $fields ) {
 add_filter( 'woocommerce_checkout_fields', 'change_checkout_fields' );
 
 
-
-
-
 function rename_address_my_account( $items ) {
   $items['dashboard'] = 'Kontoübersicht';
   return $items;
 }
 add_filter( 'woocommerce_account_menu_items', 'rename_address_my_account', 999 );
-
-
-
 
 
 function hide_display_name($required_fields)
@@ -924,9 +906,9 @@ add_filter( 'pre_user_login', 'wc_email_as_username' );
 
 add_filter( 'woocommerce_new_customer_data', function( $data ) {
   $data['user_login'] = $data['user_email'];
-
   return $data;
 });
+
 
 
 add_action('woocommerce_checkout_process', 'matching_email_addresses');
@@ -934,13 +916,10 @@ function matching_email_addresses() {
     $billing_email = $_POST['billing_email'];
     $_POST['account_username'] = $billing_email;
 }
-
-
  
 function attach_pdf_to_emails( $attachments, $email_id, $order, $email ) {
     $email_ids = array( 'customer_processing_order' );
     if ( in_array ( $email_id, $email_ids ) ) {
-        //$upload_dir = wp_upload_dir();
         $attachments[] = get_white_label_shop_agb_pdf_url();
     }
     return $attachments;
@@ -970,6 +949,12 @@ function add_checkout_checkbox() {
 
 add_action( 'woocommerce_checkout_process', 'add_checkout_checkbox_warning', 100 );
 function add_checkout_checkbox_warning() {
+
+     $user = wp_get_current_user();
+     if ( in_array( 'gutschein-shop', (array) $user->roles ) || in_array( 'Gutschein-Shop', (array) $user->roles ) ) {
+          return;
+     }
+
      if ( ! (int) isset( $_POST['checkout-checkbox'] ) ) {
         wc_add_notice( __( 'Bei digitalen Inhalten (Online-Gutscheine) müssen Sie auf das Widerrufsrecht verzichten, da diese sofort gültig sind.' ), 'error' );
      }
@@ -993,6 +978,9 @@ function add_checkout_checkbox_warning() {
                wc_add_notice( __( 'Privatkunden können maximal 5 Gutscheine pro Bestellung bestellen.' ), 'error' );
           }
      }
+
+     $billing_email = $_POST['billing_email'];
+     $_POST['account_username'] = $billing_email;
 }
 
 add_action('woocommerce_checkout_update_order_meta', function($order_id) {
@@ -1069,10 +1057,7 @@ function insert_pflichtfeld() {
 
 add_filter( 'woocommerce_loop_add_to_cart_link', 'replace_loop_add_to_cart_button', 10, 2 );
 function replace_loop_add_to_cart_button( $button, $product  ) {
-
-    // Button text here
     $button_text = __( "Zum Gutschein", "woocommerce" );
-
     return '<a class="button product_type_simple add_to_cart_button" href="' . $product->get_permalink() . '">' . $button_text . '</a>';
 }
 
@@ -1099,7 +1084,6 @@ function change_customer_processing_order_email_subject( $subject, $order ) {
 
 
 if (!function_exists('write_log')) {
-
     function write_log($log) {
         if (true === WP_DEBUG) {
             if (is_array($log) || is_object($log)) {
@@ -1109,7 +1093,6 @@ if (!function_exists('write_log')) {
             }
         }
     }
-
 }
 
 
@@ -1215,14 +1198,15 @@ function white_label_get_participating_partners_table_shortcode() {
      } catch( Exception $ex ) {
           return $output;
      }
-
-     $pdf_url = esc_url(site_url('?generate_partners_pdf=1&type=table'));
+	
+	    $pdf_url = esc_url(site_url('?generate_partners_pdf=1&type=table'));
      $output .= '<div class="tm-partners-pdf-download">';
      $output .= '<button class="tm-partners-pdf-button" data-pdf-url="' . $pdf_url . '">';
      $output .= '<span class="tm-pdf-btn-text"><i class="fas fa-file-pdf"></i> Teilnehmende Partner als PDF herunterladen</span>';
      $output .= '<span class="tm-pdf-btn-spinner" style="display:none;"><i class="fas fa-spinner fa-spin"></i> PDF wird erstellt...</span>';
      $output .= '</button>';
      $output .= '</div>';
+
 
      return $output;
 }
@@ -1357,8 +1341,7 @@ function white_label_get_participating_partners_grid_shortcode() {
      }
 
      $output = $outputFilter . $outputItems;
-
-     $pdf_url = esc_url(site_url('?generate_partners_pdf=1&type=grid'));
+	  $pdf_url = esc_url(site_url('?generate_partners_pdf=1&type=grid'));
      $output .= '<div class="tm-partners-pdf-download">';
      $output .= '<button class="tm-partners-pdf-button" data-pdf-url="' . $pdf_url . '">';
      $output .= '<span class="tm-pdf-btn-text"><i class="fas fa-file-pdf"></i> Teilnehmende Partner als PDF herunterladen</span>';
@@ -1366,9 +1349,11 @@ function white_label_get_participating_partners_grid_shortcode() {
      $output .= '</button>';
      $output .= '</div>';
 
+
      return $output;
 }
 add_shortcode('white_label_participating_partners_grid', 'white_label_get_participating_partners_grid_shortcode');
+
 
 // PDF download JavaScript (Fetch + Spinner + Blob download)
 add_action('wp_footer', function() {
@@ -1827,25 +1812,7 @@ function register_rest_images() {
         )
     );
 
-    register_rest_field( array( 'veranstaltungen' ),
-        'categories',
-        array(
-            'get_callback'    => 'get_rest_veranstaltungen_categories',
-            'update_callback' => null,
-            'schema'          => null,
-        )
-    );
-
     register_rest_field( array( 'jobs' ),
-        'featured_image_url',
-        array(
-            'get_callback'    => 'get_rest_featured_image',
-            'update_callback' => null,
-            'schema'          => null,
-        )
-    );
-
-    register_rest_field( array( 'traineejobs' ),
         'featured_image_url',
         array(
             'get_callback'    => 'get_rest_featured_image',
@@ -1864,17 +1831,6 @@ function get_rest_featured_image( $object, $field_name, $request ) {
         return $img[0];
     }
     return false;
-}
-
-function get_rest_veranstaltungen_categories($post_arr) {
-
-     $terms = get_the_terms( $post_arr['id'], 'veranstaltungen_kategorien' ); // <- Name der Taxonomy
-     if ( empty( $terms ) || is_wp_error( $terms ) ) {
-          return null;
-     }
-
-     // Gib nur die Namen zurück
-     return wp_list_pluck( $terms, 'name' );
 }
 
 
@@ -1981,6 +1937,11 @@ function woo_add_paypal_fee($cart) {
           return;
      }
 
+     $user = wp_get_current_user();
+     if ( in_array( 'gutschein-shop', (array) $user->roles ) || in_array( 'Gutschein-Shop', (array) $user->roles ) ) {
+          return;
+     }
+
      //info: on updating cart the data is in $post_data, and on checkout button clicked the data is in $_POST
 
      $percent = get_white_label_paypal_fee();
@@ -1997,14 +1958,10 @@ function woo_add_paypal_fee($cart) {
           $fee = ($cart_total / 100 * $percent) + ($quantity * $euro_per_voucher);
      }
      
-     //if(array_key_exists('payment_method', $post_data)) {
-          //$chosen_payment_method = $post_data['payment_method'];
-          //if ($chosen_payment_method == 'paypal_plus' || $chosen_payment_method == 'paypal') {
-               if((array_key_exists('billing_options', $post_data) && !empty($post_data['billing_options']) && $post_data['billing_options'] == 'firmenkauf' ) || (array_key_exists('billing_options', $_POST) && !empty($_POST['billing_options']) && $_POST['billing_options'] == 'firmenkauf')) {
-                    $cart->add_fee( 'Bearbeitungsgebühr', $fee, true, 'Steuern Fee' );
-               }
-          //}
-     //}
+
+     if((array_key_exists('billing_options', $post_data) && !empty($post_data['billing_options']) && $post_data['billing_options'] == 'firmenkauf' ) || (array_key_exists('billing_options', $_POST) && !empty($_POST['billing_options']) && $_POST['billing_options'] == 'firmenkauf')) {
+          $cart->add_fee( 'Bearbeitungsgebühr', $fee, true, 'Steuern Fee' );
+     }
 }
 add_action( 'woocommerce_cart_calculate_fees', 'woo_add_paypal_fee' );
 
@@ -2080,7 +2037,6 @@ function change_woo_voucher_table_buyer_information_html($buyer_details_html, $b
           $buyer_details_html .= '<td width="80%">' . $billing_option . '</td>';
           $buyer_details_html .= '</tr>';
           $buyer_details_html .= '</table>';
-
      }
 
      return $buyer_details_html;
@@ -2128,7 +2084,8 @@ function change_woo_voucher_table_order_information_html($order_details_html, $o
 }
 add_filter('woo_vou_display_order_info_html', 'change_woo_voucher_table_order_information_html', 30, 3);
 
-add_action( 'woocommerce_payment_complete_order_status', 'wc_auto_complete_paid_order', 10, 3 );
-function wc_auto_complete_paid_order( $status, $order_id, $order ) {
-    return 'completed';
+
+add_action('woocommerce_payment_complete_order_status', 'wc_auto_complete_paid_order', 10, 3);
+function wc_auto_complete_paid_order($status, $order_id, $order) {
+     return 'completed';
 }
