@@ -1478,8 +1478,7 @@ function generate_partners_pdf_handler($request = null) {
      $region_name = get_white_label_region_name();
      $card_name = get_white_label_card_name();
 
-     $include_non_visible = ($type === 'table') ? 'true' : 'false';
-     $response = wp_remote_get('https://backend.mycity.cards/api/v1/partners?includeNonVisiblePartners=' . $include_non_visible . '&region_name=' . $region_name, array(
+     $response = wp_remote_get('https://backend.mycity.cards/api/v1/partners?region_name=' . $region_name, array(
           'headers' => array(
                'Accept' => 'application/json',
                'X-API-KEY' => get_white_label_region_api_key()
