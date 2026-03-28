@@ -100,34 +100,64 @@ function dcwd_nav_menu_link_attributes( $atts, $item, $args, $depth ) {
           $atts[ 'href' ] = do_shortcode('[region_interessenten_registrierung_url]');
      }
 
+     if ( false !== strpos( $atts[ 'href' ], '[region_arbeitgeberportal_login_url]' ) ) {
+          $atts[ 'href' ] = do_shortcode('[region_arbeitgeberportal_login_url]');
+     }
+
      if ( false !== strpos( $atts[ 'href' ], '[region_name]' ) ) {
           $atts[ 'href' ] = do_shortcode('[region_name]');
-     }
-	if ( false !== strpos( $atts[ 'href' ], '[region_arbeitgeberportal_login_url]' ) ) {
-          $atts[ 'href' ] = do_shortcode('[region_arbeitgeberportal_login_url]');
      }
 
      return $atts;
 }
 
 
+//add_filter('woocommerce_disable_admin_bar', '_wc_disable_admin_bar', 10, 1);
+ 
+//function _wc_disable_admin_bar($prevent_admin_access) {
+//  if (!current_user_can('view_admin_dashboard')) {
+//    return true;
+//    }
+//    return false;
+//}
+ 
+//add_filter('woocommerce_prevent_admin_access', '_wc_prevent_admin_access', 10, 1);
+ 
+//function _wc_prevent_admin_access($prevent_admin_access) {
+  //  if (!current_user_can('view_admin_dashboard')) {
+    //    return true;
+    //}
+    //return false;
+//}
+// ALT: Verhindert generell den Zugriff auf /wp-admin/ für Nutzer ohne Capability.
+// Problem: Blockiert auch admin-ajax.php → führt zu 302 Redirect auf /mein-konto/
+// und verursacht WooCommerce parsererror beim Checkout für nicht eingeloggte Nutzer.
+
 add_filter('woocommerce_disable_admin_bar', '_wc_disable_admin_bar', 10, 1);
- 
-function _wc_disable_admin_bar($prevent_admin_access) {
-    if (!current_user_can('view_admin_dashboard')) {
-        return true;
+function _wc_disable_admin_bar($disable_admin_bar) {
+    if ( current_user_can('view_admin_dashboard') ) {
+        return false;
     }
-    return false;
+
+    return true;
 }
- 
+
 add_filter('woocommerce_prevent_admin_access', '_wc_prevent_admin_access', 10, 1);
- 
 function _wc_prevent_admin_access($prevent_admin_access) {
-    if (!current_user_can('view_admin_dashboard')) {
-        return true;
+    // Frontend-AJAX muss erlaubt bleiben, z. B. WooCommerce Checkout
+    if ( wp_doing_ajax() ) {
+        return false;
     }
-    return false;
+
+    if ( current_user_can('view_admin_dashboard') ) {
+        return false;
+    }
+
+    return true;
 }
+// NEU: Schützt weiterhin den Zugriff auf /wp-admin/ für nicht berechtigte Nutzer,
+// erlaubt aber explizit AJAX-Requests (z. B. WooCommerce Checkout via admin-ajax.php),
+// damit Frontend-Funktionalitäten für Gäste korrekt funktionieren.
 
 add_filter('woo_vou_assigned_admin_roles', 'voucher_assigned_admin_roles', 21);
  
@@ -356,18 +386,17 @@ function add_white_label_settings_fields(){
      register_setting( 'general', 'region_interessenten_registrierung_url', 'esc_attr' );
      add_settings_field('region_interessenten_registrierung_url', '<label for="region_interessenten_registrierung_url">Interessenten Registrierung URL  ([region_interessenten_registrierung_url])</label>' , 'callback_input_interessenten_registrierung_url' , 'general' );
 
-		 register_setting( 'general', 'region_partnerportal_login_url', 'esc_attr' );
-     add_settings_field('region_partnerportal_login_url', '<label for="region_partnerportal_login_url">Partnerportal Login URL  ([region_partnerportal_login_url])</label>' , 'callback_input_partnerportal_login_url' , 'general' );
-	
-	 register_setting( 'general', 'region_arbeitgeberportal_login_url', 'esc_attr' );
-     add_settings_field('region_arbeitgeberportal_login_url', '<label for="region_arbeitgeberportal_login_url">Arbeitgeberportal Login URL  ([region_arbeitgeberportal_login_url])</label>' , 'callback_input_arbeitgeberportal_login_url' , 'general' );
-
-	
      register_setting( 'general', 'region_paypal_fee', 'esc_attr' );
      add_settings_field('region_paypal_fee', '<label for="region_paypal_fee">PayPal Gebühr pro Bestellung (in Prozent)</label>' , 'callback_input_paypal_fee' , 'general' );
 
      register_setting( 'general', 'region_paypal_fee_per_voucher', 'esc_attr' );
      add_settings_field('region_paypal_fee_per_voucher', '<label for="region_paypal_fee_per_voucher">PayPal Gebühr pro Gutschein (in Euro)</label>' , 'callback_input_paypal_fee_per_voucher' , 'general' );
+
+     register_setting( 'general', 'region_partnerportal_login_url', 'esc_attr' );
+     add_settings_field('region_partnerportal_login_url', '<label for="region_partnerportal_login_url">Partnerportal Login URL  ([region_partnerportal_login_url])</label>' , 'callback_input_partnerportal_login_url' , 'general' );
+	
+	register_setting( 'general', 'region_arbeitgeberportal_login_url', 'esc_attr' );
+     add_settings_field('region_arbeitgeberportal_login_url', '<label for="region_arbeitgeberportal_login_url">Arbeitgeberportal Login URL  ([region_arbeitgeberportal_login_url])</label>' , 'callback_input_arbeitgeberportal_login_url' , 'general' );
 
 }
 
@@ -482,17 +511,6 @@ function callback_input_kundenportal_login_url() {
      echo '<input type="text" id="region_kundenportal_login_url" name="region_kundenportal_login_url" value="' . $value . '" size="110" />';
 }
 
-function callback_input_partnerportal_login_url() {
-     $value = get_white_label_partnerportal_login_url();
-     echo '<input type="text" id="region_partnerportal_login_url" name="region_partnerportal_login_url" value="' . $value . '" size="110" />';
-}
-
-function callback_input_arbeitgeberportal_login_url() {
-     $value = get_white_label_arbeitgeberportal_login_url();
-     echo '<input type="text" id="region_arbeitgeberportal_login_url" name="region_arbeitgeberportal_login_url" value="' . $value . '" size="110" />';
-}
-
-
 function callback_input_kundenportal_registrierung_url() {
      $value = get_white_label_kundenportal_registrierung_url();
      echo '<input type="text" id="region_kundenportal_registrierung_url" name="region_kundenportal_registrierung_url" value="' . $value . '" size="110" />';
@@ -511,6 +529,16 @@ function callback_input_paypal_fee() {
 function callback_input_paypal_fee_per_voucher() {
      $value = get_white_label_paypal_fee_per_voucher();
      echo '<input type="number" step="0.01" id="region_paypal_fee_per_voucher" name="region_paypal_fee_per_voucher" value="' . $value . '" />';
+}
+
+function callback_input_partnerportal_login_url() {
+     $value = get_white_label_partnerportal_login_url();
+     echo '<input type="text" id="region_partnerportal_login_url" name="region_partnerportal_login_url" value="' . $value . '" size="110" />';
+}
+
+function callback_input_arbeitgeberportal_login_url() {
+     $value = get_white_label_arbeitgeberportal_login_url();
+     echo '<input type="text" id="region_arbeitgeberportal_login_url" name="region_arbeitgeberportal_login_url" value="' . $value . '" size="110" />';
 }
 
 
@@ -672,6 +700,7 @@ function white_label_interessent_registrierung_url_shortcode() {
      return 'https://mycity.cards/interessent-registrierung?region=' . $region_name;
 }
 add_shortcode('region_interessent_registrierung_url', 'white_label_interessent_registrierung_url_shortcode'); 
+
 
 function white_label_partnerportal_login_url_shortcode() { 
  
