@@ -283,12 +283,6 @@ def normalize_voucher_codes(raw_codes):
 
 
 def normalize_price(value):
-    """
-    Normalisiert Preise:
-    - 5000 -> 50.00
-    - 5298 -> 52.98
-    - 50 -> 50.00
-    """
     if value in (None, ""):
         return ""
 
@@ -296,7 +290,6 @@ def normalize_price(value):
         text = str(value).strip().replace(",", ".")
         num = float(text)
 
-       # Heuristik: ganzzahlige Cent-Werte > 999 als Cent interpretieren
         if "." not in text and "," not in str(value) and num > 999:
             num = num / 100
 
@@ -306,9 +299,6 @@ def normalize_price(value):
 
 
 def extract_price_from_name(name):
-    """
-    Extrahiert z. B. '20€ Gutschein' -> 20
-    """
     if not name:
         return ""
 
@@ -320,9 +310,6 @@ def extract_price_from_name(name):
 
 
 def sanitize_sheet_title(title):
-    """
-    Excel-Blattnamen: max 31 Zeichen, keine []:*?/\\
-    """
     invalid_chars = ['[', ']', ':', '*', '?', '/', '\\']
     cleaned = title
     for ch in invalid_chars:
@@ -382,37 +369,19 @@ fieldnames = [
     "Produktname",
     "Preis",
     "Auftraggeber",
-    '''
-    Ausgeblendet:
-    "Name",
-    "Email",
-    "Address 1",
-    "Address 2",
-    "Phone",
-    '''
     "Zweck",
     "Order ID",
     "Order Date",
     "Payment Method",
     "PayPal Order ID",
-    #"Order Total",
     "Order Discount",
     "PayPal Fee",
     "PayPal Net",
-    '''
-    Ausgeblendet:
-    "Expires",
-    "PDF Template",
-    "E-Mail Adresse des Empfängers",
-    "Nachricht für den Empfänger",
-    "Status",
-    '''
     "Menge"
 ]
 
 currency_columns = {
     "Preis",
-    #"Order Total",
     "Order Discount",
     "PayPal Fee",
     "PayPal Net"
@@ -537,31 +506,14 @@ for shop in shops:
                         "Produktname": item_name,
                         "Preis": voucher_price,
                         "Auftraggeber": auftraggeber,
-                        '''
-                        Ausgeblendet:                        
-                        "Name": customer_name,
-                        "Email": email,
-                        "Address 1": address_line_1,
-                        "Address 2": address_line_2,
-                        "Phone": phone,
-                        '''
                         "Zweck": zweck,
                         "Order ID": order_id,
                         "Order Date": order_date,
                         "Payment Method": payment_method,
                         "PayPal Order ID": paypal_order_id,
-                        #"Order Total": order_total,    
                         "Order Discount": order_discount,
                         "PayPal Fee": fee_paypal,
                         "PayPal Net": net_paypal,
-                        '''
-                        Ausgeblendet:
-                        "Expires": exp_date,
-                        "PDF Template": pdf_template,       
-                        "E-Mail Adresse des Empfängers": recipient_email,
-                        "Nachricht für den Empfänger": recipient_message,
-                        "Status": status,
-                        '''
                         "Menge": item_quantity
                     }
 
@@ -598,60 +550,25 @@ format_worksheet(
     data_alignment
 )
 
-
 # Einzelne Shop-Blätter
 for shop_name, rows in shop_rows.items():
     ws = wb.create_sheet(title=sanitize_sheet_title(shop_name))
-
-    # Kopfzeile
     ws.append(fieldnames)
-    for cell in ws[1]:
-        cell.font = header_font
-        cell.fill = header_fill
-        cell.alignment = header_alignment
 
-    # Daten
     for row in rows:
         ws.append([row.get(col, "") for col in fieldnames])
 
-    # Freeze Pane
-    ws.freeze_panes = "A2"
-    ws.auto_filter.ref = ws.dimensions
+    format_worksheet(
+        ws,
+        fieldnames,
+        currency_columns,
+        integer_columns,
+        header_font,
+        header_fill,
+        header_alignment,
+        data_alignment
+    )
 
-    # Zahlenformatierung und Alignment
-    for row in ws.iter_rows(min_row=2):
-        for cell in row:
-            column_name = fieldnames[cell.column - 1]
-            cell.alignment = data_alignment
-
-            if column_name in currency_columns and isinstance(cell.value, (int, float)):
-                cell.number_format = '#,##0.00'
-            elif column_name in integer_columns and isinstance(cell.value, (int, float)):
-                cell.number_format = '0'
-
-    # Spaltenbreite automatisch
-    for col_idx, column_name in enumerate(fieldnames, start=1):
-        max_length = len(column_name)
-
-        for row_idx in range(2, ws.max_row + 1):
-            value = ws.cell(row=row_idx, column=col_idx).value
-            if value is None:
-                continue
-
-            if isinstance(value, float) and column_name in currency_columns:
-                text = f"{value:,.2f}"
-            else:
-                text = str(value)
-
-            if len(text) > max_length:
-                max_length = len(text)
-
-        adjusted_width = min(max_length + 2, 60)
-        ws.column_dimensions[get_column_letter(col_idx)].width = adjusted_width
-
-    # Zeilenhöhe Header
-    ws.row_dimensions[1].height = 24
-    
 output_file = f"alle_bestellungen_pro_shop_{today.strftime('%Y-%m-%d')}.xlsx"
 wb.save(output_file)
 
