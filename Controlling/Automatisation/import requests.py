@@ -222,16 +222,13 @@ def add_dashboard(wb, monthly_rows, all_rows):
 
 def write_excel(all_rows, monthly_rows):
     wb = Workbook()
-    
-    # Gesamtblatt
     ws_all = wb.active
     ws_all.title = "Alle Shops"
     headers = ["Shop", "Order ID", "Datum", "Produkt", "Menge", "Preis"]
     ws_all.append(headers)
     for r in all_rows:
         ws_all.append([r.get(h) for h in headers])
-    
-    # separates Blatt pro Shop
+     # separates Blatt pro Shop
     shops_set = sorted({r["Shop"] for r in all_rows})
     for shop in shops_set:
         ws = wb.create_sheet(shop)
@@ -246,7 +243,6 @@ def write_excel(all_rows, monthly_rows):
     ws_month.append(headers_m)
     for r in sorted(monthly_rows, key=lambda x: (x["Monat"], x["Shop"])):
         ws_month.append([r.get(h) for h in headers_m])
-    
     wb.save(OUTPUT_FILE)
 
 # =========================
