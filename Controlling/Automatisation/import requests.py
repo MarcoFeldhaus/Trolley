@@ -1,85 +1,209 @@
 import requests
 import json
 import os
+import re
 from datetime import datetime
 from collections import defaultdict
 from openpyxl import Workbook, load_workbook
-from openpyxl.chart import BarChart, Reference, LineChart
-from openpyxl.styles import Font
+from openpyxl.chart import LineChart, BarChart, Reference
 
 from config import shops, OUTPUT_FILE, STATE_FILE
 
 # =========================
-# STATE HANDLING
+# HELPERS
+# =========================
+
+def log(msg):
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
+
+
+def safe_str(v):
+    return "" if v is None else str(v).strip()
+
+
+def to_int(v):
+    try:
+        return int(float(str(v).replace(",", ".")))
+    except:
+        return ""
+
+
+def format_date(date_string):
+    try:
+        return datetime.fromisoformat(date_string.replace("Z", "+00:00")).strftime("%d.%m.%Y %H:%M")
+    except:
+        return ""
+
+
+def normalize_price(v):
+    try:
+        return round(float(str(v).replace(",", ".")), 2)
+    except:
+        return ""
+
+
+def extract_price_from_name(name):
+    match = re.search(r"(\d+(?:[.,]\d+)?)\s*€", name or "")
+    return normalize_price(match.group(1)) if match else ""
+
+
+def get_meta_value(meta_data, key):
+    for m in meta_data:
+        if m.get("key") == key:
+            return m.get("value")
+    return ""
+
+
+def normalize_voucher_codes(raw):
+    if not raw:
+        return []
+    if isinstance(raw, list):
+        return [str(x).strip() for x in raw if str(x).strip()]
+    raw = str(raw)
+    for sep in ["\n", ",", ";", "|"]:
+        raw = raw.replace(sep, ",")
+    return [x.strip() for x in raw.split(",") if x.strip()]
+
+
+def map_zweck(v):
+    v = safe_str(v).lower()
+    if v == "privatkauf":
+        return "ja"
+    if v == "firmenkauf":
+        return "nein"
+    return ""
+
+
+# =========================
+# STATE
 # =========================
 
 def load_last_run():
     if os.path.exists(STATE_FILE):
-        with open(STATE_FILE, "r") as f:
-            try:
-                return json.load(f).get("last_run")
-            except json.JSONDecodeError:
-                return None
+        return json.load(open(STATE_FILE)).get("last_run")
     return None
 
+
 def save_last_run():
-    with open(STATE_FILE, "w") as f:
-        json.dump({"last_run": datetime.utcnow().isoformat()}, f)
+    json.dump({"last_run": datetime.utcnow().isoformat()}, open(STATE_FILE, "w"))
+
 
 # =========================
-# API FETCH
+# API
 # =========================
 
 def fetch_orders(shop, start_date):
     page = 1
-    all_orders = []
+    orders = []
 
     while True:
-        params = {"per_page": 100, "page": page, "after": start_date}
         try:
-            response = requests.get(
-                f"{shop['url']}/wp-json/wc/v3/orders",
+            url = f"{shop['url']}/wp-json/wc/v3/orders"
+            log(f"API-Aufruf: {url} | after={start_date} | page={page}")
+            
+            r = requests.get(
+                url,
                 auth=(shop["ck"], shop["cs"]),
-                params=params,
+                params={"per_page": 100, "page": page, "after": start_date},
                 timeout=30
             )
-            response.raise_for_status()
-            try:
-                data = response.json()
-            except json.JSONDecodeError:
-                print(f"Achtung: Ungültige JSON-Antwort von {shop['name']} (Seite {page})")
-                print(response.text[:200])
-                break
+            r.raise_for_status()
+            data = r.json()
 
             if not data:
                 break
 
-            all_orders.extend(data)
+            orders.extend(data)
             page += 1
-        except requests.RequestException as e:
-            print(f"Fehler bei Shop {shop['name']}: {e}")
+
+        except requests.exceptions.HTTPError as e:
+            log(f"HTTP-Fehler {shop['name']}: {e.response.status_code} - {e.response.text}")
+            break
+        except Exception as e:
+            log(f"Fehler {shop['name']}: {e}")
             break
 
-    return all_orders
+    return orders
+
 
 # =========================
-# TRANSFORM ORDERS
+# CORE LOGIC
 # =========================
 
-def transform_orders(orders, shop_name):
+def extract_voucher_codes(item_meta, order_meta, item_id):
+    # 1. item_meta
+    raw = get_meta_value(item_meta, "_woo_vou_codes")
+
+    # 2. fallback: order_meta → vou_details
+    if not raw:
+        vou_details = get_meta_value(order_meta, "_woo_vou_meta_order_details")
+
+        if isinstance(vou_details, str):
+            try:
+                vou_details = json.loads(vou_details)
+            except:
+                vou_details = {}
+
+        if isinstance(vou_details, dict) and item_id in vou_details:
+            raw = vou_details[item_id].get("codes")
+
+    codes = normalize_voucher_codes(raw)
+    return codes if codes else [""]
+
+
+def transform_orders(orders, shop_name, existing_keys):
     rows = []
+
     for order in orders:
-        order_id = order.get("id")
-        date = order.get("date_created", "")[:10]
+        order_id = to_int(order.get("id"))
+        order_date = format_date(order.get("date_created"))
+        order_meta = order.get("meta_data", [])
+
+        raw_zweck = (
+            get_meta_value(order_meta, "_billing_options") or
+            get_meta_value(order_meta, "billing_options")
+        )
+        zweck = map_zweck(raw_zweck)
+
         for item in order.get("line_items", []):
-            rows.append({
-                "Shop": shop_name,
-                "Order ID": order_id,
-                "Datum": date,
-                "Produkt": item.get("name"),
-                "Menge": item.get("quantity"),
-                "Preis": round(float(item.get("price", 0)), 2)
-            })
+            item_id = str(item.get("id"))
+            name = safe_str(item.get("name"))
+            qty = to_int(item.get("quantity"))
+            item_meta = item.get("meta_data", [])
+
+            price = normalize_price(get_meta_value(item_meta, "_woo_vou_voucher_price"))
+            if not price:
+                price = extract_price_from_name(name)
+
+            codes = extract_voucher_codes(item_meta, order_meta, item_id)
+
+            for code in codes:
+                key = (order_id, code)
+
+                # 🔥 Duplikat vermeiden
+                if key in existing_keys:
+                    continue
+                # Auftraggeber ermitteln
+                if "gutschein pdf" in name.lower():
+                    auftraggeber = "nein, Auftraggeber"
+                else:
+                    auftraggeber = "PayPal"
+
+                row = {
+                    "Shop": shop_name,
+                    "Gutschein Code": code,
+                    "Order ID": order_id,
+                    "Produkt": name,
+                    "Datum": order_date,
+                    "Preis": price,
+                    "Zweck": zweck,
+                    "Auftraggeber": auftraggeber,
+                    "Menge": qty
+                }
+
+                rows.append(row)
+                existing_keys.add(key)
+
     return rows
 
 # =========================
@@ -99,7 +223,10 @@ def load_existing():
     for r in ws.iter_rows(min_row=2, values_only=True):
         d = dict(zip(headers, r))
         rows.append(d)
-        keys.add((d["Order ID"], d["Produkt"]))
+        order_id = d.get("Order ID")
+        voucher_code = d.get("Gutschein Code")
+        if order_id and voucher_code:
+            keys.add((order_id, voucher_code))
     return rows, keys
 
 # =========================
@@ -109,12 +236,18 @@ def load_existing():
 def build_monthly_report(rows):
     report = defaultdict(lambda: {"umsatz": 0, "bestellungen": set()})
     for r in rows:
-        if not r.get("Datum"):
+        datum = r.get("Datum")
+        if not datum:
             continue
-        month = r["Datum"][:7]
-        key = (r["Shop"], month)
-        report[key]["umsatz"] += float(r.get("Preis", 0))
-        report[key]["bestellungen"].add(r["Order ID"])
+        try:
+            month = str(datum)[:7]
+            key = (r.get("Shop"), month)
+            preis = float(r.get("Preis") or 0)
+            report[key]["umsatz"] += preis
+            report[key]["bestellungen"].add(r.get("Order ID"))
+        except (ValueError, TypeError):
+            continue
+    
     final = []
     for (shop, month), data in report.items():
         final.append({
@@ -186,14 +319,23 @@ def add_dashboard(wb, monthly_rows, all_rows):
 
     # Top 5 Produkte
     product_sales = defaultdict(float)
+    
     for r in all_rows:
-        product_sales[r["Produkt"]] += r["Preis"] * r["Menge"]
+        produkt = r.get("Produkt") or "Unbekannt"
+        try:
+            preis = float(r.get("Preis") or 0)
+            menge = float(r.get("Menge") or 0)
+            product_sales[produkt] += preis * menge
+        except (ValueError, TypeError):
+            continue
+    
+
     top5 = sorted(product_sales.items(), key=lambda x: x[1], reverse=True)[:5]
     ws["A20"], ws["B20"] = "Top Produkte", "Umsatz"
     r_top = 21
     for name, value in top5:
         ws.cell(row=r_top, column=1, value=name)
-        ws.cell(row=r_top, column=2, value=round(value,2))
+        ws.cell(row=r_top, column=2, value=round(value, 2))
         ws.cell(row=r_top, column=2).number_format = '#,##0.00'
         r_top += 1
 
@@ -224,11 +366,12 @@ def write_excel(all_rows, monthly_rows):
     wb = Workbook()
     ws_all = wb.active
     ws_all.title = "Alle Shops"
-    headers = ["Shop", "Order ID", "Datum", "Produkt", "Menge", "Preis"]
+    headers = ["Shop", "Gutschein Code", "Order ID", "Produktname", "Datum", "Preis", "Privatkauf", "Auftraggeber", "Menge"]
     ws_all.append(headers)
     for r in all_rows:
         ws_all.append([r.get(h) for h in headers])
-     # separates Blatt pro Shop
+    
+    # Separate Blatt pro Shop
     shops_set = sorted({r["Shop"] for r in all_rows})
     for shop in shops_set:
         ws = wb.create_sheet(shop)
@@ -243,34 +386,76 @@ def write_excel(all_rows, monthly_rows):
     ws_month.append(headers_m)
     for r in sorted(monthly_rows, key=lambda x: (x["Monat"], x["Shop"])):
         ws_month.append([r.get(h) for h in headers_m])
+    
+    # Dashboard
+    add_dashboard(wb, monthly_rows, all_rows)
+    
     wb.save(OUTPUT_FILE)
+
+def write_pdf(all_rows, monthly_rows, output_file):
+    try:
+        from reportlab.lib.pagesizes import A4, landscape
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+        from reportlab.lib import colors
+        from reportlab.lib.units import cm
+        
+        pdf_output = output_file.replace(".xlsx", ".pdf")
+        doc = SimpleDocTemplate(pdf_output, pagesize=landscape(A4), topMargin=0.5*cm, bottomMargin=0.5*cm)
+        
+        # Daten vorbereiten
+        headers = ["Shop", "Gutschein Code", "Order ID", "Produktname", "Datum", "Preis", "Privatkauf", "Auftraggeber", "Menge"]
+        data = [headers]
+        
+        for row in all_rows:
+            data.append([str(row.get(h, "")) for h in headers])
+        
+        # Tabelle mit Formatting
+        table = Table(data, colWidths=[1.6*cm]*len(headers))
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1F4E78')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F0F0F0')])
+        ]))
+        elements = [table]
+        doc.build(elements) 
+        log(f"PDF erfolgreich erstellt: {pdf_output}")
+    except ImportError:
+        log("ReportLab nicht installiert. PDF wird nicht erstellt.")    
+
+
 
 # =========================
 # MAIN
 # =========================
 
 def main():
-    last_run = load_last_run()
-    start_date = last_run if last_run else datetime.now().replace(day=1).isoformat()
-    print("Startdatum:", start_date)
+    log("Start")
 
+    start_date = load_last_run() or datetime.now().replace(day=1).isoformat()
     existing_rows, existing_keys = load_existing()
-    new_rows = []
-
+    all_rows = existing_rows[:]
+    
     for shop in shops:
-        orders = fetch_orders(shop, start_date)
-        rows = transform_orders(orders, shop["name"])
-        for r in rows:
-            key = (r["Order ID"], r["Produkt"])
-            if key not in existing_keys:
-                new_rows.append(r)
+        log(f"Lade {shop['name']}")
 
-    all_rows = existing_rows + new_rows
-    monthly = build_monthly_report(all_rows)
-    write_excel(all_rows, monthly)
+        orders = fetch_orders(shop, start_date)
+        rows = transform_orders(orders, shop["name"], existing_keys)
+
+        log(f"{shop['name']}: {len(rows)} neue Zeilen")
+        all_rows.extend(rows)
+
+    monthly_rows = build_monthly_report(all_rows)
+    write_excel(all_rows, monthly_rows)
+    write_pdf(all_rows, monthly_rows, OUTPUT_FILE)  # ← Diese Zeile hinzufügen
     save_last_run()
-    print(f"Neue Zeilen: {len(new_rows)}")
-    print("Fertig!")
+
+    log(f"Fertig: {len(all_rows)} Zeilen")
+
 
 if __name__ == "__main__":
     main()
