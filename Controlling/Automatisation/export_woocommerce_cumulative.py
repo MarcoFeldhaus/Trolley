@@ -331,6 +331,7 @@ def add_dashboard(wb, all_rows):
     # Regional aggregieren
     regional_data = defaultdict(lambda: {"count": 0, "revenue": 0})
     monthly_data = defaultdict(lambda: {"count": 0, "revenue": 0})
+    monthly_regional_data = defaultdict(lambda: defaultdict(lambda: {"count": 0, "revenue": 0}))
     
     for row in all_rows:
         shop = row.get("Shop", "")
@@ -348,6 +349,12 @@ def add_dashboard(wb, all_rows):
                 monthly_data[month_str]["count"] += 1
                 if isinstance(preis, (int, float)):
                     monthly_data[month_str]["revenue"] += preis
+                
+                # Pro Monat + Region
+                if shop:
+                    monthly_regional_data[month_str][shop]["count"] += 1
+                    if isinstance(preis, (int, float)):
+                        monthly_regional_data[month_str][shop]["revenue"] += preis
             except:
                 pass
     
@@ -363,34 +370,63 @@ def add_dashboard(wb, all_rows):
     ws['A3'] = "Gesamtumsatz"
     ws['B3'] = total_revenue
     ws['B3'].number_format = '#,##0.00 €'
-    ws['C3'] = "Gesamte Gutscheine"
-    ws['D3'] = total_vouchers
     
-    for cell in ['A3', 'C3']:
+    for cell in ['A3']:
         ws[cell].font = Font(bold=True)
         ws[cell].fill = PatternFill(fill_type="solid", fgColor="ADD8E6")
     
-    # Regional Report Header
-    ws['A6'] = "Pro Region"
+    # Pro Monat Header (mit Regions-Details)
+    ws['A6'] = "Pro Monat (mit Region)"
     ws['A6'].font = Font(bold=True, size=11)
-    ws['A7'] = "Shop"
-    ws['B7'] = "Anzahl Gutscheine"
-    ws['C7'] = "Umsatz"
+    ws['A7'] = "Monat"
+    ws['B7'] = "Region"
+    ws['C7'] = "Anzahl Gutscheine"
+    ws['D7'] = "Umsatz"
     
-    for cell in ['A7', 'B7', 'C7']:
+    for cell in ['A7', 'B7', 'C7', 'D7']:
+        ws[cell].font = Font(bold=True, color="FFFFFF")
+        ws[cell].fill = PatternFill(fill_type="solid", fgColor="1F4E78")
+        ws[cell].alignment = Alignment(horizontal="center")
+    
+    # Monatliche Daten pro Region
+    row_idx = 8
+    for month in sorted(monthly_regional_data.keys()):
+        for shop in sorted(monthly_regional_data[month].keys()):
+            data = monthly_regional_data[month][shop]
+            ws[f'A{row_idx}'] = month
+            ws[f'B{row_idx}'] = shop
+            ws[f'C{row_idx}'] = data["count"]
+            ws[f'D{row_idx}'] = round(data["revenue"], 2)
+            ws[f'D{row_idx}'].number_format = '#,##0.00'
+            row_idx += 1
+    
+    # Regional Report Header
+    ws[f'A{row_idx + 2}'] = "Pro Region (Gesamt)"
+    ws[f'A{row_idx + 2}'].font = Font(bold=True, size=11)
+    
+    header_row = row_idx + 3
+    ws[f'A{header_row}'] = "Shop"
+    ws[f'B{header_row}'] = "Anzahl Gutscheine"
+    ws[f'C{header_row}'] = "Umsatz"
+    
+    for cell in [f'A{header_row}', f'B{header_row}', f'C{header_row}']:
         ws[cell].font = Font(bold=True, color="FFFFFF")
         ws[cell].fill = PatternFill(fill_type="solid", fgColor="1F4E78")
         ws[cell].alignment = Alignment(horizontal="center")
     
     # Shop-Daten
-    row_idx = 8
+    shop_row = header_row + 1
     for shop in sorted(regional_data.keys()):
         data = regional_data[shop]
-        ws[f'A{row_idx}'] = shop
-        ws[f'B{row_idx}'] = data["count"]
-        ws[f'C{row_idx}'] = round(data["revenue"], 2)
-        ws[f'C{row_idx}'].number_format = '#,##0.00'
-        row_idx += 1
+        ws[f'A{shop_row}'] = shop
+        ws[f'B{shop_row}'] = data["count"]
+        ws[f'C{shop_row}'] = round(data["revenue"], 2)
+        ws[f'C{shop_row}'].number_format = '#,##0.00'
+        shop_row += 1
+    
+    # Chart-Hilfsspalten ganz nach unten verschieben (ab Zeile nach Shop-Daten)
+    chart_data_start = shop_row + 2
+    row_idx = shop_row
     
     # Spaltenbreiten
     ws.column_dimensions['A'].width = 25
@@ -408,20 +444,21 @@ def add_dashboard(wb, all_rows):
         chart_growth.height = 14
         chart_growth.width = 22
         
-        # Monatsdaten in Hilfsspalten (E:F) schreiben
-        ws['E7'] = "Monat"
-        ws['F7'] = "Anzahl"
-        ws['E7'].font = Font(bold=True)
-        ws['F7'].font = Font(bold=True)
+        # Monatsdaten in Hilfsspalten (K:L) schreiben (nach den Tabellen)
+        ws[f'K{chart_data_start}'] = "Monat"
+        ws[f'L{chart_data_start}'] = "Anzahl"
+        ws[f'K{chart_data_start}'].font = Font(bold=True)
+        ws[f'L{chart_data_start}'].font = Font(bold=True)
         
-        month_row = 8
+        month_row = chart_data_start + 1
         for month in sorted(monthly_data.keys()):
-            ws[f'E{month_row}'] = month
-            ws[f'F{month_row}'] = monthly_data[month]["count"]
+            data = monthly_data[month]
+            ws[f'K{month_row}'] = month
+            ws[f'L{month_row}'] = data["count"]
             month_row += 1
         
-        data_growth = Reference(ws, min_col=6, min_row=7, max_row=month_row-1)
-        cats_growth = Reference(ws, min_col=5, min_row=8, max_row=month_row-1)
+        data_growth = Reference(ws, min_col=12, min_row=chart_data_start, max_row=month_row-1)
+        cats_growth = Reference(ws, min_col=11, min_row=chart_data_start+1, max_row=month_row-1)
         chart_growth.add_data(data_growth, titles_from_data=True)
         chart_growth.set_categories(cats_growth)
         
@@ -437,21 +474,21 @@ def add_dashboard(wb, all_rows):
         chart_revenue.height = 14
         chart_revenue.width = 22
         
-        # Shop-Umsatzdaten in Hilfsspalten (G:H) schreiben
-        ws['G7'] = "Shop"
-        ws['H7'] = "Umsatz"
-        ws['G7'].font = Font(bold=True)
-        ws['H7'].font = Font(bold=True)
+        # Shop-Umsatzdaten in Hilfsspalten (M:N) schreiben
+        ws[f'M{chart_data_start}'] = "Shop"
+        ws[f'N{chart_data_start}'] = "Umsatz"
+        ws[f'M{chart_data_start}'].font = Font(bold=True)
+        ws[f'N{chart_data_start}'].font = Font(bold=True)
         
-        shop_row = 8
+        shop_row_chart = chart_data_start + 1
         for shop in sorted(regional_data.keys()):
             data = regional_data[shop]
-            ws[f'G{shop_row}'] = shop
-            ws[f'H{shop_row}'] = round(data["revenue"], 2)
-            shop_row += 1
+            ws[f'M{shop_row_chart}'] = shop
+            ws[f'N{shop_row_chart}'] = round(data["revenue"], 2)
+            shop_row_chart += 1
         
-        data_revenue = Reference(ws, min_col=8, min_row=7, max_row=shop_row-1)
-        cats_revenue = Reference(ws, min_col=7, min_row=8, max_row=shop_row-1)
+        data_revenue = Reference(ws, min_col=14, min_row=chart_data_start, max_row=shop_row_chart-1)
+        cats_revenue = Reference(ws, min_col=13, min_row=chart_data_start+1, max_row=shop_row_chart-1)
         chart_revenue.add_data(data_revenue, titles_from_data=True)
         chart_revenue.set_categories(cats_revenue)
         
@@ -610,13 +647,13 @@ def get_date_range():
     print("\n=== EXPORT-MODUS ===")
     print("1 = State verwenden (inkrementeller Export seit letztem Lauf)")
     print("2 = Start- & End-Datum eingeben (Zeitraum exportieren)")
-    choice = input_with_timeout("Wähle Modus (1 oder 2): ", timeout_seconds=15, default_value="1").strip()
+    choice = input_with_timeout("Wähle Modus (1 oder 2): ", timeout_seconds=5, default_value="1").strip()
     
     if choice == "2":
         while True:
             try:
-                start_input = input_with_timeout("Start-Datum (DD.MM.YYYY): ", timeout_seconds=15, default_value="").strip()
-                end_input = input_with_timeout("End-Datum (DD.MM.YYYY): ", timeout_seconds=15, default_value="").strip()
+                start_input = input_with_timeout("Start-Datum (DD.MM.YYYY): ", timeout_seconds=5, default_value="").strip()
+                end_input = input_with_timeout("End-Datum (DD.MM.YYYY): ", timeout_seconds=5, default_value="").strip()
                 
                 start_dt = datetime.strptime(start_input, "%d.%m.%Y")
                 end_dt = datetime.strptime(end_input, "%d.%m.%Y")
