@@ -154,17 +154,16 @@ def sanitize_sheet_title(title):
     return cleaned[:31] if cleaned else "Shop"
 
 
-def add_pdf_export(all_rows, output_file):
-    """Exportiert die Daten als PDF mit reportlab."""
+def add_pdf_export(all_rows, shop_rows, output_file):
+    """Exportiert Dashboard auf Seite 1 + pro Region eine Seite mit Tabellendaten."""
     if not HAS_REPORTLAB:
         log("Warnung: reportlab nicht installiert - PDF-Export übersprungen")
         return
     
     try:
-        # PDF-Dateinamen erstellen
         pdf_file = output_file.replace(".xlsx", ".pdf")
         
-        # Aggregiere Daten
+        # Aggregiere Dashboard-Daten
         total_revenue = sum(row.get("Preis", 0) or 0 for row in all_rows if isinstance(row.get("Preis"), (int, float)))
         total_vouchers = len(all_rows)
         
@@ -182,7 +181,7 @@ def add_pdf_export(all_rows, output_file):
         elements = []
         styles = getSampleStyleSheet()
         
-        # Title
+        # Styles definieren
         title_style = ParagraphStyle(
             'CustomTitle',
             parent=styles['Heading1'],
@@ -192,10 +191,21 @@ def add_pdf_export(all_rows, output_file):
             alignment=TA_CENTER,
             fontName='Helvetica-Bold'
         )
-        elements.append(Paragraph("EXPORT REPORT - GUTSCHEINE", title_style))
-        elements.append(Spacer(1, 0.5*cm))
         
-        # KPIs Tabelle
+        shop_title_style = ParagraphStyle(
+            'ShopTitle',
+            parent=styles['Heading2'],
+            fontSize=14,
+            textColor=colors.HexColor('0x1F4E78'),
+            spaceAfter=15,
+            fontName='Helvetica-Bold'
+        )
+        
+        # ===== SEITE 1: DASHBOARD =====
+        elements.append(Paragraph("EXPORT REPORT - DASHBOARD", title_style))
+        elements.append(Spacer(1, 0.3*cm))
+        
+        # KPIs
         kpi_data = [
             ["GESAMTUMSATZ", f"€ {total_revenue:.2f}"],
             ["GESAMTE GUTSCHEINE", str(total_vouchers)]
@@ -214,15 +224,8 @@ def add_pdf_export(all_rows, output_file):
         elements.append(kpi_table)
         elements.append(Spacer(1, 0.5*cm))
         
-        # Regional Report Tabelle
-        subtitle_style = ParagraphStyle(
-            'SubTitle',
-            parent=styles['Heading2'],
-            fontSize=14,
-            textColor=colors.HexColor('0x1F4E78'),
-            spaceAfter=10
-        )
-        elements.append(Paragraph("Pro Region:", subtitle_style))
+        # Regional Übersicht
+        elements.append(Paragraph("Pro Region:", shop_title_style))
         
         regional_table_data = [["Shop", "Anzahl Gutscheine", "Umsatz"]]
         for shop in sorted(regional_data.keys()):
@@ -233,12 +236,13 @@ def add_pdf_export(all_rows, output_file):
                 f"€ {data['revenue']:.2f}"
             ])
         
-        regional_table = Table(regional_table_data, colWidths=[8*cm, 5*cm, 5*cm])
+        regional_table = Table(regional_table_data, colWidths=[9*cm, 5*cm, 5*cm])
         regional_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('0x1F4E78')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+            ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, 0), 10),
             ('FONTSIZE', (0, 1), (-1, -1), 9),
@@ -248,9 +252,48 @@ def add_pdf_export(all_rows, output_file):
         ]))
         elements.append(regional_table)
         
+        # ===== PRO REGION: EINE SEITE MIT DATEN =====
+        for shop_name in sorted(shop_rows.keys()):
+            rows = shop_rows[shop_name]
+            if not rows:
+                continue
+            
+            elements.append(PageBreak())
+            elements.append(Paragraph(f"REGION: {shop_name}", shop_title_style))
+            elements.append(Spacer(1, 0.3*cm))
+            
+            # Datentabelle pro Shop
+            shop_table_data = [["Gutschein Code", "Produktname", "Preis", "Datum", "Privatkauf"]]
+            
+            for row in rows:
+                code = row.get("Gutschein Code", "")
+                code_str = str(code) if code else ""
+                
+                shop_table_data.append([
+                    code_str,
+                    row.get("Produktname", "")[:30],
+                    f"€ {row.get('Preis', 0) or 0:.2f}",
+                    row.get("Datum", ""),
+                    row.get("Privatkauf", "")
+                ])
+            
+            shop_table = Table(shop_table_data, colWidths=[5*cm, 6*cm, 3*cm, 3.5*cm, 3*cm])
+            shop_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('0x1F4E78')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, -1), 8),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+                ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('0xF5F5F5')])
+            ]))
+            elements.append(shop_table)
+        
         # PDF bauen
         pdf.build(elements)
-        log(f"PDF exportiert: {pdf_file}")
+        log(f"PDF mit Regionen exportiert: {pdf_file}")
     
     except Exception as e:
         log(f"Fehler beim PDF-Export: {e}")
@@ -336,7 +379,7 @@ def add_dashboard(wb, all_rows):
     ws.column_dimensions['B'].width = 20
     ws.column_dimensions['C'].width = 20
     
-    # === CHARTS AB F3 ===
+    # === CHARTS AB F2 ===
     if row_idx > 8:
         # Chart 1: Wachstum per Monat (LineChart) - ab F3, 22cm x 14cm
         chart_growth = LineChart()
@@ -364,7 +407,7 @@ def add_dashboard(wb, all_rows):
         chart_growth.add_data(data_growth, titles_from_data=True)
         chart_growth.set_categories(cats_growth)
         
-        ws.add_chart(chart_growth, "F3")
+        ws.add_chart(chart_growth, "F2")
         
         # Chart 2: Umsatz pro Shop (BarChart) - ab F23, gleiche Größe, untereinander
         chart_revenue = BarChart()
@@ -394,7 +437,7 @@ def add_dashboard(wb, all_rows):
         chart_revenue.add_data(data_revenue, titles_from_data=True)
         chart_revenue.set_categories(cats_revenue)
         
-        ws.add_chart(chart_revenue, "F23")
+        ws.add_chart(chart_revenue, "F30")
     
     ws.print_area = f'A1:C{row_idx}'
 
@@ -671,7 +714,7 @@ add_dashboard(wb, all_rows_combined)
 wb.save(output_file)
 
 # Exportiere PDF
-add_pdf_export(all_rows_combined, output_file)
+add_pdf_export(all_rows_combined, shop_rows, output_file)
 
 # Speichere State nur wenn im State-Modus
 if use_state:
