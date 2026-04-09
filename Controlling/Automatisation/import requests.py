@@ -231,7 +231,7 @@ def transform_orders(orders, shop_name, existing_keys):
 
             codes = extract_voucher_codes(item_meta, order_meta, item_id)
             
-            # Nur gültige Gutscheinnummern akzeptieren (15-stellig, keine Testkäufe)
+            # Nur 14-stellige Gutscheinnummern akzeptieren (keine Testkäufe)
             codes = [c for c in codes if len(str(c).strip()) == 15 and str(c).strip().isdigit()]
             
             # Konvertiere zu int
@@ -292,13 +292,6 @@ def load_existing():
             datum_str = str(d["Datum"])
             if " " in datum_str:
                 d["Datum"] = datum_str.split(" ")[0]  # Nur Datum ohne Uhrzeit
-        
-        # Kompatibilität: Alte Keys zu neuen Keys umwandeln
-        if "Produkt" in d and "Produktname" not in d:
-            d["Produktname"] = d.pop("Produkt")
-        if "Zweck" in d and "Privatkauf" not in d:
-            d["Privatkauf"] = d.pop("Zweck")
-        
         rows.append(d)
         order_id = d.get("Order ID")
         voucher_code = d.get("Gutschein Code")
@@ -486,28 +479,12 @@ def format_headers(ws, headers, start_row=1):
         ws.column_dimensions[cell.column_letter].width = max(len(str(header)) + 2, 15)
 
 def format_number_column(wb, column_letter, number_format):
-    """Formatiert eine Spalte in allen Sheets mit Zahlenformat (z.B. '0' für Ganzzahlen)."""
-    for ws_name in wb.sheetnames:
-        ws = wb[ws_name]
-        for cell in ws[column_letter]:
+    """Formatiert eine Spalte in allen Sheets mit ein Zahlenformat (z.B. '0' für Ganzzahlen)."""
+    for ws in wb.sheetnames:
+        worksheet = wb[ws]
+        for cell in worksheet[column_letter]:
             if cell.row > 1:  # Überspringe Header
-                if isinstance(cell.value, (int, float)):
-                    cell.number_format = number_format
-
-def _format_worksheet_columns(ws, headers):
-    """Formatiert Spalten mit automatischer Breite und Alignment."""
-    from openpyxl.utils import get_column_letter
-    
-    for col_idx, header in enumerate(headers, start=1):
-        col_letter = get_column_letter(col_idx)
-        max_length = len(str(header))
-        
-        for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=col_idx, max_col=col_idx):
-            for cell in row:
-                if cell.value:
-                    max_length = max(max_length, len(str(cell.value)))
-        
-        ws.column_dimensions[col_letter].width = min(max_length + 2, 60)
+                cell.number_format = number_format
 
 def write_excel(all_rows, monthly_rows, output_file=OUTPUT_FILE):
     """Schreibt Workbook mit Blättern: Alle Shops, pro Shop einzeln, Monatsreport und Dashboard."""
@@ -520,9 +497,6 @@ def write_excel(all_rows, monthly_rows, output_file=OUTPUT_FILE):
     for r in all_rows:
         ws_all.append([r.get(h) for h in headers])
     
-    # Formatiere Spalten
-    _format_worksheet_columns(ws_all, headers)
-    
     # Separate Blatt pro Shop
     shops_set = sorted({r["Shop"] for r in all_rows})
     for shop in shops_set:
@@ -532,7 +506,6 @@ def write_excel(all_rows, monthly_rows, output_file=OUTPUT_FILE):
         for r in all_rows:
             if r["Shop"] == shop:
                 ws.append([r.get(h) for h in headers])
-        _format_worksheet_columns(ws, headers)
     
     # Monatsreport
     ws_month = wb.create_sheet("Monatsreport")
@@ -544,6 +517,9 @@ def write_excel(all_rows, monthly_rows, output_file=OUTPUT_FILE):
     
     # Dashboard
     add_dashboard(wb, monthly_rows, all_rows)
+    
+    # Formatiere "Gutschein Code" Spalte (Spalte B) als Ganzzahl ohne Dezimalstellen
+    format_number_column(wb, "B", "0")
     
     wb.save(output_file)
 
