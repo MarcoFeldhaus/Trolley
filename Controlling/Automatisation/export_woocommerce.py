@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from collections import defaultdict
 from openpyxl import Workbook, load_workbook
 from openpyxl.chart import LineChart, BarChart, Reference
+from openpyxl.styles import PatternFill, Font
 
 from config import shops, OUTPUT_FILE, STATE_FILE
 
@@ -15,14 +16,17 @@ from config import shops, OUTPUT_FILE, STATE_FILE
 # =========================
 
 def log(msg):
+    """Gibt eine Nachricht mit Zeitstempel auf der Konsole aus."""
     print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
 
 
 def safe_str(v):
+    """Konvertiert einen Wert sicher zu String, gibt leeren String für None zurück."""
     return "" if v is None else str(v).strip()
 
 
 def to_int(v):
+    """Konvertiert einen Wert robust zu Integer, ignoriert Kommas und Fehler."""
     try:
         return int(float(str(v).replace(",", ".")))
     except:
@@ -30,6 +34,7 @@ def to_int(v):
 
 
 def format_date(date_string):
+    """Formatiert ISO-Datum in deutsches Datumsformat DD.MM.YYYY."""
     try:
         return datetime.fromisoformat(date_string.replace("Z", "+00:00")).strftime("%d.%m.%Y")
     except:
@@ -37,6 +42,7 @@ def format_date(date_string):
 
 
 def normalize_price(v):
+    """Konvertiert Preis zu Float mit 2 Dezimalstellen, ersetzt Kommas durch Punkte."""
     try:
         return round(float(str(v).replace(",", ".")), 2)
     except:
@@ -44,11 +50,13 @@ def normalize_price(v):
 
 
 def extract_price_from_name(name):
+    """Extrahiert Preis aus Produktnamen mit €-Symbol (z.B. '20€ Gutschein')."""
     match = re.search(r"(\d+(?:[.,]\d+)?)\s*€", name or "")
     return normalize_price(match.group(1)) if match else ""
 
 
 def get_meta_value(meta_data, key):
+    """Sucht einen Wert in WooCommerce Meta-Daten nach Key, gibt leeren String zurück wenn nicht gefunden."""
     for m in meta_data:
         if m.get("key") == key:
             return m.get("value")
@@ -56,7 +64,7 @@ def get_meta_value(meta_data, key):
 
 
 def normalize_voucher_codes(raw):
-    if not raw:
+    """Normalisiert Gutscheincodes aus verschiedenen Formaten (String, Liste, mehrere Separatoren)."""
         return []
     if isinstance(raw, list):
         return [str(x).strip() for x in raw if str(x).strip()]
@@ -67,6 +75,7 @@ def normalize_voucher_codes(raw):
 
 
 def map_zweck(v):
+    """Mappt Zweck-Wert: 'privatkauf' -> 'ja', 'firmenkauf' -> 'nein', sonst leerer String."""
     v = safe_str(v).lower()
     if v == "privatkauf":
         return "ja"
@@ -80,12 +89,14 @@ def map_zweck(v):
 # =========================
 
 def load_last_run():
+    """Lädt den Zeitstempel des letzten erfolgreichen Skriptlaufs aus state.json."""
     if os.path.exists(STATE_FILE):
         return json.load(open(STATE_FILE)).get("last_run")
     return None
 
 
 def save_last_run():
+    """Speichert den aktuellen UTC-Zeitstempel als letzten erfolgreichen Lauf in state.json."""
     json.dump({"last_run": datetime.now(timezone.utc).isoformat()}, open(STATE_FILE, "w"))
 
 
@@ -94,6 +105,7 @@ def save_last_run():
 # =========================
 
 def fetch_orders(shop, start_date):
+    """Ruft paginierte Bestellungen von WooCommerce API ab, startet nach start_date mit Fehlerhandling."""
     page = 1
     orders = []
 
@@ -132,6 +144,7 @@ def fetch_orders(shop, start_date):
 # =========================
 
 def extract_voucher_codes(item_meta, order_meta, item_id):
+    """Extrahiert Gutscheincodes aus Item- oder Order-Meta-Daten mit Fallback-Logik."""
     # 1. item_meta
     raw = get_meta_value(item_meta, "_woo_vou_codes")
 
@@ -153,6 +166,7 @@ def extract_voucher_codes(item_meta, order_meta, item_id):
 
 
 def transform_orders(orders, shop_name, existing_keys):
+    """Transformiert WooCommerce-Bestellungen in strukturierte Daten mit Duplikatsprüfung und Filterung."""
     rows = []
 
     for order in orders:
@@ -219,6 +233,7 @@ def transform_orders(orders, shop_name, existing_keys):
 # =========================
 
 def load_existing():
+    """Lädt bestehende Daten aus Excel-Datei und bereinigt Datumsformat, ignoriert doppelte Einträge."""
     if not os.path.exists(OUTPUT_FILE):
         return [], set()
     wb = load_workbook(OUTPUT_FILE)
@@ -247,6 +262,7 @@ def load_existing():
 # =========================
 
 def build_monthly_report(rows):
+    """Erstellt Monatsbericht mit aggregiertem Umsatz und Bestellungsanzahl pro Shop und Monat."""
     report = defaultdict(lambda: {"umsatz": 0, "bestellungen": set()})
     for r in rows:
         datum = r.get("Datum")
@@ -280,6 +296,7 @@ def build_monthly_report(rows):
 # =========================
 
 def add_dashboard(wb, monthly_rows, all_rows):
+    """Erstellt Dashboard mit KPIs, Wachstumschart und Umsatz pro Shop mit Formatierung."""
     ws = wb.create_sheet("Dashboard")
 
     # Aggregationen
@@ -304,6 +321,7 @@ def add_dashboard(wb, monthly_rows, all_rows):
     avg_order = total_revenue / total_orders if total_orders else 0
 
     ws["A1"] = "KPI"
+    format_headers(ws, ["KPI"], start_row=1)
     ws["A2"] = "Umsatz"
     ws["B2"] = total_revenue
     ws["A3"] = "Bestellungen"
@@ -315,24 +333,23 @@ def add_dashboard(wb, monthly_rows, all_rows):
 
     # Umsatz pro Monat
     ws["A6"], ws["B6"] = "Monat", "Umsatz"
+    ws["D6"], ws["E6"] = "Wachstum Monat %", ""
+    format_headers(ws, ["Monat", "Umsatz"])
+    
+    # Formatierung für Wachstum Spalte
+    light_blue_fill = PatternFill(start_color="ADD8E6", end_color="ADD8E6", fill_type="solid")
+    bold_black_font = Font(bold=True, color="000000", size=11)
+    ws["D6"].fill = light_blue_fill
+    ws["D6"].font = bold_black_font
+    ws.column_dimensions["D"].width = max(len("Wachstum Monat %") + 2, 15)
+    
     row = 7
     for m in sorted(revenue_per_month):
         ws.cell(row=row, column=1, value=m)
         ws.cell(row=row, column=2, value=revenue_per_month[m])
         row += 1
-    chart = LineChart()
-    data = Reference(ws, min_col=2, min_row=6, max_row=row-1)
-    cats = Reference(ws, min_col=1, min_row=7, max_row=row-1)
-    chart.add_data(data, titles_from_data=True)
-    chart.set_categories(cats)
-    chart.title = "Umsatz pro Monat"
-    chart.style = 10
-    chart.width = 22
-    chart.height = 14
-    ws.add_chart(chart, "O6")
 
     # Wachstum (MoM)
-    ws["D6"], ws["E6"] = "Wachstum Monat %", ""
     prev = None
     row_growth = 7
     for m in sorted(revenue_per_month):
@@ -342,6 +359,18 @@ def add_dashboard(wb, monthly_rows, all_rows):
         ws.cell(row=row_growth, column=4).number_format = '0.00%'
         row_growth += 1
         prev = current
+    
+    # Wachstum Chart
+    chart_growth = LineChart()
+    data_growth = Reference(ws, min_col=4, min_row=6, max_row=row_growth-1)
+    cats_growth = Reference(ws, min_col=1, min_row=7, max_row=row_growth-1)
+    chart_growth.add_data(data_growth, titles_from_data=True)
+    chart_growth.set_categories(cats_growth)
+    chart_growth.title = "Wachstum pro Monat"
+    chart_growth.style = 10
+    chart_growth.width = 22
+    chart_growth.height = 14
+    ws.add_chart(chart_growth, "K6")
 
     # Top 5 Produkte
     product_sales = defaultdict(float)
@@ -358,6 +387,7 @@ def add_dashboard(wb, monthly_rows, all_rows):
 
     top5 = sorted(product_sales.items(), key=lambda x: x[1], reverse=True)[:5]
     ws["A20"], ws["B20"] = "Top Produkte", "Umsatz"
+    format_headers(ws, ["Top Produkte", "Umsatz"], start_row=20)
     r_top = 21
     for name, value in top5:
         ws.cell(row=r_top, column=1, value=name)
@@ -370,6 +400,7 @@ def add_dashboard(wb, monthly_rows, all_rows):
     ws.cell(row=start_shop, column=1, value="Region/Shop")
     ws.cell(row=start_shop, column=2, value="Anzahl Gutscheine")
     ws.cell(row=start_shop, column=3, value="Umsatz")
+    format_headers(ws, ["Region/Shop", "Anzahl Gutscheine", "Umsatz"], start_row=start_shop)
     r_shop = start_shop + 1
     for s in sorted(revenue_per_shop.keys()):
         ws.cell(row=r_shop, column=1, value=s)
@@ -386,18 +417,33 @@ def add_dashboard(wb, monthly_rows, all_rows):
     chart2.style = 10
     chart2.width = 22
     chart2.height = 14
-    ws.add_chart(chart2, "K26")
+    ws.add_chart(chart2, "K31")
 
 # =========================
 # WRITE EXCEL
 # =========================
 
+def format_headers(ws, headers, start_row=1):
+    """Formatiert Spaltenüberschriften: hellblauer Hintergrund, fette schwarze Schrift (Größe 11), Auto-Breite."""
+    light_blue_fill = PatternFill(start_color="ADD8E6", end_color="ADD8E6", fill_type="solid")
+    bold_black_font = Font(bold=True, color="000000", size=11)
+    
+    for col_idx, header in enumerate(headers, start=1):
+        cell = ws.cell(row=start_row, column=col_idx)
+        cell.fill = light_blue_fill
+        cell.font = bold_black_font
+        
+        # Spaltenbreite basierend auf Headerlänge
+        ws.column_dimensions[cell.column_letter].width = max(len(str(header)) + 2, 15)
+
 def write_excel(all_rows, monthly_rows):
+    """Schreibt Workbook mit Blättern: Alle Shops, pro Shop einzeln, Monatsreport und Dashboard."""
     wb = Workbook()
     ws_all = wb.active
     ws_all.title = "Alle Shops"
     headers = ["Shop", "Gutschein Code", "Order ID", "Produktname", "Datum", "Preis", "Privatkauf", "Auftraggeber", "Menge"]
     ws_all.append(headers)
+    format_headers(ws_all, headers)
     for r in all_rows:
         ws_all.append([r.get(h) for h in headers])
     
@@ -406,6 +452,7 @@ def write_excel(all_rows, monthly_rows):
     for shop in shops_set:
         ws = wb.create_sheet(shop)
         ws.append(headers)
+        format_headers(ws, headers)
         for r in all_rows:
             if r["Shop"] == shop:
                 ws.append([r.get(h) for h in headers])
@@ -414,6 +461,7 @@ def write_excel(all_rows, monthly_rows):
     ws_month = wb.create_sheet("Monatsreport")
     headers_m = ["Shop", "Monat", "Umsatz", "Bestellungen"]
     ws_month.append(headers_m)
+    format_headers(ws_month, headers_m)
     for r in sorted(monthly_rows, key=lambda x: (x["Monat"], x["Shop"])):
         ws_month.append([r.get(h) for h in headers_m])
     
@@ -423,6 +471,7 @@ def write_excel(all_rows, monthly_rows):
     wb.save(OUTPUT_FILE)
 
 def write_pdf(all_rows, monthly_rows, output_file):
+    """Erstellt optional PDF-Report aus all_rows im Querformat mit Tabellen-Styling (ReportLab erforderlich)."""
     try:
         from reportlab.lib.pagesizes import A4, landscape
         from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
@@ -467,6 +516,7 @@ def write_pdf(all_rows, monthly_rows, output_file):
 # =========================
 
 def main():
+    """Hauptfunktion: Lädt letzte Daten, ruft Bestellungen ab, verarbeitet sie, erstellt Excel/PDF und speichert Status."""
     log("Start")
 
     start_date = load_last_run() or datetime.now().replace(day=1).isoformat()
