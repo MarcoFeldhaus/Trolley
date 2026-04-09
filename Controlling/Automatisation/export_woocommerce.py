@@ -1,625 +1,671 @@
 import requests
+from datetime import datetime
+import re
 import json
 import os
-import re
-import traceback
-from datetime import datetime, timezone
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.utils import get_column_letter
 from collections import defaultdict
-from openpyxl import Workbook, load_workbook
 from openpyxl.chart import LineChart, BarChart, Reference
-from openpyxl.styles import PatternFill, Font
+
+try:
+    from reportlab.lib.pagesizes import A4, landscape
+    from reportlab.lib import colors
+    from reportlab.lib.units import cm
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
+    HAS_REPORTLAB = True
+except ImportError:
+    HAS_REPORTLAB = False
 
 from config import shops, OUTPUT_FILE, STATE_FILE
 
-# =========================
-# HELPERS
-# =========================
+# ============================
+# HILFSFUNKTIONEN
+# ============================
 
 def log(msg):
     """Gibt eine Nachricht mit Zeitstempel auf der Konsole aus."""
     print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
 
 
-def safe_str(v):
-    """Konvertiert einen Wert sicher zu String, gibt leeren String für None zurück."""
-    return "" if v is None else str(v).strip()
-
-
-def to_int(v):
-    """Konvertiert einen Wert robust zu Integer, ignoriert Kommas und Fehler."""
-    try:
-        return int(float(str(v).replace(",", ".")))
-    except:
-        return ""
-
-
-def format_date(date_string):
-    """Formatiert ISO-Datum in deutsches Datumsformat DD.MM.YYYY."""
-    try:
-        return datetime.fromisoformat(date_string.replace("Z", "+00:00")).strftime("%d.%m.%Y")
-    except:
-        return ""
-
-
-def normalize_price(v):
-    """Konvertiert Preis zu Float mit 2 Dezimalstellen, ersetzt Kommas durch Punkte."""
-    try:
-        return round(float(str(v).replace(",", ".")), 2)
-    except:
-        return ""
-
-
-def extract_price_from_name(name):
-    """Extrahiert Preis aus Produktnamen mit €-Symbol (z.B. '20€ Gutschein')."""
-    match = re.search(r"(\d+(?:[.,]\d+)?)\s*€", name or "")
-    return normalize_price(match.group(1)) if match else ""
-
-
-def get_meta_value(meta_data, key):
-    """Sucht einen Wert in WooCommerce Meta-Daten nach Key, gibt leeren String zurück wenn nicht gefunden."""
-    for m in meta_data:
-        if m.get("key") == key:
-            return m.get("value")
-    return ""
-
-
-def normalize_voucher_codes(raw):
-    """Normalisiert Gutscheincodes aus verschiedenen Formaten (String, Liste, mehrere Separatoren)."""
-    if not raw:
-        return []
-    if isinstance(raw, list):
-        return [str(x).strip() for x in raw if str(x).strip()]
-    raw = str(raw)
-    for sep in ["\n", ",", ";", "|"]:
-        raw = raw.replace(sep, ",")
-    return [x.strip() for x in raw.split(",") if x.strip()]
-
-
-def map_zweck(v):
-    """Mappt Zweck-Wert: 'privatkauf' -> 'ja', 'firmenkauf' -> 'nein', sonst leerer String."""
-    v = safe_str(v).lower()
-    if v == "privatkauf":
+def map_zweck(value):
+    """Mappt Zweck-Wert: 'privatkauf' -> 'ja', 'firmenkauf' -> 'nein'."""
+    value = str(value).strip().lower()
+    if value == "privatkauf":
         return "ja"
-    if v == "firmenkauf":
+    elif value == "firmenkauf":
         return "nein"
     return ""
 
 
-# =========================
-# STATE
-# =========================
+def to_int(value):
+    """Konvertiert einen Wert robust zu Integer."""
+    if value in (None, ""):
+        return ""
+    try:
+        return int(float(str(value).replace(",", ".")))
+    except Exception:
+        return value
+
+
+def to_text(value):
+    """Konvertiert einen Wert zu Text."""
+    if value in (None, ""):
+        return ""
+    return str(value).strip()
+
+
+def safe_str(value):
+    """Sichere String-Konvertierung."""
+    if value is None:
+        return ""
+    return str(value).strip()
+
+
+def format_date(date_string):
+    """Formatiert ISO-Datum in deutsches Datumsformat."""
+    if not date_string:
+        return ""
+    try:
+        dt = datetime.fromisoformat(date_string.replace("Z", "+00:00"))
+        return dt.strftime("%d.%m.%Y")
+    except Exception:
+        return date_string
+
+
+def normalize_price(value):
+    """Konvertiert Preis zu Float mit 2 Dezimalstellen."""
+    if value in (None, ""):
+        return ""
+
+    try:
+        text = str(value).strip().replace(",", ".")
+        num = float(text)
+
+        if "." not in text and "," not in str(value) and num > 999:
+            num = num / 100
+
+        return round(num, 2)
+    except Exception:
+        return value
+
+
+def extract_price_from_name(name):
+    """Extrahiert Preis aus Produktnamen."""
+    if not name:
+        return ""
+
+    match = re.search(r"(\d+(?:[.,]\d+)?)\s*€", name)
+    if match:
+        return normalize_price(match.group(1))
+
+    return ""
+
+
+def get_meta_value(meta_data, key_name):
+    """Sucht einen Wert in WooCommerce Meta-Daten."""
+    for meta in meta_data:
+        if meta.get("key") == key_name:
+            return meta.get("value")
+    return ""
+
+
+def normalize_voucher_codes(raw_codes):
+    """Normalisiert Gutscheincodes aus verschiedenen Formaten."""
+    if raw_codes is None:
+        return []
+
+    if isinstance(raw_codes, list):
+        return [str(code).strip() for code in raw_codes if str(code).strip()]
+
+    raw = str(raw_codes).strip()
+    if not raw:
+        return []
+
+    separators = ["\n", ",", "|", ";"]
+    codes = [raw]
+
+    for sep in separators:
+        new_codes = []
+        for chunk in codes:
+            new_codes.extend(chunk.split(sep))
+        codes = new_codes
+
+    return [code.strip() for code in codes if code.strip()]
+
+
+def sanitize_sheet_title(title):
+    """Bereinigt Blattnamen für Excel."""
+    invalid_chars = ['[', ']', ':', '*', '?', '/', '\\']
+    cleaned = title
+    for ch in invalid_chars:
+        cleaned = cleaned.replace(ch, "_")
+    return cleaned[:31] if cleaned else "Shop"
+
+
+def add_pdf_export(all_rows, output_file):
+    """Exportiert die Daten als PDF mit reportlab."""
+    if not HAS_REPORTLAB:
+        log("Warnung: reportlab nicht installiert - PDF-Export übersprungen")
+        return
+    
+    try:
+        # PDF-Dateinamen erstellen
+        pdf_file = output_file.replace(".xlsx", ".pdf")
+        
+        # Aggregiere Daten
+        total_revenue = sum(row.get("Preis", 0) or 0 for row in all_rows if isinstance(row.get("Preis"), (int, float)))
+        total_vouchers = len(all_rows)
+        
+        regional_data = defaultdict(lambda: {"count": 0, "revenue": 0})
+        for row in all_rows:
+            shop = row.get("Shop", "")
+            preis = row.get("Preis", 0) or 0
+            if shop:
+                regional_data[shop]["count"] += 1
+                if isinstance(preis, (int, float)):
+                    regional_data[shop]["revenue"] += preis
+        
+        # PDF-Inhalt erstellen
+        pdf = SimpleDocTemplate(pdf_file, pagesize=landscape(A4), rightMargin=0.5*cm, leftMargin=0.5*cm)
+        elements = []
+        styles = getSampleStyleSheet()
+        
+        # Title
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=18,
+            textColor=colors.HexColor('0x1F4E78'),
+            spaceAfter=20,
+            alignment=TA_CENTER,
+            fontName='Helvetica-Bold'
+        )
+        elements.append(Paragraph("EXPORT REPORT - GUTSCHEINE", title_style))
+        elements.append(Spacer(1, 0.5*cm))
+        
+        # KPIs Tabelle
+        kpi_data = [
+            ["GESAMTUMSATZ", f"€ {total_revenue:.2f}"],
+            ["GESAMTE GUTSCHEINE", str(total_vouchers)]
+        ]
+        kpi_table = Table(kpi_data, colWidths=[8*cm, 6*cm])
+        kpi_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('0xADD8E6')),
+            ('BACKGROUND', (1, 0), (1, -1), colors.HexColor('0xE8F4F8')),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 11),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+        ]))
+        elements.append(kpi_table)
+        elements.append(Spacer(1, 0.5*cm))
+        
+        # Regional Report Tabelle
+        subtitle_style = ParagraphStyle(
+            'SubTitle',
+            parent=styles['Heading2'],
+            fontSize=14,
+            textColor=colors.HexColor('0x1F4E78'),
+            spaceAfter=10
+        )
+        elements.append(Paragraph("Pro Region:", subtitle_style))
+        
+        regional_table_data = [["Shop", "Anzahl Gutscheine", "Umsatz"]]
+        for shop in sorted(regional_data.keys()):
+            data = regional_data[shop]
+            regional_table_data.append([
+                shop,
+                str(data["count"]),
+                f"€ {data['revenue']:.2f}"
+            ])
+        
+        regional_table = Table(regional_table_data, colWidths=[8*cm, 5*cm, 5*cm])
+        regional_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('0x1F4E78')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('0xF0F0F0')])
+        ]))
+        elements.append(regional_table)
+        
+        # PDF bauen
+        pdf.build(elements)
+        log(f"PDF exportiert: {pdf_file}")
+    
+    except Exception as e:
+        log(f"Fehler beim PDF-Export: {e}")
+
+
+def add_dashboard(wb, all_rows):
+    """Erstellt ein Dashboard mit KPIs und 2 großen Charts."""
+    if not all_rows:
+        return
+    
+    ws = wb.create_sheet(title="Dashboard", index=0)
+    
+    # KPI Daten berechnen
+    total_revenue = sum(row.get("Preis", 0) or 0 for row in all_rows if isinstance(row.get("Preis"), (int, float)))
+    total_vouchers = len(all_rows)
+    
+    # Regional aggregieren
+    regional_data = defaultdict(lambda: {"count": 0, "revenue": 0})
+    monthly_data = defaultdict(lambda: {"count": 0, "revenue": 0})
+    
+    for row in all_rows:
+        shop = row.get("Shop", "")
+        datum = row.get("Datum", "")
+        preis = row.get("Preis", 0) or 0
+        
+        if shop:
+            regional_data[shop]["count"] += 1
+            if isinstance(preis, (int, float)):
+                regional_data[shop]["revenue"] += preis
+        
+        if datum:
+            try:
+                month_str = ".".join(datum.split(".")[-2:])
+                monthly_data[month_str]["count"] += 1
+                if isinstance(preis, (int, float)):
+                    monthly_data[month_str]["revenue"] += preis
+            except:
+                pass
+    
+    # Dashboard Header
+    ws['A1'] = "DASHBOARD"
+    ws['A1'].font = Font(bold=True, size=16, color="FFFFFF")
+    ws['A1'].fill = PatternFill(fill_type="solid", fgColor="1F4E78")
+    ws.merge_cells('A1:E1')
+    ws['A1'].alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[1].height = 30
+    
+    # KPIs
+    ws['A3'] = "Gesamtumsatz"
+    ws['B3'] = total_revenue
+    ws['B3'].number_format = '#,##0.00 €'
+    ws['C3'] = "Gesamte Gutscheine"
+    ws['D3'] = total_vouchers
+    
+    for cell in ['A3', 'C3']:
+        ws[cell].font = Font(bold=True)
+        ws[cell].fill = PatternFill(fill_type="solid", fgColor="ADD8E6")
+    
+    # Regional Report Header
+    ws['A6'] = "Pro Region"
+    ws['A6'].font = Font(bold=True, size=11)
+    ws['A7'] = "Shop"
+    ws['B7'] = "Anzahl Gutscheine"
+    ws['C7'] = "Umsatz"
+    
+    for cell in ['A7', 'B7', 'C7']:
+        ws[cell].font = Font(bold=True, color="FFFFFF")
+        ws[cell].fill = PatternFill(fill_type="solid", fgColor="1F4E78")
+        ws[cell].alignment = Alignment(horizontal="center")
+    
+    # Shop-Daten
+    row_idx = 8
+    for shop in sorted(regional_data.keys()):
+        data = regional_data[shop]
+        ws[f'A{row_idx}'] = shop
+        ws[f'B{row_idx}'] = data["count"]
+        ws[f'C{row_idx}'] = round(data["revenue"], 2)
+        ws[f'C{row_idx}'].number_format = '#,##0.00'
+        row_idx += 1
+    
+    # Spaltenbreiten
+    ws.column_dimensions['A'].width = 25
+    ws.column_dimensions['B'].width = 20
+    ws.column_dimensions['C'].width = 20
+    
+    # === CHARTS AB F3 ===
+    if row_idx > 8:
+        # Chart 1: Wachstum per Monat (LineChart) - ab F3, 22cm x 14cm
+        chart_growth = LineChart()
+        chart_growth.title = "Wachstum pro Monat"
+        chart_growth.style = 10
+        chart_growth.x_axis.title = "Monat"
+        chart_growth.y_axis.title = "Anzahl Gutscheine"
+        chart_growth.height = 14
+        chart_growth.width = 22
+        
+        # Monatsdaten in Hilfsspalten (E:F) schreiben
+        ws['E7'] = "Monat"
+        ws['F7'] = "Anzahl"
+        ws['E7'].font = Font(bold=True)
+        ws['F7'].font = Font(bold=True)
+        
+        month_row = 8
+        for month in sorted(monthly_data.keys()):
+            ws[f'E{month_row}'] = month
+            ws[f'F{month_row}'] = monthly_data[month]["count"]
+            month_row += 1
+        
+        data_growth = Reference(ws, min_col=6, min_row=7, max_row=month_row-1)
+        cats_growth = Reference(ws, min_col=5, min_row=8, max_row=month_row-1)
+        chart_growth.add_data(data_growth, titles_from_data=True)
+        chart_growth.set_categories(cats_growth)
+        
+        ws.add_chart(chart_growth, "F3")
+        
+        # Chart 2: Umsatz pro Shop (BarChart) - ab F23, gleiche Größe, untereinander
+        chart_revenue = BarChart()
+        chart_revenue.type = "col"
+        chart_revenue.title = "Umsatz pro Shop"
+        chart_revenue.style = 10
+        chart_revenue.x_axis.title = "Shop"
+        chart_revenue.y_axis.title = "Umsatz (€)"
+        chart_revenue.height = 14
+        chart_revenue.width = 22
+        
+        # Shop-Umsatzdaten in Hilfsspalten (G:H) schreiben
+        ws['G7'] = "Shop"
+        ws['H7'] = "Umsatz"
+        ws['G7'].font = Font(bold=True)
+        ws['H7'].font = Font(bold=True)
+        
+        shop_row = 8
+        for shop in sorted(regional_data.keys()):
+            data = regional_data[shop]
+            ws[f'G{shop_row}'] = shop
+            ws[f'H{shop_row}'] = round(data["revenue"], 2)
+            shop_row += 1
+        
+        data_revenue = Reference(ws, min_col=8, min_row=7, max_row=shop_row-1)
+        cats_revenue = Reference(ws, min_col=7, min_row=8, max_row=shop_row-1)
+        chart_revenue.add_data(data_revenue, titles_from_data=True)
+        chart_revenue.set_categories(cats_revenue)
+        
+        ws.add_chart(chart_revenue, "F23")
+    
+    ws.print_area = f'A1:C{row_idx}'
+
+
+def format_worksheet(ws, fieldnames, currency_columns, integer_columns, header_font, header_fill, header_alignment, data_alignment):
+    """Formatiert Worksheet mit Header, Breiten und Zahlenformaten."""
+    text_columns = {"Gutschein Code", "PayPal Order ID", "Phone"}
+
+    # Kopfzeile formatieren
+    for cell in ws[1]:
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_alignment
+
+    ws.freeze_panes = "A2"
+    ws.auto_filter.ref = ws.dimensions
+    ws.row_dimensions[1].height = 24
+
+    # Daten formatieren
+    for row in ws.iter_rows(min_row=2):
+        for cell in row:
+            column_name = fieldnames[cell.column - 1]
+            cell.alignment = data_alignment
+
+            if column_name in text_columns:
+                cell.number_format = "@"
+            elif column_name in currency_columns and isinstance(cell.value, (int, float)):
+                cell.number_format = '#,##0.00'
+            elif column_name in integer_columns and isinstance(cell.value, (int, float)):
+                cell.number_format = '0'
+
+    # Spaltenbreite automatisch
+    for col_idx, column_name in enumerate(fieldnames, start=1):
+        max_length = len(column_name)
+
+        for row_idx in range(2, ws.max_row + 1):
+            value = ws.cell(row=row_idx, column=col_idx).value
+            if value is None:
+                continue
+
+            if isinstance(value, float) and column_name in currency_columns:
+                text = f"{value:,.2f}"
+            else:
+                text = str(value)
+
+            if len(text) > max_length:
+                max_length = len(text)
+
+        ws.column_dimensions[get_column_letter(col_idx)].width = min(max_length + 2, 60)
+
+
+# ============================
+# STATE MANAGEMENT
+# ============================
 
 def load_last_run():
-    """Lädt den Zeitstempel des letzten erfolgreichen Skriptlaufs aus state.json."""
+    """Lädt den letzten Lauf aus state.json."""
     if os.path.exists(STATE_FILE):
-        return json.load(open(STATE_FILE)).get("last_run")
+        try:
+            return json.load(open(STATE_FILE)).get("last_run")
+        except:
+            return None
     return None
 
 
 def save_last_run():
-    """Speichert den aktuellen UTC-Zeitstempel als letzten erfolgreichen Lauf in state.json."""
-    json.dump({"last_run": datetime.now(timezone.utc).isoformat()}, open(STATE_FILE, "w"))
+    """Speichert den aktuellen Zeitstempel in state.json."""
+    json.dump({"last_run": datetime.now().isoformat()}, open(STATE_FILE, "w"))
 
 
 def get_date_range():
-    """Ermöglicht Auswahl zwischen State-Modus oder manuellen Start/End-Daten. Gibt (start_date, end_date, output_file) zurück."""
+    """Ermöglicht Auswahl zwischen State-Modus oder manuellen Start/End-Daten."""
     print("\n=== EXPORT-MODUS ===")
     print("1 = State verwenden (inkrementeller Export seit letztem Lauf)")
     print("2 = Start- & End-Datum eingeben (Zeitraum exportieren)")
     choice = input("Wähle Modus (1 oder 2): ").strip()
     
     if choice == "2":
-        # Manuelles Start/End-Datum
         while True:
             try:
                 start_input = input("Start-Datum (DD.MM.YYYY): ").strip()
                 end_input = input("End-Datum (DD.MM.YYYY): ").strip()
                 
-                # Konvertiere zu ISO-Format
-                start_dt = datetime.strptime(start_input, "%d.%m.%Y").replace(hour=0, minute=0, second=0)
-                end_dt = datetime.strptime(end_input, "%d.%m.%Y").replace(hour=23, minute=59, second=59)
+                start_dt = datetime.strptime(start_input, "%d.%m.%Y")
+                end_dt = datetime.strptime(end_input, "%d.%m.%Y")
                 
-                start_date = start_dt.isoformat()
-                end_date = end_dt.isoformat()
+                start_date = f"{start_dt.strftime('%Y-%m-%d')}T00:00:00"
+                end_date = f"{end_dt.strftime('%Y-%m-%d')}T23:59:59"
                 
-                # Generiere Output-Filename mit DDMMYYYY Format
-                start_str = datetime.strptime(start_input, "%d.%m.%Y").strftime("%d%m%Y")
-                end_str = datetime.strptime(end_input, "%d.%m.%Y").strftime("%d%m%Y")
+                start_str = start_dt.strftime("%d%m%Y")
+                end_str = end_dt.strftime("%d%m%Y")
                 output_file = OUTPUT_FILE.replace(".xlsx", f"_{start_str}_{end_str}.xlsx")
                 
                 log(f"Export-Zeitraum: {start_input} bis {end_input}")
                 log(f"Output-Datei: {output_file}")
-                return start_date, end_date, output_file
+                return start_date, end_date, output_file, False
             except ValueError:
                 print("Fehler: Ungültiges Datumsformat. Bitte DD.MM.YYYY verwenden.")
     else:
-        # State-Modus (Standard)
-        start_date = load_last_run() or datetime.now().replace(day=1).isoformat()
-        log(f"Export-Modus: State (seit {start_date})")
-        return start_date, None, OUTPUT_FILE
+        state_date = load_last_run()
+        if not state_date:
+            # Fallback: Letzten Monat ab 1. exportieren
+            now = datetime.now()
+            start_date = now.replace(day=1).isoformat()
+        else:
+            start_date = state_date
+        log(f"Export-Modus: State | Start: {start_date}")
+        return start_date, None, OUTPUT_FILE, True
 
 
-# =========================
-# API
-# =========================
+# ============================
+# HAUPTLOGIK
+# ============================
 
-def fetch_orders(shop, start_date):
-    """Ruft paginierte Bestellungen von WooCommerce API ab, startet nach start_date mit Fehlerhandling."""
+fieldnames = [
+    "Shop",
+    "Gutschein Code",
+    "Produktname",
+    "Preis",
+    "Auftraggeber",
+    "Privatkauf",
+    "Order ID",
+    "Datum"
+]
+
+currency_columns = {"Preis"}
+integer_columns = {"Order ID"}
+
+shop_rows = {}
+all_rows_combined = []
+
+start_date, end_date, output_file, use_state = get_date_range()
+
+for shop in shops:
+    rows = []
     page = 1
-    orders = []
 
     while True:
+        params = {
+            "per_page": 100,
+            "page": page,
+            "after": start_date
+        }
+
+        if end_date:
+            params["before"] = end_date
+
         try:
-            url = f"{shop['url']}/wp-json/wc/v3/orders"
-            log(f"API-Aufruf: {url} | after={start_date} | page={page}")
-            
-            r = requests.get(
-                url,
+            log(f"API-Aufruf: {shop['url']}/wp-json/wc/v3/orders | page={page}")
+            response = requests.get(
+                f"{shop['url']}/wp-json/wc/v3/orders",
                 auth=(shop["ck"], shop["cs"]),
-                params={"per_page": 100, "page": page, "after": start_date},
+                params=params,
                 timeout=30
             )
-            r.raise_for_status()
-            data = r.json()
+            response.raise_for_status()
+            orders = response.json()
 
-            if not data:
+            if not orders:
                 break
 
-            orders.extend(data)
+            for order in orders:
+                order_meta = order.get("meta_data", [])
+                line_items = order.get("line_items", [])
+
+                order_id = to_int(order.get("id"))
+                order_date = format_date(order.get("date_created"))
+
+                raw_zweck = (
+                    safe_str(get_meta_value(order_meta, "_billing_options")) or
+                    safe_str(get_meta_value(order_meta, "billing_options"))
+                )
+                zweck = map_zweck(raw_zweck)
+
+                for item in line_items:
+                    item_id = str(item.get("id", ""))
+                    item_name = safe_str(item.get("name"))
+                    item_quantity = to_int(item.get("quantity"))
+                    item_meta = item.get("meta_data", [])
+
+                    if "gutschein pdf" in item_name.lower():
+                        auftraggeber = "nein, Auftraggeber"
+                    else:
+                        auftraggeber = "PayPal"
+
+                    voucher_price = normalize_price(get_meta_value(item_meta, "_woo_vou_voucher_price"))
+                    if voucher_price == "":
+                        voucher_price = extract_price_from_name(item_name)
+
+                    raw_voucher_codes = get_meta_value(item_meta, "_woo_vou_codes")
+                    voucher_codes = normalize_voucher_codes(raw_voucher_codes)
+                    if not voucher_codes:
+                        voucher_codes = [""]
+
+                    for voucher_code in voucher_codes:
+                        row_data = {
+                            "Shop": shop["name"],
+                            "Gutschein Code": to_text(voucher_code),
+                            "Produktname": item_name,
+                            "Preis": voucher_price,
+                            "Auftraggeber": auftraggeber,
+                            "Privatkauf": zweck,
+                            "Order ID": order_id,
+                            "Datum": order_date
+                        }
+
+                        rows.append(row_data)
+                        all_rows_combined.append(row_data)
+
             page += 1
 
-        except requests.exceptions.HTTPError as e:
-            log(f"HTTP-Fehler {shop['name']}: {e.response.status_code} - {e.response.text}")
-            break
         except Exception as e:
-            log(f"Fehler {shop['name']}: {e}")
+            log(f"Fehler bei {shop['name']}: {e}")
             break
 
-    return orders
+    shop_rows[shop["name"]] = rows
+    log(f"{shop['name']}: {len(rows)} Zeilen")
 
+# ============================
+# EXCEL GENERIEREN
+# ============================
 
-# =========================
-# CORE LOGIC
-# =========================
+wb = Workbook()
+default_sheet = wb.active
+wb.remove(default_sheet)
 
-def extract_voucher_codes(item_meta, order_meta, item_id):
-    """Extrahiert Gutscheincodes aus Item- oder Order-Meta-Daten mit Fallback-Logik."""
-    # 1. item_meta
-    raw = get_meta_value(item_meta, "_woo_vou_codes")
+header_fill = PatternFill(fill_type="solid", fgColor="1F4E78")
+header_font = Font(bold=True, color="FFFFFF")
+header_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+data_alignment = Alignment(vertical="top", wrap_text=True)
 
-    # 2. fallback: order_meta → vou_details
-    if not raw:
-        vou_details = get_meta_value(order_meta, "_woo_vou_meta_order_details")
+# Blatt "Alle Shops"
+ws_all = wb.create_sheet(title="Alle Shops")
+ws_all.append(fieldnames)
+for row in all_rows_combined:
+    ws_all.append([row.get(col, "") for col in fieldnames])
 
-        if isinstance(vou_details, str):
-            try:
-                vou_details = json.loads(vou_details)
-            except:
-                vou_details = {}
+format_worksheet(
+    ws_all,
+    fieldnames,
+    currency_columns,
+    integer_columns,
+    header_font,
+    header_fill,
+    header_alignment,
+    data_alignment
+)
 
-        if isinstance(vou_details, dict) and item_id in vou_details:
-            raw = vou_details[item_id].get("codes")
+# Einzelne Shop-Blätter
+for shop_name, rows in shop_rows.items():
+    ws = wb.create_sheet(title=sanitize_sheet_title(shop_name))
+    ws.append(fieldnames)
 
-    codes = normalize_voucher_codes(raw)
-    return codes if codes else [""]
+    for row in rows:
+        ws.append([row.get(col, "") for col in fieldnames])
 
+    format_worksheet(
+        ws,
+        fieldnames,
+        currency_columns,
+        integer_columns,
+        header_font,
+        header_fill,
+        header_alignment,
+        data_alignment
+    )
 
-def transform_orders(orders, shop_name, existing_keys):
-    """Transformiert WooCommerce-Bestellungen in strukturierte Daten mit Duplikatsprüfung und Filterung."""
-    rows = []
+# Füge Dashboard hinzu
+add_dashboard(wb, all_rows_combined)
 
-    for order in orders:
-        order_id = to_int(order.get("id"))
-        order_date = format_date(order.get("date_created"))
-        order_meta = order.get("meta_data", [])
+wb.save(output_file)
 
-        raw_zweck = (
-            get_meta_value(order_meta, "_billing_options") or
-            get_meta_value(order_meta, "billing_options")
-        )
-        zweck = map_zweck(raw_zweck)
+# Exportiere PDF
+add_pdf_export(all_rows_combined, output_file)
 
-        for item in order.get("line_items", []):
-            item_id = str(item.get("id"))
-            name = safe_str(item.get("name"))
-            qty = to_int(item.get("quantity"))
-            item_meta = item.get("meta_data", [])
+# Speichere State nur wenn im State-Modus
+if use_state:
+    save_last_run()
 
-            price = normalize_price(get_meta_value(item_meta, "_woo_vou_voucher_price"))
-            if not price:
-                price = extract_price_from_name(name)
-
-            codes = extract_voucher_codes(item_meta, order_meta, item_id)
-            
-            # Nur gültige Gutscheinnummern akzeptieren (15-stellig, keine Testkäufe)
-            codes = [c for c in codes if len(str(c).strip()) == 15 and str(c).strip().isdigit()]
-            
-            # Konvertiere zu int
-            codes = [int(c) for c in codes]
-            
-            # Wenn kein gültiger Code, überspringen
-            if not codes:
-                continue
-
-            for code in codes:
-                key = (order_id, code)
-
-                # 🔥 Duplikat vermeiden
-                if key in existing_keys:
-                    continue
-                # Auftraggeber ermitteln
-                if "gutschein pdf" in name.lower():
-                    auftraggeber = "nein, Auftraggeber"
-                else:
-                    auftraggeber = "PayPal"
-
-                row = {
-                    "Shop": shop_name,
-                    "Gutschein Code": code,
-                    "Order ID": order_id,
-                    "Produkt": name,
-                    "Datum": order_date,
-                    "Preis": price,
-                    "Zweck": zweck,
-                    "Auftraggeber": auftraggeber,
-                    "Menge": qty
-                }
-
-                rows.append(row)
-                existing_keys.add(key)
-
-    return rows
-
-# =========================
-# LOAD EXISTING EXCEL
-# =========================
-
-def load_existing():
-    """Lädt bestehende Daten aus Excel-Datei und bereinigt Datumsformat, ignoriert doppelte Einträge."""
-    if not os.path.exists(OUTPUT_FILE):
-        return [], set()
-    wb = load_workbook(OUTPUT_FILE)
-    if "Alle Shops" not in wb.sheetnames:
-        return [], set()
-    ws = wb["Alle Shops"]
-    headers = [c.value for c in ws[1]]
-    rows = []
-    keys = set()
-    for r in ws.iter_rows(min_row=2, values_only=True):
-        d = dict(zip(headers, r))
-        # Datum korrigieren: entferne Uhrzeit falls vorhanden
-        if "Datum" in d and d["Datum"]:
-            datum_str = str(d["Datum"])
-            if " " in datum_str:
-                d["Datum"] = datum_str.split(" ")[0]  # Nur Datum ohne Uhrzeit
-        
-        # Kompatibilität: Alte Keys zu neuen Keys umwandeln
-        if "Produkt" in d and "Produktname" not in d:
-            d["Produktname"] = d.pop("Produkt")
-        if "Zweck" in d and "Privatkauf" not in d:
-            d["Privatkauf"] = d.pop("Zweck")
-        
-        rows.append(d)
-        order_id = d.get("Order ID")
-        voucher_code = d.get("Gutschein Code")
-        if order_id and voucher_code:
-            keys.add((order_id, voucher_code))
-    return rows, keys
-
-# =========================
-# BUILD MONTHLY REPORT
-# =========================
-
-def build_monthly_report(rows):
-    """Erstellt Monatsbericht mit aggregiertem Umsatz und Bestellungsanzahl pro Shop und Monat."""
-    report = defaultdict(lambda: {"umsatz": 0, "bestellungen": set()})
-    for r in rows:
-        datum = r.get("Datum")
-        if not datum:
-            continue
-        try:
-            # Format: "01.04.2026 12:34" -> "2026-04"
-            parts = str(datum).split(" ")[0].split(".")
-            month = f"{parts[2]}-{parts[1]}" if len(parts) >= 3 else ""
-            if not month:
-                continue
-            key = (r.get("Shop"), month)
-            preis = float(r.get("Preis") or 0)
-            report[key]["umsatz"] += preis
-            report[key]["bestellungen"].add(r.get("Order ID"))
-        except (ValueError, TypeError):
-            continue
-    
-    final = []
-    for (shop, month), data in report.items():
-        final.append({
-            "Shop": shop,
-            "Monat": month,
-            "Umsatz": round(data["umsatz"], 2),
-            "Bestellungen": len(data["bestellungen"])
-        })
-    return final
-
-# =========================
-# DASHBOARD + KPI
-# =========================
-
-def add_dashboard(wb, monthly_rows, all_rows):
-    """Erstellt Dashboard mit KPIs, Wachstumschart und Umsatz pro Shop mit Formatierung."""
-    ws = wb.create_sheet("Dashboard")
-
-    # Aggregationen
-    revenue_per_month = defaultdict(float)
-    revenue_per_shop = defaultdict(float)
-    vouchers_per_shop = defaultdict(int)
-    orders_per_month = defaultdict(int)
-    for r in monthly_rows:
-        revenue_per_month[r["Monat"]] += r["Umsatz"]
-        orders_per_month[r["Monat"]] += r["Bestellungen"]
-        revenue_per_shop[r["Shop"]] += r["Umsatz"]
-    
-    # Gutscheine pro Shop zählen
-    for r in all_rows:
-        shop = r.get("Shop")
-        if shop:
-            vouchers_per_shop[shop] += 1
-
-    # KPI
-    total_revenue = sum(revenue_per_month.values())
-    total_orders = sum(orders_per_month.values())
-    avg_order = total_revenue / total_orders if total_orders else 0
-
-    ws["A1"] = "KPI"
-    format_headers(ws, ["KPI"], start_row=1)
-    ws["A2"] = "Umsatz"
-    ws["B2"] = total_revenue
-    ws["A3"] = "Bestellungen"
-    ws["B3"] = total_orders
-    ws["A4"] = "Ø Bestellwert"
-    ws["B4"] = round(avg_order, 2)
-    ws["B2"].number_format = '#,##0.00'
-    ws["B4"].number_format = '#,##0.00'
-
-    # Umsatz pro Monat
-    ws["A6"], ws["B6"] = "Monat", "Umsatz"
-    ws["D6"], ws["E6"] = "Wachstum Monat %", ""
-    format_headers(ws, ["Monat", "Umsatz"])
-    
-    # Formatierung für Wachstum Spalte
-    light_blue_fill = PatternFill(start_color="ADD8E6", end_color="ADD8E6", fill_type="solid")
-    bold_black_font = Font(bold=True, color="000000", size=11)
-    ws["D6"].fill = light_blue_fill
-    ws["D6"].font = bold_black_font
-    ws.column_dimensions["D"].width = max(len("Wachstum Monat %") + 2, 15)
-    
-    row = 7
-    for m in sorted(revenue_per_month):
-        ws.cell(row=row, column=1, value=m)
-        ws.cell(row=row, column=2, value=revenue_per_month[m])
-        row += 1
-
-    # Wachstum (MoM)
-    prev = None
-    row_growth = 7
-    for m in sorted(revenue_per_month):
-        current = revenue_per_month[m]
-        growth = ((current - prev) / prev * 100) if prev else 0
-        ws.cell(row=row_growth, column=4, value=growth)
-        ws.cell(row=row_growth, column=4).number_format = '0.00%'
-        row_growth += 1
-        prev = current
-    
-    # Wachstum Chart
-    chart_growth = LineChart()
-    data_growth = Reference(ws, min_col=4, min_row=6, max_row=row_growth-1)
-    cats_growth = Reference(ws, min_col=1, min_row=7, max_row=row_growth-1)
-    chart_growth.add_data(data_growth, titles_from_data=True)
-    chart_growth.set_categories(cats_growth)
-    chart_growth.title = "Wachstum pro Monat"
-    chart_growth.style = 10
-    chart_growth.width = 22
-    chart_growth.height = 14
-    ws.add_chart(chart_growth, "K6")
-
-    # Top 5 Produkte
-    product_sales = defaultdict(float)
-    
-    for r in all_rows:
-        produkt = r.get("Produkt") or "Unbekannt"
-        try:
-            preis = float(r.get("Preis") or 0)
-            menge = float(r.get("Menge") or 0)
-            product_sales[produkt] += preis * menge
-        except (ValueError, TypeError):
-            continue
-    
-
-    top5 = sorted(product_sales.items(), key=lambda x: x[1], reverse=True)[:5]
-    ws["A20"], ws["B20"] = "Top Produkte", "Umsatz"
-    format_headers(ws, ["Top Produkte", "Umsatz"], start_row=20)
-    r_top = 21
-    for name, value in top5:
-        ws.cell(row=r_top, column=1, value=name)
-        ws.cell(row=r_top, column=2, value=round(value, 2))
-        ws.cell(row=r_top, column=2).number_format = '#,##0.00'
-        r_top += 1
-
-    # Umsatz pro Shop
-    start_shop = r_top + 1
-    ws.cell(row=start_shop, column=1, value="Region/Shop")
-    ws.cell(row=start_shop, column=2, value="Anzahl Gutscheine")
-    ws.cell(row=start_shop, column=3, value="Umsatz")
-    format_headers(ws, ["Region/Shop", "Anzahl Gutscheine", "Umsatz"], start_row=start_shop)
-    r_shop = start_shop + 1
-    for s in sorted(revenue_per_shop.keys()):
-        ws.cell(row=r_shop, column=1, value=s)
-        ws.cell(row=r_shop, column=2, value=vouchers_per_shop[s])
-        ws.cell(row=r_shop, column=3, value=revenue_per_shop[s])
-        ws.cell(row=r_shop, column=3).number_format = '#,##0.00'
-        r_shop += 1
-    chart2 = BarChart()
-    data2 = Reference(ws, min_col=3, min_row=start_shop, max_row=r_shop-1)
-    cats2 = Reference(ws, min_col=1, min_row=start_shop+1, max_row=r_shop-1)
-    chart2.add_data(data2, titles_from_data=True)
-    chart2.set_categories(cats2)
-    chart2.title = "Umsatz pro Shop"
-    chart2.style = 10
-    chart2.width = 22
-    chart2.height = 14
-    ws.add_chart(chart2, "K31")
-
-# =========================
-# WRITE EXCEL
-# =========================
-
-def format_headers(ws, headers, start_row=1):
-    """Formatiert Spaltenüberschriften: hellblauer Hintergrund, fette schwarze Schrift (Größe 11), Auto-Breite."""
-    light_blue_fill = PatternFill(start_color="ADD8E6", end_color="ADD8E6", fill_type="solid")
-    bold_black_font = Font(bold=True, color="000000", size=11)
-    
-    for col_idx, header in enumerate(headers, start=1):
-        cell = ws.cell(row=start_row, column=col_idx)
-        cell.fill = light_blue_fill
-        cell.font = bold_black_font
-        
-        # Spaltenbreite basierend auf Headerlänge
-        ws.column_dimensions[cell.column_letter].width = max(len(str(header)) + 2, 15)
-
-def format_number_column(wb, column_letter, number_format):
-    """Formatiert eine Spalte in allen Sheets mit Zahlenformat (z.B. '0' für Ganzzahlen)."""
-    for ws_name in wb.sheetnames:
-        ws = wb[ws_name]
-        for cell in ws[column_letter]:
-            if cell.row > 1:  # Überspringe Header
-                if isinstance(cell.value, (int, float)):
-                    cell.number_format = number_format
-
-def _format_worksheet_columns(ws, headers):
-    """Formatiert Spalten mit automatischer Breite und Alignment."""
-    from openpyxl.utils import get_column_letter
-    
-    for col_idx, header in enumerate(headers, start=1):
-        col_letter = get_column_letter(col_idx)
-        max_length = len(str(header))
-        
-        for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=col_idx, max_col=col_idx):
-            for cell in row:
-                if cell.value:
-                    max_length = max(max_length, len(str(cell.value)))
-        
-        ws.column_dimensions[col_letter].width = min(max_length + 2, 60)
-
-def write_excel(all_rows, monthly_rows, output_file=OUTPUT_FILE):
-    """Schreibt Workbook mit Blättern: Alle Shops, pro Shop einzeln, Monatsreport und Dashboard."""
-    wb = Workbook()
-    ws_all = wb.active
-    ws_all.title = "Alle Shops"
-    headers = ["Shop", "Gutschein Code", "Order ID", "Produktname", "Datum", "Preis", "Privatkauf", "Auftraggeber", "Menge"]
-    ws_all.append(headers)
-    format_headers(ws_all, headers)
-    for r in all_rows:
-        ws_all.append([r.get(h) for h in headers])
-    
-    # Formatiere Spalten
-    _format_worksheet_columns(ws_all, headers)
-    
-    # Separate Blatt pro Shop
-    shops_set = sorted({r["Shop"] for r in all_rows})
-    for shop in shops_set:
-        ws = wb.create_sheet(shop)
-        ws.append(headers)
-        format_headers(ws, headers)
-        for r in all_rows:
-            if r["Shop"] == shop:
-                ws.append([r.get(h) for h in headers])
-        _format_worksheet_columns(ws, headers)
-    
-    # Monatsreport
-    ws_month = wb.create_sheet("Monatsreport")
-    headers_m = ["Shop", "Monat", "Umsatz", "Bestellungen"]
-    ws_month.append(headers_m)
-    format_headers(ws_month, headers_m)
-    for r in sorted(monthly_rows, key=lambda x: (x["Monat"], x["Shop"])):
-        ws_month.append([r.get(h) for h in headers_m])
-    
-    # Dashboard
-    add_dashboard(wb, monthly_rows, all_rows)
-    
-    wb.save(output_file)
-
-def write_pdf(all_rows, monthly_rows, output_file):
-    """Erstellt optional PDF-Report aus all_rows im Querformat mit Tabellen-Styling (ReportLab erforderlich)."""
-    try:
-        from reportlab.lib.pagesizes import A4, landscape
-        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
-        from reportlab.lib import colors
-        from reportlab.lib.units import cm
-        
-        pdf_output = output_file.replace(".xlsx", ".pdf")
-        doc = SimpleDocTemplate(pdf_output, pagesize=landscape(A4), topMargin=0.5*cm, bottomMargin=0.5*cm)
-        
-        # Daten vorbereiten
-        headers = ["Shop", "Gutschein Code", "Order ID", "Produktname", "Datum", "Preis", "Privatkauf", "Auftraggeber", "Menge"]
-        data = [headers]
-        
-        for row in all_rows:
-            data.append([str(row.get(h, "")) for h in headers])
-        
-        # Tabelle mit Formatting
-        table = Table(data, colWidths=[1.6*cm]*len(headers))
-        table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1F4E78')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F0F0F0')])
-        ]))
-        elements = [table]
-        doc.build(elements) 
-        log(f"PDF erfolgreich erstellt: {pdf_output}")
-    except ImportError as e:
-        log(f"ReportLab nicht installiert: {e}")
-    except Exception as e:
-        log(f"Fehler beim PDF erstellen: {type(e).__name__}: {e}")
-        traceback.print_exc()    
-
-
-
-# =========================
-# MAIN
-# =========================
-
-def main():
-    """Hauptfunktion: Lädt letzte Daten, ruft Bestellungen ab, verarbeitet sie, erstellt Excel/PDF und speichert Status."""
-    log("Start")
-
-    start_date, end_date, output_file = get_date_range()
-    existing_rows, existing_keys = load_existing()
-    all_rows = existing_rows[:]
-    
-    for shop in shops:
-        log(f"Lade {shop['name']}")
-
-        orders = fetch_orders(shop, start_date)
-        rows = transform_orders(orders, shop["name"], existing_keys)
-
-        log(f"{shop['name']}: {len(rows)} neue Zeilen")
-        all_rows.extend(rows)
-
-    monthly_rows = build_monthly_report(all_rows)
-    write_excel(all_rows, monthly_rows, output_file)
-    write_pdf(all_rows, monthly_rows, output_file)
-    
-    # Speichere State nur wenn im State-Modus
-    if end_date is None:
-        save_last_run()
-
-    log(f"Fertig: {len(all_rows)} Zeilen")
-    log(f"Export: {output_file}")
-
-
-if __name__ == "__main__":
-    main()
+total_rows = sum(len(rows) for rows in shop_rows.values())
+log(f"Excel erstellt: {output_file}")
+log(f"Shops: {len(shop_rows)} | Zeilen gesamt: {total_rows}")
