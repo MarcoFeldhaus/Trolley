@@ -3,6 +3,7 @@ from datetime import datetime
 import re
 import json
 import os
+import threading
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
@@ -29,6 +30,23 @@ from config import shops, OUTPUT_FILE, STATE_FILE
 def log(msg):
     """Gibt eine Nachricht mit Zeitstempel auf der Konsole aus."""
     print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
+
+
+def input_with_timeout(prompt, timeout_seconds=15, default_value="1"):
+    """Wartet auf Eingabe mit Timeout. Nach Ablauf wird der Standard-Wert verwendet."""
+    result = [None]
+    
+    def input_thread():
+        result[0] = input(prompt)
+    
+    thread = threading.Thread(target=input_thread, daemon=True)
+    thread.start()
+    thread.join(timeout=timeout_seconds)
+    
+    if result[0] is None:
+        print(f"\n(Keine Eingabe nach {timeout_seconds} Sekunden - verwende Standard: {default_value})")
+        return default_value
+    return result[0]
 
 
 def map_zweck(value):
@@ -511,18 +529,94 @@ def save_last_run():
     json.dump({"last_run": datetime.now().isoformat()}, open(STATE_FILE, "w"))
 
 
+def load_existing_data(output_file):
+    """Lädt existierende Daten aus der Excel-Datei (falls vorhanden)."""
+    if not os.path.exists(output_file):
+        return [], {}
+    
+    try:
+        from openpyxl import load_workbook
+        wb = load_workbook(output_file)
+        
+        # Laden aus "Alle Shops" Blatt
+        existing_rows = []
+        if "Alle Shops" in wb.sheetnames:
+            ws = wb["Alle Shops"]
+            for row_idx, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+                if row[0] is None:  # Skip empty rows
+                    continue
+                row_data = {
+                    "Shop": row[0],
+                    "Gutschein Code": row[1],
+                    "Produktname": row[2],
+                    "Preis": row[3],
+                    "Auftraggeber": row[4],
+                    "Privatkauf": row[5],
+                    "Order ID": row[6],
+                    "Datum": row[7]
+                }
+                existing_rows.append(row_data)
+        
+        # Laden aus einzelnen Shop-Blättern für shop_rows
+        existing_shop_rows = {}
+        for sheet_name in wb.sheetnames:
+            if sheet_name not in ["Alle Shops", "Dashboard"]:
+                ws = wb[sheet_name]
+                shop_data = []
+                for row in ws.iter_rows(min_row=2, values_only=True):
+                    if row[0] is None:  # Skip empty rows
+                        continue
+                    row_data = {
+                        "Shop": row[0],
+                        "Gutschein Code": row[1],
+                        "Produktname": row[2],
+                        "Preis": row[3],
+                        "Auftraggeber": row[4],
+                        "Privatkauf": row[5],
+                        "Order ID": row[6],
+                        "Datum": row[7]
+                    }
+                    shop_data.append(row_data)
+                existing_shop_rows[sheet_name] = shop_data
+        
+        log(f"Existierende Daten geladen: {len(existing_rows)} Zeilen")
+        return existing_rows, existing_shop_rows
+    
+    except Exception as e:
+        log(f"Fehler beim Laden existierender Daten: {e}")
+        return [], {}
+
+
+def merge_rows(existing_rows, new_rows):
+    """Mergt alte und neue Rows. Duplikate (by Gutschein Code) werden vermieden."""
+    # Dictionary mit existierenden Codes
+    existing_codes = {row["Gutschein Code"]: row for row in existing_rows if row["Gutschein Code"]}
+    
+    # Kombinierte Liste starten mit existierenden Daten
+    combined = list(existing_rows)
+    
+    # Neue Daten hinzufügen, falls Gutschein-Code nicht bereits existiert
+    for row in new_rows:
+        if row["Gutschein Code"] not in existing_codes:
+            combined.append(row)
+            existing_codes[row["Gutschein Code"]] = row
+    
+    log(f"Daten gemergt: {len(existing_rows)} existierend + {len(new_rows)} neu = {len(combined)} total (Duplikate vermieden)")
+    return combined
+
+
 def get_date_range():
     """Ermöglicht Auswahl zwischen State-Modus oder manuellen Start/End-Daten."""
     print("\n=== EXPORT-MODUS ===")
     print("1 = State verwenden (inkrementeller Export seit letztem Lauf)")
     print("2 = Start- & End-Datum eingeben (Zeitraum exportieren)")
-    choice = input("Wähle Modus (1 oder 2): ").strip()
+    choice = input_with_timeout("Wähle Modus (1 oder 2): ", timeout_seconds=15, default_value="1").strip()
     
     if choice == "2":
         while True:
             try:
-                start_input = input("Start-Datum (DD.MM.YYYY): ").strip()
-                end_input = input("End-Datum (DD.MM.YYYY): ").strip()
+                start_input = input_with_timeout("Start-Datum (DD.MM.YYYY): ", timeout_seconds=15, default_value="").strip()
+                end_input = input_with_timeout("End-Datum (DD.MM.YYYY): ", timeout_seconds=15, default_value="").strip()
                 
                 start_dt = datetime.strptime(start_input, "%d.%m.%Y")
                 end_dt = datetime.strptime(end_input, "%d.%m.%Y")
@@ -569,13 +663,16 @@ fieldnames = [
 currency_columns = {"Preis"}
 integer_columns = {"Order ID", "Gutschein Code"}
 
-shop_rows = {}
-all_rows_combined = []
-
+# Lade existierende Daten (kumulativ sammeln)
 start_date, end_date, output_file, use_state = get_date_range()
+existing_all_rows, existing_shop_rows = load_existing_data(output_file)
+
+shop_rows = dict(existing_shop_rows)  # Starte mit existierenden Shop-Daten
+all_rows_combined = list(existing_all_rows)  # Starte mit existierenden Daten
+new_rows_combined = []  # Sammle nur die neuen Daten für Merging
 
 for shop in shops:
-    rows = []
+    new_rows = []  # Nur neue Daten aus dieser API-Iteration
     page = 1
 
     while True:
@@ -647,8 +744,8 @@ for shop in shops:
                             "Datum": order_date
                         }
 
-                        rows.append(row_data)
-                        all_rows_combined.append(row_data)
+                        new_rows.append(row_data)
+                        new_rows_combined.append(row_data)
 
             page += 1
 
@@ -656,8 +753,16 @@ for shop in shops:
             log(f"Fehler bei {shop['name']}: {e}")
             break
 
-    shop_rows[shop["name"]] = rows
-    log(f"{shop['name']}: {len(rows)} Zeilen")
+    # Merge neue Daten mit existierenden pro Shop
+    if shop["name"] in shop_rows:
+        shop_rows[shop["name"]] = merge_rows(shop_rows[shop["name"]], new_rows)
+    else:
+        shop_rows[shop["name"]] = new_rows
+    
+    log(f"{shop['name']}: {len(new_rows)} neue Zeilen (gesamt: {len(shop_rows[shop['name']])})")
+
+# Merge neue Daten mit existierenden für "Alle Shops"
+all_rows_combined = merge_rows(existing_all_rows, new_rows_combined)
 
 # ============================
 # EXCEL GENERIEREN
