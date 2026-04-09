@@ -32,7 +32,7 @@ def log(msg):
     print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
 
 
-def input_with_timeout(prompt, timeout_seconds=15, default_value="1"):
+def input_with_timeout(prompt, timeout_seconds=5, default_value="1"):
     """Wartet auf Eingabe mit Timeout. Nach Ablauf wird der Standard-Wert verwendet."""
     result = [None]
     
