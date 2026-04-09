@@ -435,7 +435,7 @@ def add_dashboard(wb, all_rows):
     
     # === CHARTS AB F2 ===
     if row_idx > 8:
-        # Chart 1: Wachstum per Monat (LineChart) - ab F3, 22cm x 14cm
+        # Chart 1: Wachstum per Monat (LineChart) - ab F2, 22cm x 14cm
         chart_growth = LineChart()
         chart_growth.title = "Wachstum pro Monat"
         chart_growth.style = 10
@@ -492,7 +492,7 @@ def add_dashboard(wb, all_rows):
         chart_revenue.add_data(data_revenue, titles_from_data=True)
         chart_revenue.set_categories(cats_revenue)
         
-        ws.add_chart(chart_revenue, "F30")
+        ws.add_chart(chart_revenue, "F40")
     
     ws.print_area = f'A1:C{row_idx}'
 
@@ -652,8 +652,8 @@ def get_date_range():
     if choice == "2":
         while True:
             try:
-                start_input = input_with_timeout("Start-Datum (DD.MM.YYYY): ", timeout_seconds=5, default_value="").strip()
-                end_input = input_with_timeout("End-Datum (DD.MM.YYYY): ", timeout_seconds=5, default_value="").strip()
+                start_input = input_with_timeout("Start-Datum (DD.MM.YYYY): ", timeout_seconds=15, default_value="").strip()
+                end_input = input_with_timeout("End-Datum (DD.MM.YYYY): ", timeout_seconds=15, default_value="").strip()
                 
                 start_dt = datetime.strptime(start_input, "%d.%m.%Y")
                 end_dt = datetime.strptime(end_input, "%d.%m.%Y")

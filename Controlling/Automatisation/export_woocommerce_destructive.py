@@ -539,8 +539,8 @@ def get_date_range():
     if choice == "2":
         while True:
             try:
-                start_input = input_with_timeout("Start-Datum (DD.MM.YYYY): ", timeout_seconds=5, default_value="").strip()
-                end_input = input_with_timeout("End-Datum (DD.MM.YYYY): ", timeout_seconds=5, default_value="").strip()
+                start_input = input_with_timeout("Start-Datum (DD.MM.YYYY): ", timeout_seconds=15, default_value="").strip()
+                end_input = input_with_timeout("End-Datum (DD.MM.YYYY): ", timeout_seconds=15, default_value="").strip()
                 
                 start_dt = datetime.strptime(start_input, "%d.%m.%Y")
                 end_dt = datetime.strptime(end_input, "%d.%m.%Y")
