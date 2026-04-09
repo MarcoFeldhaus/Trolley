@@ -34,7 +34,7 @@ def log(msg):
 def map_zweck(value):
     """Mappt Zweck-Wert: 'privatkauf' -> 'ja', 'firmenkauf' -> 'nein'."""
     value = str(value).strip().lower()
-    if value == "privatkauf":
+    if value in ["privatkauf", "t", ""]:
         return "ja"
     elif value == "firmenkauf":
         return "nein"
@@ -633,7 +633,7 @@ for shop in shops:
                     raw_voucher_codes = get_meta_value(item_meta, "_woo_vou_codes")
                     voucher_codes = normalize_voucher_codes(raw_voucher_codes)
                     if not voucher_codes:
-                        voucher_codes = [None]
+                        continue  # Überspringe dieses Item wenn kein gültiger 15-stelliger Gutscheincode vorhanden
 
                     for voucher_code in voucher_codes:
                         row_data = {
