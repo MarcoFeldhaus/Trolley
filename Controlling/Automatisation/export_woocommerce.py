@@ -2,7 +2,8 @@ import requests
 import json
 import os
 import re
-from datetime import datetime
+import traceback
+from datetime import datetime, timezone
 from collections import defaultdict
 from openpyxl import Workbook, load_workbook
 from openpyxl.chart import LineChart, BarChart, Reference
@@ -30,7 +31,7 @@ def to_int(v):
 
 def format_date(date_string):
     try:
-        return datetime.fromisoformat(date_string.replace("Z", "+00:00")).strftime("%d.%m.%Y %H:%M")
+        return datetime.fromisoformat(date_string.replace("Z", "+00:00")).strftime("%d.%m.%Y")
     except:
         return ""
 
@@ -85,7 +86,7 @@ def load_last_run():
 
 
 def save_last_run():
-    json.dump({"last_run": datetime.utcnow().isoformat()}, open(STATE_FILE, "w"))
+    json.dump({"last_run": datetime.now(timezone.utc).isoformat()}, open(STATE_FILE, "w"))
 
 
 # =========================
@@ -176,6 +177,13 @@ def transform_orders(orders, shop_name, existing_keys):
                 price = extract_price_from_name(name)
 
             codes = extract_voucher_codes(item_meta, order_meta, item_id)
+            
+            # Nur 14-stellige Gutscheinnummern akzeptieren (keine Testkäufe)
+            codes = [c for c in codes if len(str(c).strip()) == 15 and str(c).strip().isdigit()]
+            
+            # Wenn kein gültiger Code, überspringen
+            if not codes:
+                continue
 
             for code in codes:
                 key = (order_id, code)
@@ -222,6 +230,11 @@ def load_existing():
     keys = set()
     for r in ws.iter_rows(min_row=2, values_only=True):
         d = dict(zip(headers, r))
+        # Datum korrigieren: entferne Uhrzeit falls vorhanden
+        if "Datum" in d and d["Datum"]:
+            datum_str = str(d["Datum"])
+            if " " in datum_str:
+                d["Datum"] = datum_str.split(" ")[0]  # Nur Datum ohne Uhrzeit
         rows.append(d)
         order_id = d.get("Order ID")
         voucher_code = d.get("Gutschein Code")
@@ -240,7 +253,11 @@ def build_monthly_report(rows):
         if not datum:
             continue
         try:
-            month = str(datum)[:7]
+            # Format: "01.04.2026 12:34" -> "2026-04"
+            parts = str(datum).split(" ")[0].split(".")
+            month = f"{parts[2]}-{parts[1]}" if len(parts) >= 3 else ""
+            if not month:
+                continue
             key = (r.get("Shop"), month)
             preis = float(r.get("Preis") or 0)
             report[key]["umsatz"] += preis
@@ -268,11 +285,18 @@ def add_dashboard(wb, monthly_rows, all_rows):
     # Aggregationen
     revenue_per_month = defaultdict(float)
     revenue_per_shop = defaultdict(float)
+    vouchers_per_shop = defaultdict(int)
     orders_per_month = defaultdict(int)
     for r in monthly_rows:
         revenue_per_month[r["Monat"]] += r["Umsatz"]
         orders_per_month[r["Monat"]] += r["Bestellungen"]
         revenue_per_shop[r["Shop"]] += r["Umsatz"]
+    
+    # Gutscheine pro Shop zählen
+    for r in all_rows:
+        shop = r.get("Shop")
+        if shop:
+            vouchers_per_shop[shop] += 1
 
     # KPI
     total_revenue = sum(revenue_per_month.values())
@@ -303,7 +327,9 @@ def add_dashboard(wb, monthly_rows, all_rows):
     chart.set_categories(cats)
     chart.title = "Umsatz pro Monat"
     chart.style = 10
-    ws.add_chart(chart, "D6")
+    chart.width = 22
+    chart.height = 14
+    ws.add_chart(chart, "O6")
 
     # Wachstum (MoM)
     ws["D6"], ws["E6"] = "Wachstum Monat %", ""
@@ -341,22 +367,26 @@ def add_dashboard(wb, monthly_rows, all_rows):
 
     # Umsatz pro Shop
     start_shop = r_top + 1
-    ws.cell(row=start_shop, column=1, value="Shop")
-    ws.cell(row=start_shop, column=2, value="Umsatz")
+    ws.cell(row=start_shop, column=1, value="Region/Shop")
+    ws.cell(row=start_shop, column=2, value="Anzahl Gutscheine")
+    ws.cell(row=start_shop, column=3, value="Umsatz")
     r_shop = start_shop + 1
-    for s, v in revenue_per_shop.items():
+    for s in sorted(revenue_per_shop.keys()):
         ws.cell(row=r_shop, column=1, value=s)
-        ws.cell(row=r_shop, column=2, value=v)
-        ws.cell(row=r_shop, column=2).number_format = '#,##0.00'
+        ws.cell(row=r_shop, column=2, value=vouchers_per_shop[s])
+        ws.cell(row=r_shop, column=3, value=revenue_per_shop[s])
+        ws.cell(row=r_shop, column=3).number_format = '#,##0.00'
         r_shop += 1
     chart2 = BarChart()
-    data2 = Reference(ws, min_col=2, min_row=start_shop, max_row=r_shop-1)
+    data2 = Reference(ws, min_col=3, min_row=start_shop, max_row=r_shop-1)
     cats2 = Reference(ws, min_col=1, min_row=start_shop+1, max_row=r_shop-1)
     chart2.add_data(data2, titles_from_data=True)
     chart2.set_categories(cats2)
     chart2.title = "Umsatz pro Shop"
     chart2.style = 10
-    ws.add_chart(chart2, "D20")
+    chart2.width = 22
+    chart2.height = 14
+    ws.add_chart(chart2, "K26")
 
 # =========================
 # WRITE EXCEL
@@ -424,8 +454,11 @@ def write_pdf(all_rows, monthly_rows, output_file):
         elements = [table]
         doc.build(elements) 
         log(f"PDF erfolgreich erstellt: {pdf_output}")
-    except ImportError:
-        log("ReportLab nicht installiert. PDF wird nicht erstellt.")    
+    except ImportError as e:
+        log(f"ReportLab nicht installiert: {e}")
+    except Exception as e:
+        log(f"Fehler beim PDF erstellen: {type(e).__name__}: {e}")
+        traceback.print_exc()    
 
 
 

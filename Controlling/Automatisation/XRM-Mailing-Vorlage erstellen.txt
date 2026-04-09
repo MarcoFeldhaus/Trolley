@@ -1,0 +1,96 @@
+Ziel
+
+Nicht die xRM-E-Mail-Vorlage, sondern eine Dokumentvorlage vom Typ Mailing mit der Kategorie:
+
+Ticket E-Mail-Vorlage
+
+Denn genau diese Vorlagen nutzt Helpdesk für Antworten an Melder oder Hersteller aus dem Ticket heraus. Das ist im Helpdesk-Leitfaden ausdrücklich so beschrieben.
+
+So legst du sie an
+1. Neue Dokumentvorlage anlegen
+
+Im Desktop-Client:
+
+Datei oder Neu
+Dokument
+als Standardvorlage: Mailing
+
+CAS beschreibt die Standardvorlage Mailing als die Vorlage für personalisierte E-Mails mit Editor, Seriendruckfeldern und Anhängen.
+
+2. Grunddaten eintragen
+
+Im neuen Dokument:
+
+Stichwort: z. B. Ticketsupport Antwort
+Betreff: z. B. Ihre Anfrage bei Trolleymaker
+Mailtext eintragen
+3. Kategorie richtig setzen
+
+Jetzt der entscheidende Schritt:
+
+Register Erweitert
+dort die Kategorie auf
+Ticket E-Mail-Vorlage setzen
+
+Der Helpdesk-Leitfaden sagt ausdrücklich:
+
+E-Mails aus Tickets werden über Vorlagen der Kategorie Ticket E-Mail-Vorlage gesendet
+diese Vorlagen legst du als Dokumente aus der Vorlage Mailing an und ordnest sie der passenden Kategorie zu.
+4. Vorlage speichern
+Speichern & Schließen
+Was du in die Vorlage schreiben kannst
+
+Zum Start ganz einfach:
+
+Betreff
+
+Ihre Anfrage bei Trolleymaker
+
+Text
+
+Guten Tag,
+
+vielen Dank für Ihre Nachricht an den Trolleymaker-Support.
+
+Ihre Anfrage ist bei uns eingegangen und wird aktuell bearbeitet.
+Sobald wir Rückfragen oder eine Lösung für Sie haben, melden wir uns wieder.
+
+Bitte antworten Sie bei weiteren Informationen direkt auf diese E-Mail.
+
+Freundliche Grüße
+Support Trolleymaker
+Wo du sie danach verwendest
+
+Im Ticket gibt es laut Helpdesk-Doku zwei typische Wege:
+
+über das Kontaktmenü beim Kunden/Melder
+oder über die Schaltfläche neben dem Feld „Anfrage“
+
+Dort erscheinen Vorlagen der Kategorie Ticket E-Mail-Vorlage.
+
+Warum dein bisheriger xRM-Ansatz leer blieb
+
+Weil du eine xRM-E-Mail-Vorlage gebaut hast.
+xRM-Vorlagen erscheinen nur, wenn sie
+
+für den passenden Datensatz-Typ erstellt wurden
+und du Zugriffsrechte darauf hast.
+
+Für die klassische Helpdesk-Antwort aus dem Ticket ist aber sehr wahrscheinlich die Dokumentvorlage Mailing + Kategorie Ticket E-Mail-Vorlage der richtige Weg, nicht die xRM-Vorlage.
+
+Wenn die Vorlage danach trotzdem nicht erscheint
+
+Dann prüfe diese 3 Punkte:
+
+Kategorie ist wirklich Ticket E-Mail-Vorlage
+Vorlage wurde als Dokument aus Standardvorlage Mailing angelegt
+du hast Zugriffsrechte auf die Vorlage
+Kurzform
+
+Richtig:
+Dokumentvorlage Mailing → Kategorie Ticket E-Mail-Vorlage
+
+Nicht der primäre Weg:
+xRM-E-Mail-Vorlage
+
+Wenn du willst, schreibe ich dir als Nächstes eine Vorlage mit sinnvollen Ticket-Platzhaltern für Eingangsbestätigung oder Rückfrage.

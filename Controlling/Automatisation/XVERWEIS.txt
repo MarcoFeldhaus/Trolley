@@ -1,0 +1,7 @@
+=XVERWEIS(A17&"";'C:\Users\m.feldhaus\DEVELOPMENT\Trolley\Controlling\Automatisation\[alle_bestellungen_pro_shop.xlsx]Alle Shops'!$B:$B&"";'C:\Users\m.feldhaus\DEVELOPMENT\Trolley\Controlling\Automatisation\[alle_bestellungen_pro_shop.xlsx]Alle Shops'!$H:$H;"")
+
+
+=XVERWEIS(A39&"";C:\Users\m.feldhaus\Spaces\AA MarcoFeldhaus\Dokumentationen\Controlling\Controlling_31032026\[alle_bestellungen_pro_shop.xlsx]Alle Shops'!$B:$B&"";'C:\Users\m.feldhaus\Spaces\AA MarcoFeldhaus\Dokumentationen\Controlling\Controlling_31032026\[alle_bestellungen_pro_shop.xlsx]Alle Shops'!$H:$H;"")
+
+
+C:\Users\m.feldhaus\Spaces\AA MarcoFeldhaus\Dokumentationen\Controlling\Controlling_31032026
