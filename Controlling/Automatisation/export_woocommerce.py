@@ -114,27 +114,35 @@ def get_meta_value(meta_data, key_name):
 
 
 def normalize_voucher_codes(raw_codes):
-    """Normalisiert Gutscheincodes aus verschiedenen Formaten."""
+    """Normalisiert Gutscheincodes aus verschiedenen Formaten. Nur 15-stellige Integer-Codes werden akzeptiert."""
     if raw_codes is None:
         return []
 
+    codes = []
+    
     if isinstance(raw_codes, list):
-        return [str(code).strip() for code in raw_codes if str(code).strip()]
-
-    raw = str(raw_codes).strip()
-    if not raw:
-        return []
-
-    separators = ["\n", ",", "|", ";"]
-    codes = [raw]
-
-    for sep in separators:
-        new_codes = []
-        for chunk in codes:
-            new_codes.extend(chunk.split(sep))
-        codes = new_codes
-
-    return [code.strip() for code in codes if code.strip()]
+        for code in raw_codes:
+            code_str = str(code).strip()
+            if len(code_str) == 15 and code_str.isdigit():
+                codes.append(int(code_str))
+    else:
+        raw = str(raw_codes).strip()
+        if raw:
+            separators = ["\n", ",", "|", ";"]
+            code_list = [raw]
+            
+            for sep in separators:
+                new_codes = []
+                for chunk in code_list:
+                    new_codes.extend(chunk.split(sep))
+                code_list = new_codes
+            
+            for code_str in code_list:
+                code_str = code_str.strip()
+                if len(code_str) == 15 and code_str.isdigit():
+                    codes.append(int(code_str))
+    
+    return codes
 
 
 def sanitize_sheet_title(title):
@@ -393,7 +401,7 @@ def add_dashboard(wb, all_rows):
 
 def format_worksheet(ws, fieldnames, currency_columns, integer_columns, header_font, header_fill, header_alignment, data_alignment):
     """Formatiert Worksheet mit Header, Breiten und Zahlenformaten."""
-    text_columns = {"Gutschein Code", "PayPal Order ID", "Phone"}
+    text_columns = {"PayPal Order ID", "Phone"}
 
     # Kopfzeile formatieren
     for cell in ws[1]:
@@ -415,8 +423,11 @@ def format_worksheet(ws, fieldnames, currency_columns, integer_columns, header_f
                 cell.number_format = "@"
             elif column_name in currency_columns and isinstance(cell.value, (int, float)):
                 cell.number_format = '#,##0.00'
-            elif column_name in integer_columns and isinstance(cell.value, (int, float)):
-                cell.number_format = '0'
+            elif column_name in integer_columns:
+                if cell.value is None or cell.value == "":
+                    cell.value = ""
+                elif isinstance(cell.value, int):
+                    cell.number_format = '0'
 
     # Spaltenbreite automatisch
     for col_idx, column_name in enumerate(fieldnames, start=1):
@@ -513,7 +524,7 @@ fieldnames = [
 ]
 
 currency_columns = {"Preis"}
-integer_columns = {"Order ID"}
+integer_columns = {"Order ID", "Gutschein Code"}
 
 shop_rows = {}
 all_rows_combined = []
@@ -579,12 +590,12 @@ for shop in shops:
                     raw_voucher_codes = get_meta_value(item_meta, "_woo_vou_codes")
                     voucher_codes = normalize_voucher_codes(raw_voucher_codes)
                     if not voucher_codes:
-                        voucher_codes = [""]
+                        voucher_codes = [None]
 
                     for voucher_code in voucher_codes:
                         row_data = {
                             "Shop": shop["name"],
-                            "Gutschein Code": to_text(voucher_code),
+                            "Gutschein Code": voucher_code,
                             "Produktname": item_name,
                             "Preis": voucher_price,
                             "Auftraggeber": auftraggeber,
