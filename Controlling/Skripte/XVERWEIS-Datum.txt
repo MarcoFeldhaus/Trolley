@@ -1,0 +1,1 @@
+=XVERWEIS(A17&"";'C:\Users\marco\Desktop\Controlling\[alle_bestellungen_pro_shop.xlsx]BalingenCard'!$B:$B&"";'C:\Users\marco\Desktop\Controlling\[alle_bestellungen_pro_shop.xlsx]BalingenCard'!$H:$H;"")
