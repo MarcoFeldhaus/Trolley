@@ -399,7 +399,7 @@ def add_dashboard(wb, all_rows):
     
     # === CHARTS AB F2 ===
     if row_idx > 8:
-        # Chart 1: Wachstum per Monat (LineChart) - ab F3, 22cm x 14cm
+        # Chart 1: Wachstum per Monat (LineChart) - ab F2, 22cm x 14cm
         chart_growth = LineChart()
         chart_growth.title = "Wachstum pro Monat"
         chart_growth.style = 10
@@ -455,7 +455,7 @@ def add_dashboard(wb, all_rows):
         chart_revenue.add_data(data_revenue, titles_from_data=True)
         chart_revenue.set_categories(cats_revenue)
         
-        ws.add_chart(chart_revenue, "F30")
+        ws.add_chart(chart_revenue, "F37")
     
     ws.print_area = f'A1:C{row_idx}'
 

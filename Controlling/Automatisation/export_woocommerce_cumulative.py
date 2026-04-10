@@ -492,7 +492,7 @@ def add_dashboard(wb, all_rows):
         chart_revenue.add_data(data_revenue, titles_from_data=True)
         chart_revenue.set_categories(cats_revenue)
         
-        ws.add_chart(chart_revenue, "F40")
+        ws.add_chart(chart_revenue, "F37")
     
     ws.print_area = f'A1:C{row_idx}'
 
