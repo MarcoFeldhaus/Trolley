@@ -1,0 +1,229 @@
+================================================================================
+DOKUMENTATION: export_woocommerce_cumulative.py
+================================================================================
+
+ÜBERSICHT
+=========
+Das Skript "export_woocommerce_cumulative.py" dient dem kumulativen Export von 
+WooCommerce-Bestellungen (speziell Gutscheincodes) aus mehreren Online-Shops in 
+eine Excel-Datei mit erweiterten Auswertungen und PDF-Report.
+
+HAUPTFUNKTION
+=============
+- Abrufen von Bestelldaten von mehreren WooCommerce-Shops via REST-API
+- Normalisierung und Verarbeitung von Gutscheincodes und Metadaten
+- Kumulatives Sammeln (State-Based): Duplikate werden vermieden
+- Optionaler Datumsfiltter für spezifische Zeiträume
+- Automatische Excel-Generierung mit Dashboards und Charts
+- Optionaler PDF-Export mit Übersichtsseite und regionalen Details
+
+ABHÄNGIGKEITEN
+==============
+Erforderliche Python-Pakete:
+  - requests (HTTP-Requests zur WooCommerce API)
+  - openpyxl (Excel-Datei-Erstellung und Formatierung)
+  - reportlab (PDF-Generierung, optional)
+
+Abhängige Dateien:
+  - config.py (im selben Verzeichnis)
+    Enthält: shops-Liste, OUTPUT_FILE, STATE_FILE
+
+VORAUSSETZUNGEN
+===============
+1. config.py muss folgende Variablen enthalten:
+   - shops: Liste mit Shop-Konfigurationen (URL, Consumer Key, Consumer Secret)
+   - OUTPUT_FILE: Pfad zur Excel-Zieldatei (z.B. "export.xlsx")
+   - STATE_FILE: Pfad zur State-Datei (z.B. "state.json")
+
+2. WooCommerce REST-API Zugriff:
+   - Gültige API-Credentials für jeden Shop erforderlich
+   - Mindesttag: WooCommerce REST API v3 muss aktiviert sein
+
+VERWENDUNG
+==========
+
+SCHRITT 1: Skript ausführen
+    python export_woocommerce_cumulative.py
+
+SCHRITT 2: Modus auswählen
+    Das Skript bietet zwei Export-Modi (mit 5s Timeout auf Standard):
+    
+    Modus 1: State-basierter Export (STANDARD)
+      - Exportiert nur Daten seit dem letzten erfolgreichen Lauf
+      - Basis: Timestamp in state.json
+      - Empfohlen für regelmäßige/automatisierte Läufe
+    
+    Modus 2: Zeitraum-basiert (MANUELL)
+      - Eingabe von Start- und End-Datum im Format DD.MM.YYYY
+      - Exportiert nur Daten aus dem Zeitraum
+      - Ermöglicht Nachimporte oder Korrekturen
+
+OUTPUT-DATEIEN
+==============
+
+Excel-Datei (z.B. export.xlsx oder export_01012026_31032026.xlsx)
+  ├─ Blatt "Alle Shops"
+  │  └─ Konsolidierte Daten aller Shops mit Duplikat-Vermeidung
+  │
+  ├─ Blatt "Dashboard"
+  │  ├─ KPI-Metriken (Gesamtumsatz, Gesamte Gutscheine)
+  │  ├─ Monatliche Übersicht mit regionalen Details
+  │  ├─ Shop-Übersicht (Gesamtansicht)
+  │  └─ 2 Visualisierungen:
+  │     ├─ LineChart: Wachstum pro Monat
+  │     └─ BarChart: Umsatz pro Shop
+  │
+  └─ Blätter "Shop1", "Shop2", ... (pro Region)
+     └─ Detaillierte Daten für einen spezifischen Shop
+
+PDF-Datei (z.B. export.pdf)
+  ├─ Seite 1: Dashboard
+  │  ├─ KPI-Übersicht
+  │  └─ Regionale Zusammenfassung
+  │
+  └─ Seite 2+: Detailseite pro Region
+     └─ Tabelle aller Gutscheine für die Region
+
+State-Datei (state.json)
+  └─ Speichert Timestamp des letzten erfolgreichen Laufs
+     (wird nur im State-Modus aktualisiert)
+
+DATENSTRUKTUR (Excel-Zeilen)
+============================
+Jede Zeile enthält folgende Spalten:
+
+1. Shop              : Name des Online-Shops
+2. Gutschein Code    : 15-stelliger Gutscheincode (Integer)
+3. Produktname       : Name des erworbenen Produkts/Gutscheins
+4. Preis             : Kaufpreis (Dezimalformat, 2 Dezimalstellen)
+5. Auftraggeber      : "nein, Auftraggeber" oder "PayPal"
+6. Privatkauf        : "ja" (Privatkauf) oder "nein" (Firmenkauf)
+7. Order ID          : Bestellnummer aus WooCommerce
+8. Datum             : Kaufdatum (Format: DD.MM.YYYY)
+
+NORMALISIERUNGSLOGIK
+====================
+
+1. Gutscheincodes
+   - Akzeptiert nur: 15-stellige Integer, getrennt durch \n, ,, |, oder ;
+   - Ungültige Codes (nicht 15-stellig) werden ignoriert
+   - Duplikate werden automatisch vermieden (State-Management)
+
+2. Preise
+   - Automatische Erkennung aus Metadaten oder Produktname
+   - Normalisierung: Komma → Punkt; Cents-Erkennung (>999 = /100)
+   - Formatierung: 2 Dezimalstellen, Tausendertrennzeichen
+
+3. Daten
+   - ISO-Format Eingabe → Deutsche Formatierung (DD.MM.YYYY)
+   - Leere/NULL-Werte → leere Strings
+
+4. Zweck (Privatkauf)
+   - "privatkauf" / "t" / leer → "ja"
+   - "firmenkauf" → "nein"
+   - Andere Werte → Feld wird leer
+
+HILFSFUNKTIONEN
+===============
+
+log(msg)
+  Gibt Nachricht mit Zeitstempel [HH:MM:SS] aus
+
+input_with_timeout(prompt, timeout_seconds, default_value)
+  Wartet auf Benutzereingabe mit Timeout; nutzt Default ohne Eingabe
+
+map_zweck(value)
+  Mappt Zweck-Metadaten zu "ja" / "nein"
+
+normalize_price(value)
+  Normalisiert Preis zu Float mit 2 Dezimalstellen
+
+normalize_voucher_codes(raw_codes)
+  Extrahiert 15-stellige Gutscheincodes aus verschiedenen Formaten
+
+load_existing_data(output_file)
+  Lädt bereits exportierte Daten aus Excel (für Duplikat-Vermeidung)
+
+merge_rows(existing_rows, new_rows)
+  Fügt neue Zeilen ein, ohne Duplikate zu duplizieren (by Gutschein Code)
+
+add_dashboard(wb, all_rows)
+  Erstellt Dashboard-Blatt mit KPIs und Charts
+
+add_pdf_export(all_rows, shop_rows, output_file)
+  Generiert PDF mit Übersicht + regionalen Details
+
+FEHLERBEHANDLUNG
+================
+- API-Fehler: Wird geloggt, Export bei diesem Shop wird übersprungen
+- Ungültige Gutscheincodes: Werden ignoriert (keine Zeile erstellt)
+- Fehlende Dependencies (reportlab): PDF-Export wird übersprungen (Warnung)
+- Datumsfehler: Wird geloggt, Zeile wird übersprungen oder Datum bleibt leer
+
+PERFORMANCE
+===========
+- API-Pagination: 100 Einträge pro Seite (optimiert für WooCommerce)
+- State-Based Modus: Minimale API-Last durch inkrementelle Updates
+- Excel-Speicherung: Alle Daten im Memory (watch für sehr große Datasets)
+- Timeout für Benutzereingabe: 5 Sekunden (verhindert Blockierung)
+
+AUTOMATISIERUNG
+===============
+Für regelmäßige Export-Läufe (z.B. täglich):
+  
+1. State-Modus nutzen:
+   - Skript mit default "1" ausführen
+   - State speichert Timestamp automatisch
+   - Nächster Lauf exportiert nur neue Daten
+
+2. Windows Task Scheduler / Cron einrichten:
+   - Regelmäßig Skript aufrufen
+   - Eingabeverarbeitung erfolgt automatisch mit Timeouts
+
+BEISPIEL config.py
+===================
+```
+shops = [
+    {
+        "name": "Shop1",
+        "url": "https://shop1.example.com",
+        "ck": "ck_xxxxxxxxxxxxx",
+        "cs": "cs_xxxxxxxxxxxxx"
+    },
+    {
+        "name": "Shop2",
+        "url": "https://shop2.example.com",
+        "ck": "ck_yyyyyyyyyyyyy",
+        "cs": "cs_yyyyyyyyyyyyy"
+    }
+]
+
+OUTPUT_FILE = "export.xlsx"
+STATE_FILE = "state.json"
+```
+
+TROUBLESHOOTING
+===============
+
+Problem: "API-Aufruf fehlgeschlagen"
+  Lösung: API-Credentials in config.py überprüfen
+
+Problem: "Keine Gutscheincodes gefunden"
+  Lösung: Metafeld "_woo_vou_codes" auf WooCommerce überprüfen
+
+Problem: "PDF-Export funktioniert nicht"
+  Lösung: reportlab installieren: pip install reportlab
+
+Problem: "Duplikate trotz State"
+  Lösung: Excel oder state.json manuell prüfen/zurücksetzen
+
+VERSIONSHISTORIE
+================
+- v1.0: Initiale Version mit State-Management, Excel/PDF-Export
+- Unterstützte Python-Version: 3.7+
+
+AUTHOR & KONTAKT
+================
+[Maintainer-Info hier einfügen]
+
+================================================================================

@@ -1,0 +1,33 @@
+<?php
+/**
+ * KONFIGURATION:
+ * Trage hier alle E-Mails ein, die die Marketing-Rolle erhalten sollen.
+ */
+$emails_to_update = array(
+    'swe_wordpress_user@tm-testcard.de',
+    'AdapterUser@tm-testcard.de'
+    // Du kannst hier beliebig viele E-Mails ergänzen...
+);
+
+$new_role_id = 'entwicklung'; // Deine Rollen-ID
+$success_count = 0;
+$found_emails = array();
+
+foreach ( $emails_to_update as $email ) {
+    $email = trim($email); // Leerzeichen entfernen
+    $user = get_user_by('email', $email);
+
+    if ( $user ) {
+        // Rolle setzen
+        $user->set_role($new_role_id);
+        $success_count++;
+        $found_emails[] = $email;
+    }
+}
+
+// Ausgabe für das MainWP Protokoll
+if ( $success_count > 0 ) {
+    echo "Erfolg: $success_count Nutzer aktualisiert (" . implode(', ', $found_emails) . ").";
+} else {
+    echo "Info: Keine der angegebenen E-Mails auf dieser Seite gefunden.";
+}

@@ -1,0 +1,17 @@
+<?php
+// KONFIGURATION: Hier die Daten anpassen
+$target_email = 'adapterUser@tm-testcard.de'; // Die E-Mail des Nutzers
+$new_role_id  = 'entwicklung';           // Deine neue Rollen-ID
+
+// 1. Den Benutzer anhand der E-Mail finden
+$user = get_user_by('email', $target_email);
+
+if ($user) {
+    // 2. Die Rolle neu setzen (bestehende Rollen werden dabei ersetzt)
+    $user->set_role($new_role_id);
+    
+    echo "Erfolg: Der Benutzer '{$user->display_name}' ({$target_email}) hat nun die Rolle '{$new_role_id}'.";
+} else {
+    // Falls der Nutzer auf dieser speziellen Child-Site gar nicht existiert
+    echo "Hinweis: Kein Benutzer mit der E-Mail '{$target_email}' auf dieser Seite gefunden.";
+}
