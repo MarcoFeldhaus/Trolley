@@ -1,0 +1,73 @@
+<?php
+/**
+ * Plugin Name:       trolleymaker Veranstaltungen Filter (Sortierung Datum numerisch)
+ * Description:       REGIONSSPEZIFISCH! Filtert und sortiert den Custom Post Type "Veranstaltungen" nach dem ACF-Feld "startzeitpunkt". Vergangene Veranstaltungen werden automatisch ausgeblendet (REST-API & Frontend).
+ * Version:           1.0.0
+ * Author:            trolleymaker
+ * Author URI:        https://simpli-citycard.com/
+ * Requires at least: 6.0
+ * Requires PHP:      7.4
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// REST-API: Immer nach 'startzeitpunkt' sortieren und vergangene Veranstaltungen ausblenden
+add_filter( 'rest_veranstaltungen_query', function( $args, $request ) {
+    $yesterday_midnight = strtotime( 'yesterday midnight' );
+
+    $args['meta_query'] = [
+        [
+            'key'     => 'startzeitpunkt',
+            'value'   => $yesterday_midnight,
+            'compare' => '>',
+            'type'    => 'NUMERIC',
+        ],
+    ];
+    $args['meta_key'] = 'startzeitpunkt';
+    $args['orderby']  = 'meta_value_num';
+    $args['order']    = 'ASC';
+
+    return $args;
+}, 10, 2 );
+
+// Frontend & Archive: Vergangene Veranstaltungen ausblenden und nach Startzeitpunkt sortieren
+add_action( 'pre_get_posts', 'sh_filter_veranstaltungen_everywhere' );
+function sh_filter_veranstaltungen_everywhere( $query ) {
+    if ( is_admin() || $query->get( 'suppress_filters' ) ) {
+        return;
+    }
+
+    $post_type = $query->get( 'post_type' );
+
+    if ( empty( $post_type ) ) {
+        return;
+    }
+
+    if ( is_array( $post_type ) ) {
+        $post_type = array_filter( $post_type );
+        if ( count( $post_type ) !== 1 || reset( $post_type ) !== 'veranstaltungen' ) {
+            return;
+        }
+    } else {
+        if ( $post_type !== 'veranstaltungen' ) {
+            return;
+        }
+    }
+
+    $yesterday_midnight = strtotime( 'yesterday midnight' );
+
+    $meta_query   = (array) $query->get( 'meta_query' );
+    $meta_query[] = [
+        'key'     => 'startzeitpunkt',
+        'value'   => $yesterday_midnight,
+        'compare' => '>',
+        'type'    => 'NUMERIC',
+    ];
+
+    $query->set( 'meta_query', $meta_query );
+    $query->set( 'meta_key', 'startzeitpunkt' );
+    $query->set( 'orderby', 'meta_value_num' );
+    $query->set( 'order', 'ASC' );
+}

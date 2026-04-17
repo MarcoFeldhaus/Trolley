@@ -666,9 +666,9 @@ add_filter( 'rest_veranstaltungen_query', function( $args, $request ) {
 // Frontend & Archive: vergangene Veranstaltungen ausblenden und sortieren
 add_action( 'pre_get_posts', 'sh_filter_veranstaltungen_everywhere' );
 function sh_filter_veranstaltungen_everywhere( $query ) {
- if ( is_admin() || $query->get( 'suppress_filters' ) ) {
-    return;
-}
+    if ( is_admin() || ! $query->is_main_query() || $query->get( 'suppress_filters' ) ) {
+        return;
+    }
 
     $post_type = $query->get( 'post_type' );
 
