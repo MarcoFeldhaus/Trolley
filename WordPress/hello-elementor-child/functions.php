@@ -1147,9 +1147,12 @@ function add_checkout_checkbox() {
 
 add_action( 'woocommerce_checkout_process', 'add_checkout_checkbox_warning', 100 );
 function add_checkout_checkbox_warning() {
-     // Gutschein-Shop Rollen überspringen Checkout-Validierung
+     // Gutschein-Shop Rollen überspringen Checkout-Validierung NUR bei Firmenkauf
      $user = wp_get_current_user();
-     if ( in_array( 'gutschein-shop', (array) $user->roles ) || in_array( 'Gutschein-Shop', (array) $user->roles ) ) {
+     $is_gutschein_shop = in_array( 'gutschein-shop', (array) $user->roles ) || in_array( 'Gutschein-Shop', (array) $user->roles );
+     $billing_option = isset($_POST['billing_options']) ? sanitize_text_field($_POST['billing_options']) : '';
+     
+     if ( $is_gutschein_shop && $billing_option == 'firmenkauf' ) {
           return;
      }
 
@@ -2216,12 +2219,6 @@ function woo_add_paypal_fee($cart) {
           return;
      }
 
-     // Gutschein-Shop Rollen überspringen Bearbeitungsgebühr
-     $user = wp_get_current_user();
-     if ( in_array( 'gutschein-shop', (array) $user->roles ) || in_array( 'Gutschein-Shop', (array) $user->roles ) ) {
-          return;
-     }
-
      //info: on updating cart the data is in $post_data, and on checkout button clicked the data is in $_POST
 
      $percent = get_white_label_paypal_fee();
@@ -2238,14 +2235,16 @@ function woo_add_paypal_fee($cart) {
           $fee = ($cart_total / 100 * $percent) + ($quantity * $euro_per_voucher);
      }
      
-     //if(array_key_exists('payment_method', $post_data)) {
-          //$chosen_payment_method = $post_data['payment_method'];
-          //if ($chosen_payment_method == 'paypal_plus' || $chosen_payment_method == 'paypal') {
+     // Prüfe ob Benutzer gutschein-shop Rolle hat
+     $user = wp_get_current_user();
+     $is_gutschein_shop = in_array( 'gutschein-shop', (array) $user->roles ) || in_array( 'Gutschein-Shop', (array) $user->roles );
+
                if((array_key_exists('billing_options', $post_data) && !empty($post_data['billing_options']) && $post_data['billing_options'] == 'firmenkauf' ) || (array_key_exists('billing_options', $_POST) && !empty($_POST['billing_options']) && $_POST['billing_options'] == 'firmenkauf')) {
-                    $cart->add_fee( 'Bearbeitungsgebühr', $fee, true, 'Steuern Fee' );
+                    // Keine Bearbeitungsgebühr für gutschein-shop Rolle bei Firmenkauf
+                    if ( !$is_gutschein_shop ) {
+                         $cart->add_fee( 'Bearbeitungsgebühr', $fee, true, 'Steuern Fee' );
+                    }
                }
-          //}
-     //}
 }
 add_action( 'woocommerce_cart_calculate_fees', 'woo_add_paypal_fee' );
 

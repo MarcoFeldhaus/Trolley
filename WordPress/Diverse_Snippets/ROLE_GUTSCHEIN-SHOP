@@ -1,0 +1,42 @@
+<?php
+/** 
+ * SCHRITT: FÜGE DEINE KOPIERTEN DATEN UNTEN EIN 
+ * Ersetze die Zeile '$source_caps = array();' durch deinen kopierten Block aus Schritt 1.
+ */
+
+$source_caps = array (
+'read' => true,
+);
+
+// Falls der Dump leer war, brich ab
+if (empty($source_caps)) {
+    die("Fehler: Keine Quell-Rechte im Snippet hinterlegt!");
+}
+
+// DEFINIERE DEINE EINSCHRÄNKUNGEN (Überschreibt die Quell-Rechte)
+$restrictions = array(
+    'activate_plugins'    => false, // Plugins aktivieren NEIN
+    'install_plugins'     => false, // Plugins installieren NEIN
+    'update_plugins'      => false, // Plugins aktualisieren NEIN
+    'delete_plugins'      => false, // Plugins löschen NEIN
+    'edit_plugins'        => false, // Plugins bearbeiten NEIN
+    'create_users'        => false, // Neue User anlegen JA
+    'edit_users'          => false, // Bestehende User ändern NEIN
+    'delete_users'        => false, // User löschen NEIN
+    'promote_users'       => false, // Rollen ändern NEIN
+);
+
+$final_caps = array_merge($source_caps, $restrictions);
+
+$source_caps['read'] = true;
+$source_caps['level_0'] = true;
+$source_caps['level_1'] = true;
+
+// ROLLE AKTUALISIEREN
+$role_id = 'gutschein-shop';
+$display_name = 'Gutschein-Shop';
+
+remove_role($role_id);
+add_role($role_id, $display_name, $final_caps);
+
+echo "Erfolg: Rolle 'Gutschein-Shop' mit " . count($final_caps) . " Rechten erstellt/aktualisiert.";

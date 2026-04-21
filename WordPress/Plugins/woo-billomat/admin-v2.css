@@ -1,0 +1,41 @@
+td.wc_actions .invoice:after {
+  content: "\f497" !important;
+}
+
+td.wc_actions .download-delivery-note:after {
+  content: "\f495"  !important;
+}
+
+td.wc_actions .create-delivery-note:after {
+  content: "\f495"  !important;
+  background-color: #eee  !important;
+}
+
+.wcb-error-log p {
+  color: #f00;
+}
+
+.wcb-error-log pre {
+  border: 1px solid #ddd;
+  padding: 0.5em;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+.wcb-meta-error {
+  color: #dc3232;
+  font-size: 0.9em;
+}
+
+.wcb-rating-options {
+  margin-bottom: 0;
+  font-weight: bold;
+}
+
+.wcb-rating-options li:last-child {
+  margin-bottom: 0;
+}
+
+#wc_billomat_reset_section_title-description strong {
+  color: red;
+}
