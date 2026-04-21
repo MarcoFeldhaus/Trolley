@@ -52,10 +52,10 @@ def input_with_timeout(prompt, timeout_seconds=5, default_value="1"):
 def map_zweck(value):
     """Mappt Zweck-Wert: 'privatkauf' -> 'ja', 'firmenkauf' -> 'nein'."""
     value = str(value).strip().lower()
-    if value in ["privatkauf", "t", ""]:
-        return "ja"
-    elif value == "firmenkauf":
+    if value in ["firmenkauf", "t", ""]:
         return "nein"
+    elif value == "privatkauf":
+        return "ja"
     return ""
 
 

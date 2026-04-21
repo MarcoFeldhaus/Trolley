@@ -57,6 +57,28 @@ function add_matomo_to_html_head(){
 add_action('wp_head', 'add_matomo_to_html_head', 999);
 
 
+/**
+ * Admin Notice: Warnung bei verdächtigem API-Key
+ */
+add_action('admin_notices', 'check_api_key_validity');
+function check_api_key_validity() {
+     $api_key = trim(get_option('region_api_key', ''));
+     $region_name = trim(get_option('region_name', ''));
+     
+     if (empty($api_key)) {
+          echo '<div class="notice notice-error is-dismissible"><p><strong>⚠️ TrolleyMaker PDF-Export:</strong> Kein API-Key konfiguriert!</p><p>Der PDF-Export für Partner wird nicht funktionieren. Bitte geben Sie einen gültigen API-Key ein: <a href="' . admin_url('options-general.php#region_api_key') . '">Einstellungen</a></p></div>';
+          return;
+     }
+     
+     $key_length = strlen($api_key);
+     
+     // Format-Überprüfung: Sollte 10 Zeichen sein
+     if ($key_length !== 10) {
+          echo '<div class="notice notice-error is-dismissible"><p><strong>❌ TrolleyMaker PDF-Export:</strong> API-Key hat falsches Format (' . $key_length . ' statt 10 Zeichen)!</p><p>Format: 1 Großbuchstabe + Zahl + Kleinbuchstaben. <a href="' . admin_url('options-general.php#region_api_key') . '">Einstellungen</a></p></div>';
+     }
+}
+
+
 function current_year_shortcode () {
      $year = date_i18n ('Y');
      return $year;
@@ -312,10 +334,16 @@ function get_white_label_arbeitgeberportal_login_url() {
 add_action('admin_init', 'add_white_label_settings_fields');
 function add_white_label_settings_fields(){
 
-     register_setting( 'general', 'region_api_key', 'esc_attr' );
+     register_setting( 'general', 'region_api_key', array(
+          'sanitize_callback' => 'sanitize_text_field',
+          'type' => 'string'
+     ) );
      add_settings_field('region_api_key', '<label for="region_api_key">Region X-API-KEY</label>' , 'callback_input_region_api_key' , 'general' );
 
-     register_setting( 'general', 'matomo_website_id', 'esc_attr' );
+     register_setting( 'general', 'matomo_website_id', array(
+          'sanitize_callback' => 'sanitize_text_field',
+          'type' => 'string'
+     ) );
      add_settings_field('matomo_website_id', '<label for="matomo_website_id">Matomo Website ID</label>' , 'callback_input_matomo_website_id' , 'general' );
 
      register_setting( 'general', 'card_name', 'esc_attr' );
@@ -402,7 +430,83 @@ function add_white_label_settings_fields(){
 
 function callback_input_region_api_key() {
      $value = get_white_label_region_api_key();
-     echo '<input type="text" id="region_api_key" name="region_api_key" value="' . $value . '" />';
+     $api_key_trimmed = trim($value);
+     $has_leading_spaces = ($value !== $api_key_trimmed && strlen($value) > strlen(ltrim($value)));
+     $has_trailing_spaces = ($value !== $api_key_trimmed && strlen($value) > strlen(rtrim($value)));
+     
+     echo '<input type="text" id="region_api_key" name="region_api_key" value="' . esc_attr($value) . '" placeholder="z.B. A1b2C3d4E5" />';
+     
+     // Warnung vor Leerzeichen
+     if ($has_leading_spaces || $has_trailing_spaces) {
+          $warning = '<strong>⚠️ WARNUNG:</strong> ';
+          if ($has_leading_spaces && $has_trailing_spaces) {
+               $warning .= 'Der API-Key hat Leerzeichen am Anfang UND am Ende!';
+          } elseif ($has_leading_spaces) {
+               $warning .= 'Der API-Key hat Leerzeichen am Anfang!';
+          } else {
+               $warning .= 'Der API-Key hat Leerzeichen am Ende!';
+          }
+          $warning .= ' Dies führt zu "Invalid API key"-Fehlern!';
+          echo '<p style="color: red; margin-top: 5px; font-weight: bold;">' . $warning . '</p>';
+     }
+     
+     if (!empty($api_key_trimmed)) {
+          $key_length = strlen($api_key_trimmed);
+          
+          if ($key_length === 10) {
+               echo '<p style="color: green; margin-top: 5px;">✅ API-Key-Format OK (10 Zeichen)</p>';
+          } else {
+               echo '<p style="color: red; margin-top: 5px;"><strong>❌ Format falsch:</strong> API-Key sollte 10 Zeichen haben (aktuell: ' . $key_length . ')</p>';
+          }
+          
+          // Test-Button
+          echo '<br><button type="button" class="button" id="test-api-key-btn" style="margin-top: 10px;">API-Key testen</button>';
+          echo '<div id="test-api-key-result" style="margin-top: 10px;"></div>';
+          
+          // JavaScript für Test
+          echo '<script>
+          jQuery(document).ready(function($) {
+               $("#test-api-key-btn").on("click", function(e) {
+                    e.preventDefault();
+                    var apiKey = $("#region_api_key").val().trim();
+                    var regionName = "' . get_white_label_region_name() . '";
+                    
+                    if (!apiKey) {
+                         $("#test-api-key-result").html("<p style=\"color: red;\">❌ API-Key ist leer!</p>");
+                         return;
+                    }
+                    
+                    if (apiKey.length !== 10) {
+                         $("#test-api-key-result").html("<p style=\"color: red;\">❌ API-Key hat falsches Format (sollte 10 Zeichen sein)</p>");
+                         return;
+                    }
+                    
+                    $("#test-api-key-result").html("<p>🔄 Testen gegen Region: <strong>" + regionName + "</strong>...</p>");
+                    
+                    $.ajax({
+                         url: "https://backend.mycity.cards/api/v1/partners?region_name=" + encodeURIComponent(regionName),
+                         type: "GET",
+                         headers: {
+                              "Accept": "application/json",
+                              "X-API-KEY": apiKey
+                         },
+                         success: function(data) {
+                              $("#test-api-key-result").html("<p style=\"color: green;\">✅ API-Key funktioniert! (" + data.length + " Partner gefunden)</p>");
+                         },
+                         error: function(xhr) {
+                              var errorMsg = xhr.status + " - ";
+                              if (xhr.responseJSON && xhr.responseJSON.errorMessage) {
+                                   errorMsg += xhr.responseJSON.errorMessage;
+                              } else {
+                                   errorMsg += xhr.statusText;
+                              }
+                              $("#test-api-key-result").html("<p style=\"color: red;\">❌ API-Key ungültig: <strong>" + errorMsg + "</strong></p><p style=\"font-size: 0.9em; color: #666;\">Überprüfen Sie: 1) Ist der Key für die Region \"" + regionName + "\" gültig? 2) Wurde der Key korrekt eingegeben (ohne Leerzeichen)?</p>");
+                         }
+                    });
+               });
+          });
+          </script>';
+     }
 }
 
 
@@ -1500,34 +1604,83 @@ add_action('wp_footer', function() {
 
 // REST API handler for generating Partners PDF
 function generate_partners_pdf_handler($request = null) {
-     $type = $request ? $request->get_param('type') : (isset($_GET['type']) ? sanitize_text_field(wp_unslash($_GET['type'])) : 'table');
-     if (!in_array($type, array('table', 'grid'), true)) {
-          wp_die('Ungültige Anfrage.');
-     }
-     $region_name = get_white_label_region_name();
-     $card_name = get_white_label_card_name();
+     try {
+          $type = $request ? $request->get_param('type') : (isset($_GET['type']) ? sanitize_text_field(wp_unslash($_GET['type'])) : 'table');
+          if (!in_array($type, array('table', 'grid'), true)) {
+               wp_die('Ungültige Anfrage.');
+          }
+          $region_name = get_white_label_region_name();
+          $card_name = get_white_label_card_name();
+          $api_key = get_white_label_region_api_key();
 
-     $response = wp_remote_get('https://backend.mycity.cards/api/v1/partners?region_name=' . $region_name, array(
-          'headers' => array(
-               'Accept' => 'application/json',
-               'X-API-KEY' => get_white_label_region_api_key()
-          )
-     ));
+          if (empty($region_name)) {
+               error_log('[PDF-Export] Region nicht konfiguriert');
+               wp_die('Region nicht konfiguriert. Bitte kontaktieren Sie den Administrator.');
+          }
 
-     if (is_wp_error($response) || 200 !== wp_remote_retrieve_response_code($response)) {
-          wp_die('Fehler beim Laden der Partnerdaten.');
-     }
+          if (empty($api_key)) {
+               error_log('[PDF-Export] API-Key nicht konfiguriert für Region: ' . $region_name);
+               wp_die('API-Key nicht konfiguriert. Bitte kontaktieren Sie den Administrator.');
+          }
 
-     $partners = json_decode($response['body']);
-     if (json_last_error() !== JSON_ERROR_NONE || empty($partners)) {
-          wp_die('Keine Partnerdaten verfügbar.');
-     }
+          // Strip whitespace (crucial for copy-paste errors)
+          $api_key = trim($api_key);
+          
+          if (empty($api_key)) {
+               error_log('[PDF-Export] API-Key ist leer nach Trim für Region: ' . $region_name);
+               wp_die('API-Key ist leer/ungültig. Bitte kontaktieren Sie den Administrator.');
+          }
 
-     // Load our own namespaced TCPDF (TM_TCPDF) to avoid conflicts with voucher plugin
-     if (!class_exists('TM_TCPDF')) {
-          require_once get_stylesheet_directory() . '/lib/TCPDF-6.7.5/tcpdf.php';
-     }
-     $pdf = new TM_TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+          // Debug logging
+          error_log('[PDF-Export] Request: Region=' . $region_name . ', Type=' . $type);
+          error_log('[PDF-Export] API-Key Details: Length=' . strlen($api_key) . ', First-Char="' . substr($api_key, 0, 1) . '", Last-Char="' . substr($api_key, -1) . '"');
+          error_log('[PDF-Export] API-Key (full, trimmed): ' . $api_key);
+
+          $request_url = 'https://backend.mycity.cards/api/v1/partners?region_name=' . urlencode($region_name);
+          error_log('[PDF-Export] Request URL: ' . $request_url);
+
+          $response = wp_remote_get($request_url, array(
+               'headers' => array(
+                    'Accept' => 'application/json',
+                    'X-API-KEY' => $api_key
+               ),
+               'timeout' => 30,
+               'sslverify' => false
+          ));
+
+          if (is_wp_error($response)) {
+               $error_msg = $response->get_error_message();
+               error_log('[PDF-Export] API-Fehler: ' . $error_msg);
+               wp_die('Fehler beim Laden der Partnerdaten: ' . esc_html($error_msg));
+          }
+
+          $response_code = wp_remote_retrieve_response_code($response);
+          if (200 !== $response_code) {
+               $body = wp_remote_retrieve_body($response);
+               $response_headers = wp_remote_retrieve_headers($response);
+               
+               error_log('[PDF-Export] HTTP ' . $response_code);
+               error_log('[PDF-Export] Request URL: https://backend.mycity.cards/api/v1/partners?region_name=' . urlencode($region_name));
+               error_log('[PDF-Export] Response Headers: ' . wp_json_encode($response_headers));
+               error_log('[PDF-Export] Response Body: ' . $body);
+               wp_die('Fehler beim Laden der Partnerdaten (HTTP ' . $response_code . ').');
+          }
+
+          $partners = json_decode($response['body']);
+          if (json_last_error() !== JSON_ERROR_NONE) {
+               error_log('[PDF-Export] JSON-Fehler: ' . json_last_error_msg());
+               wp_die('Fehler beim Verarbeiten der Partnerdaten.');
+          }
+          if (empty($partners)) {
+               error_log('[PDF-Export] Keine Partnerdaten erhalten');
+               wp_die('Keine Partnerdaten verfügbar.');
+          }
+
+          // Load our own namespaced TCPDF (TM_TCPDF) to avoid conflicts with voucher plugin
+          if (!class_exists('TM_TCPDF')) {
+               require_once get_stylesheet_directory() . '/lib/TCPDF-6.7.5/tcpdf.php';
+          }
+          $pdf = new TM_TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
 
      $pdf->SetCreator($card_name);
      $pdf->SetAuthor($card_name);
@@ -1762,6 +1915,10 @@ function generate_partners_pdf_handler($request = null) {
      $filename = 'Teilnehmende_Akzeptanzstellen_' . sanitize_file_name($card_name) . '_' . gmdate('Y-m-d') . '.pdf';
      $pdf->Output($filename, 'D');
      exit;
+     } catch (Exception $e) {
+          error_log('[PDF-Export] Exception: ' . $e->getMessage());
+          wp_die('Fehler beim Generieren des PDFs: ' . esc_html($e->getMessage()));
+     }
 }
 add_action('init', function() {
      if (isset($_GET['generate_partners_pdf']) && $_GET['generate_partners_pdf'] === '1') {
@@ -2204,3 +2361,11 @@ add_action( 'woocommerce_payment_complete_order_status', 'wc_auto_complete_paid_
 function wc_auto_complete_paid_order( $status, $order_id, $order ) {
     return 'completed';
 }
+
+add_filter('wp_insert_post_data', function($data, $postarr) {
+   if ($data['post_type'] === 'veranstaltungen' && $data['post_status'] === 'future') {
+          $data['post_status'] = 'publish';
+   }
+    return $data;
+}, 10, 2);
+ 
