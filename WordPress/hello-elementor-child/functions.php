@@ -2213,7 +2213,12 @@ function woo_add_paypal_fee($cart) {
           return;
      }
      
-     parse_str(WC()->checkout()->get_value('post_data'), $post_data);
+     $post_data_raw = WC()->checkout()->get_value('post_data');
+     if($post_data_raw) {
+          parse_str($post_data_raw, $post_data);
+     } else {
+          $post_data = array();
+     }
 
      if(count($post_data) == 0 && count($_POST) == 0) {
           return;
@@ -2284,6 +2289,11 @@ add_filter( 'woocommerce_billomat_invoice_data', 'add_fee_to_billomat_invoice', 
 
 
 function change_woo_voucher_table_buyer_information($buyer_details, $order) {
+
+     // Sicherheitsprüfung: $order muss ein gültiges Objekt sein
+     if ( !$order || !is_object($order) || !method_exists($order, 'get_id') ) {
+          return $buyer_details;
+     }
 
      $billing_option = get_post_meta($order->get_id(), 'billing_options', true);
      $buyer_details['privatkauffirmenkauf'] = 't';

@@ -3,6 +3,7 @@ from datetime import datetime
 import re
 import json
 import os
+import shutil
 import threading
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -170,6 +171,33 @@ def sanitize_sheet_title(title):
     for ch in invalid_chars:
         cleaned = cleaned.replace(ch, "_")
     return cleaned[:31] if cleaned else "Shop"
+
+
+def copy_files_to_backup(output_file):
+    """Kopiert Excel- und PDF-Dateien nach der Erstellung in das Backup-Verzeichnis."""
+    backup_dir = r"C:\Users\m.feldhaus\Spaces\Controlling"
+    
+    try:
+        # Erstelle das Backup-Verzeichnis, falls es nicht existiert
+        if not os.path.exists(backup_dir):
+            os.makedirs(backup_dir)
+            log(f"Backup-Verzeichnis erstellt: {backup_dir}")
+        
+        # Kopiere Excel-Datei
+        if os.path.exists(output_file):
+            excel_backup = os.path.join(backup_dir, os.path.basename(output_file))
+            shutil.copy2(output_file, excel_backup)
+            log(f"Excel kopiert: {excel_backup}")
+        
+        # Kopiere PDF-Datei (wenn sie existiert)
+        pdf_file = output_file.replace(".xlsx", ".pdf")
+        if os.path.exists(pdf_file):
+            pdf_backup = os.path.join(backup_dir, os.path.basename(pdf_file))
+            shutil.copy2(pdf_file, pdf_backup)
+            log(f"PDF kopiert: {pdf_backup}")
+    
+    except Exception as e:
+        log(f"Fehler beim Kopieren der Dateien: {e}")
 
 
 def add_pdf_export(all_rows, shop_rows, output_file):
@@ -857,6 +885,9 @@ wb.save(output_file)
 
 # Exportiere PDF
 add_pdf_export(all_rows_combined, shop_rows, output_file)
+
+# Kopiere Dateien in Backup-Verzeichnis
+copy_files_to_backup(output_file)
 
 # Speichere State nur wenn im State-Modus
 if use_state:

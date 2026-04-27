@@ -2,9 +2,8 @@
 /**
  * Plugin Name: WooCommerce Billomat
  * Description: Connect WooCommerce to Billomat and generate clients, articles and invoices automatically.
- * Version: 2.4.8
- * Author: Billomat
- * Author URI: https://www.billomat.com/
+ * Version: 3.0.0
+ * Author: Marco Feldhaus
  *
  * Text Domain: woocommerce-billomat
  * Domain Path: /languages/
@@ -40,6 +39,34 @@ class WooCommerce_Billomat {
 	 * @var WooCommerce_Billomat
 	 */
 	protected static $_instance = null;
+
+	/**
+	 * Customer Updater instance.
+	 *
+	 * @var WCB_Customer_Updater
+	 */
+	public $customer_updater;
+
+	/**
+	 * Product Updater instance.
+	 *
+	 * @var WCB_Product_Updater
+	 */
+	public $product_updater;
+
+	/**
+	 * Order Updater instance.
+	 *
+	 * @var WCB_Order_Updater
+	 */
+	public $order_updater;
+
+	/**
+	 * Notices Controller instance.
+	 *
+	 * @var WCB_Notices_Controller
+	 */
+	public $notices_controller;
 
   /**
 	 * Main WooCommerce/Billomat Instance.

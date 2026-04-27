@@ -1,0 +1,1 @@
+Get-ChildItem -Path "C:\Users\m.feldhaus\DEVELOPMENT\Microsoft_SQL_Snippets"-Filter *.sql -File -Recurse | Rename-Item -NewName { $_.BaseName + ".txt" }

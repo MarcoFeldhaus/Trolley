@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+-<AppNetwork>
+
+
+-<AppGroup isRoot="true" extends="DEFAULT">
+
+<id>root</id>
+
+<displayname>Apps</displayname>
+
+<backgroundColor>#777777</backgroundColor>
+
+<child id="custom.cockpit"/>
+
+<child id="custom.verbesserungsprozess"/>
+
+<child id="ettenheim.cockpit"/>
+
+<child id="lager.cockpit"/>
+
+<child id="smartdesign.address"/>
+
+<child id="smartdesign.address.customer"/>
+
+<child id="smartdesign.address.employee"/>
+
+<child id="smartdesign.address.supplier"/>
+
+
+-<child id="0x10E29CD343C24B8CB3E72BEEA3FA0916" viewType="ADDRESS" viewScope="" viewGguid="0x10E29CD343C24B8CB3E72BEEA3FA0916" relatedAppId="smartdesign.address">
+
+<displayname>Firmenlogo nicht vorhanden</displayname>
+
+</child>
+
+<child id="smartdesign.appointment"/>
+
+<child id="smartdesign.birthday"/>
+
+<child id="smartdesign.calendar"/>
+
+<child id="smartdesign.cockpit"/>
+
+<child id="smartdesign.document"/>
+
+
+-<child id="0x33839D56C18943508531C7844761EE7E" viewType="ADDRESS" viewScope="" viewGguid="0x33839D56C18943508531C7844761EE7E" relatedAppId="smartdesign.address">
+
+<displayname>Firmenlogo</displayname>
+
+</child>
+
+<child id="smartdesign.email"/>
+
+<child id="smartdesign.emailcampaign"/>
+
+<child id="smartdesign.picassosearch"/>
+
+<child id="smartdesign.settings"/>
+
+<child id="smartdesign.recyclebin"/>
+
+
+-<child id="0xF5604787EB3D4F49814B824F23CBEE42" viewType="ADDRESS" viewScope="" viewGguid="0xF5604787EB3D4F49814B824F23CBEE42" relatedAppId="smartdesign.address">
+
+<displayname>Logo</displayname>
+
+</child>
+
+<child id="products"/>
+
+<child id="custom.transaktionsdaten"/>
+
+<child id="smartdesign.distribution"/>
+
+<child id="smartdesign.event"/>
+
+<child id="smartdesign.holiday"/>
+
+<child id="smartdesign.lead"/>
+
+<child id="smartdesign.opportunity"/>
+
+<child id="smartdesign.phonecall"/>
+
+<child id="smartdesign.todo"/>
+
+<child id="smartdesign.project"/>
+
+<child id="smartdesign.task"/>
+
+<child id="custom.appwebzahlen"/>
+
+<child id="custom.spieleundaktionen"/>
+
+<child id="custom.suaitems"/>
+
+<child id="smartdesign.expenses"/>
+
+<child id="smartdesign.questionaire"/>
+
+<child id="smartdesign.report"/>
+
+<child id="smartdesign.resourceplan"/>
+
+<child id="smartdesign.resourceplanview"/>
+
+<child id="smartdesign.scheduler"/>
+
+<child id="smartdesign.time"/>
+
+<child id="smartdesign.timecalendar"/>
+
+<child id="smartdesign.timeplanview"/>
+
+<child id="smartdesign.ticket"/>
+
+-<child id="0x5FB2E505D6194FB0BF720132E0AE79DA" viewType="ADDRESS" viewScope="" viewGguid="0x5FB2E505D6194FB0BF720132E0AE79DA" relatedAppId="smartdesign.address.customer">
+
+<displayname>Alle Akzeptanzpartner Neuried</displayname>
+
+</child>
+
+<child id="smartdesign.registration"/>
+
+
+-<child id="0xF1DC207ECA49498EAB68F529861A33B9" viewType="ADDRESS" viewScope="" viewGguid="0xF1DC207ECA49498EAB68F529861A33B9" relatedAppId="smartdesign.address">
+
+<displayname>Logo</displayname>
+
+</child>
+
+<child id="allepartner.nachregion"/>
+
+<child id="custom.webapp.hilfe_cas"/>
+
+<child id="herbolzheim.cockpit"/>
+
+<child id="smartdesign.ebid"/>
+
+<child id="servicesupport"/>
+
+<child id="smartdesign.admin"/>
+
+
+-<exclude>
+
+<child id="smartdesign.product"/>
+
+<child id="smartdesign.productgroup"/>
+
+<child id="smartdesign.receipts"/>
+
+
+<child id="smartdesign.serviceagreement"/>
+
+<child id="smartdesign.productusage"/>
+
+<child id="smartdesign.admin"/>
+
+</exclude>
+
+</AppGroup>
+
+
+-<AppGroup>
+
+<id>products</id>
+
+<displayname>APPGROUP_PRODUCTS_AND_RECEIPTS</displayname>
+
+<backgroundColor>#777777</backgroundColor>
+
+<child id="smartdesign.product"/>
+
+<child id="smartdesign.productgroup"/>
+
+<child id="smartdesign.receipts"/>
+
+</AppGroup>
+
+
+-<AppGroup>
+
+<id>servicesupport</id>
+
+<displayname>APPGROUP_SERVICE_AND_SUPPORT</displayname>
+
+</AppGroup>
+
+</AppNetwork>

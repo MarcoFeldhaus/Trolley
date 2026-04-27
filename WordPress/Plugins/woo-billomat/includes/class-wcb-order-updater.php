@@ -15,6 +15,20 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @author 		Billomat
  */
 class WCB_Order_Updater {
+	/**
+	 * Customer Updater instance.
+	 *
+	 * @var WCB_Customer_Updater
+	 */
+	public $customer_updater;
+
+	/**
+	 * Article Updater instance.
+	 *
+	 * @var WCB_Product_Updater
+	 */
+	public $article_updater;
+
   public function __construct($customer_updater, $article_updater) {
     $this->init_hooks();
 		$this->customer_updater = $customer_updater;
@@ -673,7 +687,7 @@ class WCB_Order_Updater {
     }
 
     if($first_name && $last_name) {
-      $address_parts[] = "${first_name} {$last_name}";
+      $address_parts[] = "{$first_name} {$last_name}";
     }
 
     if($address_1) {
