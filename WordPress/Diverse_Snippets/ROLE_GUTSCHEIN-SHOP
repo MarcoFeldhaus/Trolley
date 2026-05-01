@@ -28,9 +28,9 @@ $restrictions = array(
 
 $final_caps = array_merge($source_caps, $restrictions);
 
-$source_caps['read'] = true;
-$source_caps['level_0'] = true;
-$source_caps['level_1'] = true;
+$final_caps['read'] = true;
+$final_caps['level_0'] = true;
+$final_caps['level_1'] = true;
 
 // ROLLE AKTUALISIEREN
 $role_id = 'gutschein-shop';

@@ -33,7 +33,7 @@ def log(msg):
     print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}")
 
 
-def input_with_timeout(prompt, timeout_seconds=5, default_value="1"):
+def input_with_timeout(prompt, timeout_seconds=15, default_value="1"):
     """Wartet auf Eingabe mit Timeout. Nach Ablauf wird der Standard-Wert verwendet."""
     result = [None]
     
@@ -675,19 +675,34 @@ def get_date_range():
     print("\n=== EXPORT-MODUS ===")
     print("1 = State verwenden (inkrementeller Export seit letztem Lauf)")
     print("2 = Start- & End-Datum eingeben (Zeitraum exportieren)")
-    choice = input_with_timeout("Wähle Modus (1 oder 2): ", timeout_seconds=5, default_value="1").strip()
+    choice = input_with_timeout("Wähle Modus (1 oder 2): ", timeout_seconds=15, default_value="1").strip()
     
     if choice == "2":
         while True:
             try:
-                start_input = input_with_timeout("Start-Datum (DD.MM.YYYY): ", timeout_seconds=15, default_value="").strip()
-                end_input = input_with_timeout("End-Datum (DD.MM.YYYY): ", timeout_seconds=15, default_value="").strip()
+                start_input = input_with_timeout("Start-Datum/Uhrzeit (DD.MM.YYYY oder DD.MM.YYYY HH:MM:SS): ", timeout_seconds=30, default_value="").strip()
+                end_input = input_with_timeout("End-Datum/Uhrzeit (DD.MM.YYYY oder DD.MM.YYYY HH:MM:SS): ", timeout_seconds=30, default_value="").strip()
                 
-                start_dt = datetime.strptime(start_input, "%d.%m.%Y")
-                end_dt = datetime.strptime(end_input, "%d.%m.%Y")
+                # Versuche zuerst mit Uhrzeit zu parsen, sonst nur Datum
+                try:
+                    start_dt = datetime.strptime(start_input, "%d.%m.%Y %H:%M:%S")
+                    start_date = f"{start_dt.strftime('%Y-%m-%d')}T{start_dt.strftime('%H:%M:%S')}"
+                except ValueError:
+                    try:
+                        start_dt = datetime.strptime(start_input, "%d.%m.%Y")
+                        start_date = f"{start_dt.strftime('%Y-%m-%d')}T00:00:00"
+                    except ValueError:
+                        raise ValueError("Start-Datum ungültig")
                 
-                start_date = f"{start_dt.strftime('%Y-%m-%d')}T00:00:00"
-                end_date = f"{end_dt.strftime('%Y-%m-%d')}T23:59:59"
+                try:
+                    end_dt = datetime.strptime(end_input, "%d.%m.%Y %H:%M:%S")
+                    end_date = f"{end_dt.strftime('%Y-%m-%d')}T{end_dt.strftime('%H:%M:%S')}"
+                except ValueError:
+                    try:
+                        end_dt = datetime.strptime(end_input, "%d.%m.%Y")
+                        end_date = f"{end_dt.strftime('%Y-%m-%d')}T23:59:59"
+                    except ValueError:
+                        raise ValueError("End-Datum ungültig")
                 
                 start_str = start_dt.strftime("%d%m%Y")
                 end_str = end_dt.strftime("%d%m%Y")
@@ -696,8 +711,8 @@ def get_date_range():
                 log(f"Export-Zeitraum: {start_input} bis {end_input}")
                 log(f"Output-Datei: {output_file}")
                 return start_date, end_date, output_file, False
-            except ValueError:
-                print("Fehler: Ungültiges Datumsformat. Bitte DD.MM.YYYY verwenden.")
+            except ValueError as e:
+                print(f"Fehler: {str(e)} - Bitte verwende DD.MM.YYYY oder DD.MM.YYYY HH:MM:SS")
     else:
         state_date = load_last_run()
         if not state_date:

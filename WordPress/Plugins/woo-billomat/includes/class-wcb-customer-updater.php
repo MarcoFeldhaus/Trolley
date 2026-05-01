@@ -154,15 +154,15 @@ class WCB_Customer_Updater {
 	 */
 	private function map_data_export($user_meta, $customer_id) {
 		$data = array(
-      'name'          => $user_meta['billing_company'][0],
-      'street'        => $user_meta['billing_address_1'][0],
-      'zip'           => $user_meta['billing_postcode'][0],
-      'city'          => $user_meta['billing_city'][0],
-      'country_code'  => $user_meta['billing_country'][0],
-      'first_name'    => $user_meta['billing_first_name'][0],
-      'last_name'     => $user_meta['billing_last_name'][0],
-      'phone'         => $user_meta['billing_phone'][0],
-      'email'         => $user_meta['billing_email'][0],
+      'name'          => ($user_meta['billing_company'][0] ?? ''),
+      'street'        => ($user_meta['billing_address_1'][0] ?? ''),
+      'zip'           => ($user_meta['billing_postcode'][0] ?? ''),
+      'city'          => ($user_meta['billing_city'][0] ?? ''),
+      'country_code'  => ($user_meta['billing_country'][0] ?? ''),
+      'first_name'    => ($user_meta['billing_first_name'][0] ?? ''),
+      'last_name'     => ($user_meta['billing_last_name'][0] ?? ''),
+      'phone'         => ($user_meta['billing_phone'][0] ?? ''),
+      'email'         => ($user_meta['billing_email'][0] ?? ''),
     );
 
 		$data = apply_filters('woocommerce_billomat_customer_export_data', $data, $user_meta);

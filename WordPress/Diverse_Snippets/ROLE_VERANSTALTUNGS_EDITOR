@@ -1,0 +1,58 @@
+<?php
+/** 
+ * ROLE: VERANSTALTUNGS_EDITOR
+ * Erstellt die Rolle "veranstaltungs_editor" mit Veranstaltungs-Management Rechten
+ * Verwende dieses Snippet in MainWP oder WP Code Snippets
+ */
+
+$caps = array(
+    'assign_geschaefte_terms' => true,
+    'assign_veranstaltungen_terms' => true,
+    'create_veranstaltungen' => true,
+    'create_veranstaltungs' => true,
+    'delete_others_veranstaltungen' => true,
+    'delete_others_veranstaltungs' => true,
+    'delete_private_veranstaltungen' => true,
+    'delete_private_veranstaltungs' => true,
+    'delete_published_veranstaltungen' => true,
+    'delete_published_veranstaltungs' => true,
+    'delete_veranstaltungen' => true,
+    'delete_veranstaltungen_terms' => true,
+    'delete_veranstaltungs' => true,
+    'edit_attachments' => true,
+    'edit_others_attachments' => true,
+    'edit_others_veranstaltungen' => true,
+    'edit_others_veranstaltungs' => true,
+    'edit_private_attachments' => true,
+    'edit_private_veranstaltungen' => true,
+    'edit_private_veranstaltungs' => true,
+    'edit_published_attachments' => true,
+    'edit_published_veranstaltungen' => true,
+    'edit_published_veranstaltungs' => true,
+    'edit_veranstaltungen' => true,
+    'edit_veranstaltungen_terms' => true,
+    'edit_veranstaltungs' => true,
+    'manage_veranstaltungen_terms' => true,
+    'publish_attachments' => true,
+    'publish_veranstaltungen' => true,
+    'publish_veranstaltungs' => true,
+    'read' => true,
+    'read_private_attachments' => true,
+    'read_private_veranstaltungen' => true,
+    'read_private_veranstaltungs' => true,
+    'unfiltered_upload' => true,
+    'upload_files' => true,
+    'view_admin_dashboard' => true,
+);
+
+$role_id = 'veranstaltungen_editor';
+$display_name = 'Veranstaltungen Editor';
+
+// Alte Rolle löschen (falls vorhanden)
+remove_role($role_id);
+
+// Neue Rolle erstellen
+add_role($role_id, $display_name, $caps);
+
+echo "✅ Erfolg: Rolle 'Veranstaltungs-Editor' mit " . count($caps) . " Rechten erstellt!";
+?>
