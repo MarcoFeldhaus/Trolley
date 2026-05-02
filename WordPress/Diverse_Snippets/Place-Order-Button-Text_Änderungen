@@ -1,0 +1,36 @@
+<?php
+/**
+ * MainWP Snippet: WPOWP Button-Texte ändern (alle 36 Regionen)
+ * 
+ * Ändert folgende Texte in der Datenbank:
+ * - "In den Warenkorb"
+ * - "KOSTENLOS" 
+ * - "Nur Angebot einholen"
+ * - "Jetzt bestellen"
+ */
+
+// Get current options
+$wpowp_options = get_option( 'wpowp_settings' );
+
+// Initialize if not exists
+if ( ! is_array( $wpowp_options ) ) {
+    $wpowp_options = array();
+}
+
+// Update all 4 button texts
+$wpowp_options['add_cart_text']       = 'In den Warenkorb';
+$wpowp_options['free_product_text']   = 'KOSTENLOS';
+$wpowp_options['quote_button_text']   = 'Nur Angebot einholen';
+$wpowp_options['order_button_text']   = 'Jetzt bestellen';
+
+// Save to database
+if ( update_option( 'wpowp_settings', $wpowp_options ) ) {
+    echo '✅ SUCCESS: Alle 4 Button-Texte aktualisiert!<br>';
+    echo '- "In den Warenkorb"<br>';
+    echo '- "KOSTENLOS"<br>';
+    echo '- "Nur Angebot einholen"<br>';
+    echo '- "Jetzt bestellen"';
+} else {
+    echo '❌ ERROR: Optionen konnten nicht aktualisiert werden!';
+}
+?>

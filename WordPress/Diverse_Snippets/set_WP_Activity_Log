@@ -1,0 +1,7 @@
+<?php
+update_option( 'wsal_hide-plugin', 'no' );
+update_option( 'wsal_mwp-child-stealth-mode', 'no' );
+
+delete_option( 'wsal_restrict-log-viewer' );
+delete_option( 'wsal_restrict-plugin-settings' );
+delete_option( 'wsal_only-me-user-id' );
