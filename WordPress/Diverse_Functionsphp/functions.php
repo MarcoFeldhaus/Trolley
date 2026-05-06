@@ -66,15 +66,15 @@ function check_api_key_validity() {
      $region_name = trim(get_option('region_name', ''));
      
      if (empty($api_key)) {
-          echo '<div class="notice notice-error is-dismissible"><p><strong>⚠️ TrolleyMaker PDF-Export:</strong> Kein API-Key konfiguriert!</p><p>Der PDF-Export für Partner wird nicht funktionieren. Bitte geben Sie einen gültigen API-Key ein: <a href="' . admin_url('options-general.php#region_api_key') . '">Einstellungen</a></p></div>';
+          echo '<div class="notice notice-error is-dismissible"><p><strong>⚠️ API-Key:</strong> ⚠️ Bitte geben Sie einen gültigen API-Key ein: <a href="' . admin_url('options-general.php#region_api_key') . '">Einstellungen</a></p></div>';
           return;
      }
      
      $key_length = strlen($api_key);
      
-     // Format-Überprüfung: Sollte 10 Zeichen sein
-     if ($key_length !== 10) {
-          echo '<div class="notice notice-error is-dismissible"><p><strong>❌ TrolleyMaker PDF-Export:</strong> API-Key hat falsches Format (' . $key_length . ' statt 10 Zeichen)!</p><p>Format: 1 Großbuchstabe + Zahl + Kleinbuchstaben. <a href="' . admin_url('options-general.php#region_api_key') . '">Einstellungen</a></p></div>';
+     // Format-Überprüfung: Mindestens 10 Zeichen erforderlich
+     if ($key_length < 10) {
+          echo '<div class="notice notice-error is-dismissible"><p><strong>⚠️ API-Key:</strong> API-Key hat falsches Format (' . $key_length . ' statt mindestens 10 Zeichen)!</p><p>Format: 1 Großbuchstabe + Zahl + Kleinbuchstaben (mindestens 10 Zeichen). <a href="' . admin_url('options-general.php#region_api_key') . '">Einstellungen</a></p></div>';
      }
 }
 
@@ -453,10 +453,10 @@ function callback_input_region_api_key() {
      if (!empty($api_key_trimmed)) {
           $key_length = strlen($api_key_trimmed);
           
-          if ($key_length === 10) {
-               echo '<p style="color: green; margin-top: 5px;">✅ API-Key-Format OK (10 Zeichen)</p>';
+          if ($key_length >= 10) {
+               echo '<p style="color: green; margin-top: 5px;">✅ API-Key-Format OK (mind. 10 Zeichen)</p>';
           } else {
-               echo '<p style="color: red; margin-top: 5px;"><strong>❌ Format falsch:</strong> API-Key sollte 10 Zeichen haben (aktuell: ' . $key_length . ')</p>';
+               echo '<p style="color: red; margin-top: 5px;"><strong>❌ Format falsch:</strong> API-Key sollte mind. 10 Zeichen haben (aktuell: ' . $key_length . ')</p>';
           }
           
           // Test-Button
@@ -476,8 +476,8 @@ function callback_input_region_api_key() {
                          return;
                     }
                     
-                    if (apiKey.length !== 10) {
-                         $("#test-api-key-result").html("<p style=\"color: red;\">❌ API-Key hat falsches Format (sollte 10 Zeichen sein)</p>");
+                    if (apiKey.length < 10) {
+                         $("#test-api-key-result").html("<p style=\"color: red;\">❌ API-Key hat falsches Format (mind. 10 Zeichen erforderlich)</p>");
                          return;
                     }
                     
@@ -1147,6 +1147,14 @@ function add_checkout_checkbox() {
 
 add_action( 'woocommerce_checkout_process', 'add_checkout_checkbox_warning', 100 );
 function add_checkout_checkbox_warning() {
+     // FIX: Gutschein-Shop User brauchen KEINE Validierung - sie bestellen auf Rechnung oder holen ein Angebot ein!
+     $user = wp_get_current_user();
+     $is_gutschein_shop = in_array( 'gutschein-shop', (array) $user->roles ) || in_array( 'Gutschein-Shop', (array) $user->roles );
+     
+     if ( $is_gutschein_shop ) {
+          return;  // ← Gutschein-Shop User: Direkt durchlassen, keine Validierungen!
+     }
+
      if ( ! (int) isset( $_POST['checkout-checkbox'] ) ) {
         wc_add_notice( __( 'Bei digitalen Inhalten (Online-Gutscheine) müssen Sie auf das Widerrufsrecht verzichten, da diese sofort gültig sind.' ), 'error' );
      }
@@ -2204,10 +2212,24 @@ function woo_add_paypal_fee($cart) {
           return;
      }
      
-     parse_str(WC()->checkout()->get_value('post_data'), $post_data);
+     // FIX: PHP 8.4 - NULL-CHECK für parse_str()
+     $post_data_raw = WC()->checkout()->get_value('post_data');
+     if($post_data_raw !== null && $post_data_raw !== '') {
+          parse_str($post_data_raw, $post_data);
+     } else {
+          $post_data = array();
+     }
 
      if(count($post_data) == 0 && count($_POST) == 0) {
           return;
+     }
+
+     // FIX: Gutschein-Shop Rolle ZUERST prüfen - keine Gebühr für Gutschein-Shop!
+     $user = wp_get_current_user();
+     $is_gutschein_shop = in_array( 'gutschein-shop', (array) $user->roles ) || in_array( 'Gutschein-Shop', (array) $user->roles );
+     
+     if ( $is_gutschein_shop ) {
+          return;  // ← Gutschein-Shop bekommt KEINE Bearbeitungsgebühr!
      }
 
      //info: on updating cart the data is in $post_data, and on checkout button clicked the data is in $_POST

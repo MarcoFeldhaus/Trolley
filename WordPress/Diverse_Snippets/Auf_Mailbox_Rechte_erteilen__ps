@@ -1,0 +1,3 @@
+Get-MailboxPermission -Identity support@trolleymaker.com |
+>>     Where-Object {$_.User -like "*s.schwab*"} |
+>>     Format-Table User,AccessRights,IsInherited,Deny -Auto

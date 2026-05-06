@@ -1,0 +1,1 @@
+Get-ManagementRoleAssignment | Where-Object {$_.Role -like "*IMAP*" -or $_.Role -like "*Application*" } | fl Name,Role,App,CustomResourceScope,RecipientWriteScope
