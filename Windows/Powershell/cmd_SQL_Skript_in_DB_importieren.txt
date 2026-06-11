@@ -1,0 +1,1 @@
+sqlcmd -S .\SQLEXPRESS -d test -i "C:\TEMP\CAS_Export.sql"

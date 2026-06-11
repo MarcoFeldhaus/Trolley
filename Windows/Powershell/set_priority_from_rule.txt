@@ -1,0 +1,7 @@
+$mailbox = "support@trolleymaker.com"
+$ruleName = "CAS - Zustellfehler nicht importieren"
+
+Set-InboxRule `
+    -Mailbox $mailbox `
+    -Identity $ruleName `
+    -Priority 1

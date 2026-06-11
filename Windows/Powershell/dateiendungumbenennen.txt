@@ -1,0 +1,1 @@
+Get-ChildItem -Path "C:\Users\m.feldhaus\Spaces\AA MarcoFeldhaus\Dokumentationen\Controlling\genesis_world_queries_einzeln" -Filter *.sql -File | Rename-Item -NewName { $_.BaseName + ".docx" }

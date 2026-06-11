@@ -1,0 +1,6 @@
+$mailbox = "support@trolleymaker.com"
+$ruleName = "CAS - Zustellfehler nicht importieren"
+
+$rule = Get-InboxRule -Mailbox $mailbox -Identity $ruleName
+
+$rule.SubjectContainsWords

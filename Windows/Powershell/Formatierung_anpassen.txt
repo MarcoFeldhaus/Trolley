@@ -1,0 +1,41 @@
+$inputFile = "C:\Users\m.feldhaus\Downloads\teilnahmebedingungen_neu.html"
+$outputFile = "C:\Users\m.feldhaus\Downloads\teilnahmebedingungen_formatiert.html"
+
+$content = Get-Content -Path $inputFile -Raw -Encoding UTF8
+
+# HTML-Entities dekodieren, falls vorhanden
+Add-Type -AssemblyName System.Web
+$content = [System.Web.HttpUtility]::HtmlDecode($content)
+
+# Geschützte Leerzeichen normalisieren
+$content = $content -replace [char]0x00A0, ' '
+
+# Titel korrigieren
+$content = $content -replace '(?is)<p>\s*<strong>\s*Teilnahmebedingungen\s*</strong>\s*</p>', '<h1>Teilnahmebedingungen</h1>'
+
+# Leere Absätze entfernen
+$content = $content -replace '(?is)<p>\s*</p>', ''
+$content = $content -replace '(?is)<p>\s*<strong>\s*</strong>\s*</p>', ''
+
+# <ol><li><strong> Überschrift </strong></li></ol> zu <h3>1. Überschrift</h3>
+$content = $content -replace '(?is)<ol>\s*<li>\s*<strong>\s*(.*?)\s*</strong>\s*</li>\s*</ol>', '<h3>1. $1</h3>'
+
+# <ol start="2"><li><strong> Überschrift </strong></li></ol> zu <h3>2. Überschrift</h3>
+$content = $content -replace '(?is)<ol\s+start="(\d+)">\s*<li>\s*<strong>\s*(.*?)\s*</strong>\s*</li>\s*</ol>', '<h3>$1. $2</h3>'
+
+# Führende Leerzeichen in h3 entfernen
+$content = $content -replace '(?is)<h3>(\d+)\.\s+', '<h3>$1. '
+
+# Absätze mit 1.1 / 2.3 / 9.4 vorne formatieren:
+# <p>1.1 Text</p> => <p><strong>1.1.</strong> Text</p>
+$content = $content -replace '(?im)<p>\s*(\d+\.\d+)\s+([^<].*?)</p>', '<p><strong>$1.</strong> $2</p>'
+
+# Doppelte Punkte verhindern, falls schon 1.1. vorhanden wäre
+$content = $content -replace '<strong>(\d+\.\d+)\.\.</strong>', '<strong>$1.</strong>'
+
+# Mehrfach-Leerzeilen etwas reduzieren
+$content = $content -replace "(\r?\n){3,}", "`r`n`r`n"
+
+Set-Content -Path $outputFile -Value $content -Encoding UTF8
+
+Write-Host "Fertig: $outputFile"

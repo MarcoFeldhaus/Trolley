@@ -1,0 +1,1124 @@
+diff --git a/.env.example b/.env.example
+index 2dd5012..be8d82c 100644
+--- a/.env.example
++++ b/.env.example
+@@ -1,63 +1,68 @@
+ APP_NAME=mycity.cards
+-APP_ENV=development
+-APP_KEY=
+-APP_DEBUG=true
+-APP_URL=http://localhost
++APP_ENV=production
++APP_KEY=base64:R2omkCe0p91Z5r//z4pe7NDu73MYKvrGaStLQeKqbWM=
++APP_DEBUG=false
++APP_URL=https://backend-php.mycity.cards
+ 
+-APP_ROOT_PATH=
++APP_ROOT_PATH=/var/customers/webs/trolleymakerPROD/backend-php.mycity.cards
+ 
+-LOG_CHANNEL=
+-LOG_DEPRECATIONS_CHANNEL=
+-LOG_LEVEL=
++LOG_CHANNEL=stack
++LOG_DEPRECATIONS_CHANNEL=null
++LOG_LEVEL=warning
+ 
+-DB_CONNECTION=
+-DB_DATABASE=
+-DB_FOREIGN_KEYS=
++DB_CONNECTION=mysql
++DB_HOST=localhost
++DB_PORT=3306
++DB_DATABASE=trolleymakerPRODsql1
++DB_USERNAME=trolleymakerPRODsql1
++DB_PASSWORD="!SimpliProdlQsazMebcu2025#"
+ 
+-BROADCAST_DRIVER=
+-CACHE_DRIVER=
+-FILESYSTEM_DISK=
+-QUEUE_CONNECTION=
+-SESSION_DRIVER=
+-SESSION_LIFETIME=
+ 
+-SESSION_DOMAIN=
++BROADCAST_DRIVER=log
++CACHE_DRIVER=file
++FILESYSTEM_DISK=local
++QUEUE_CONNECTION=sync
++SESSION_DRIVER=cookie
++SESSION_LIFETIME=10080
+ 
+-MAIL_MAILER=
+-MAIL_HOST=
+-MAIL_PORT=
+-MAIL_USERNAME=
+-MAIL_PASSWORD=
+-MAIL_ENCRYPTION=
+-MAIL_FROM_ADDRESS=
+-MAIL_FROM_NAME=
+-MAIL_MASTER_TO_ADDRESS=
+-MAIL_ERROR_NOTIFICATION_TO_ADDRESS=
++SESSION_DOMAIN=localhost
+ 
+-REGIONS_API_KEYS=
+-PORTAL_API_KEY=
++MAIL_MAILER=smtp
++MAIL_HOST=w01a55a7.kasserver.com
++MAIL_PORT=587
++MAIL_USERNAME=m0738b05
++MAIL_PASSWORD="N0A1cN2(QBZ2JH@FfkC5"
++MAIL_ENCRYPTION=tls
++MAIL_FROM_ADDRESS="noreply@mycity.cards"
++MAIL_FROM_NAME="mycity.cards"
++MAIL_MASTER_TO_ADDRESS="support@trolleymaker.com"
++MAIL_ERROR_NOTIFICATION_TO_ADDRESS="technik@trolleymaker.com"
+ 
+-JWT_SECRET=
+-JWT_ALGO=
++REGIONS_API_KEYS="keof83FGrd:trolleymaker:SmartcityCARD & APP:trolleymaker.com:firebaseproject-2,urtbc61mgo:Testregion:TestCARD:wl-test.trolleymaker.com:firebaseproject-2,7YAIE2HjsI:Ettenheim:EttenheimCARD:ettenheimcard.de:firebaseproject-1,ahvkiEKx6C:Würmtal:WürmtalCARD:wuermtalcard.de:firebaseproject-1,rPBdss58E0:Lahr:LahrCARD:lahrcard.de:firebaseproject-1,3rc6N6AKpL:Schwabach:SchwabachCARD:schwabachcard.de:firebaseproject-1,fBfdipZqpE:Herbolzheim:Herbolzheim Karte:herbolzheim-karte.de:firebaseproject-1,Gvp6P54G5r:Leinfelden-Echterdingen:LE CARD:le-card.de:firebaseproject-1,jKoewf9N3r:Wunsiedel:WunCARD:wuncard.de:firebaseproject-1,tbZ38d9Xep:Kenzingen:KenzingenCARD:kenzingencard.de:firebaseproject-1,fhe3oZBR8r:Landshut:LandshutCARD:landshutcard.de:firebaseproject-1,GuRN894Nfg:Plettenberg:ViertälerCARD:viertaelercard.de:firebaseproject-1,o3pgfe4RtT:Balingen:BalingenCARD:balingencard.de:firebaseproject-1,rzBZRhfbeP:Troisdorf:TroCARD:trocard.de:firebaseproject-1,gHRgRnfGnR:Neuried:NeuriedCARD:neuriedcard.de:firebaseproject-1,eufJrNBeqF:Abensberg:AbensbergCARD:abensbergcard.de:firebaseproject-1,tbrWl4fUTe:Calw:CalwCARD:calwcard.de:firebaseproject-2,grGe3JbrTr:Henstedt-Ulzburg:Henstedt-Ulzburg SmartCARD:hu-smartcard.de:firebaseproject-1,fne433nfTv:Flensburg:FördeCARD:foerdecard.com:firebaseproject-1,PwF12Beut3:Ratingen:RatingenCARD:ratingen-card.de:firebaseproject-1,fRtf63uirN:Haslach:HaslachCARD:haslachcard.de:firebaseproject-2,hjQdFbh2We:Erlebnisregion Europa-Park:Erlebnisregion Europa-Park CARD:erlebnisregion-europaparkcard.de:firebaseproject-2,JgI8nfTl1q:Rotenburg an der Wümme:SR CARD:srcard.de:firebaseproject-2,AgHjZ7uU23:Freiburg im Breisgau:ECHT FREIBURG CARD:echtfreiburgcard.de:firebaseproject-2,Klz7gH5j33:Pfullingen:PfulbenCARD:pfulbencard.de:firebaseproject-2,LO9zGhij3df:Baden-Baden:Baden-Baden CARD:baden-baden-card.de:firebaseproject-2,U8ioO3Rj9z:Dettingen an der Erms:DETTINGEN ERMSCARD:dettingen-ermscard.de:firebaseproject-2,UiOP89xCAa:Stuttgart Mitte:0711CARD:0711card.de:firebaseproject-2,OeRT6hJj8a:Bad Waldsee:Bad Waldsee CityCARD:badwaldseecitycard.de:firebaseproject-2,XcV6gHJ8il:Besigheim:BesigheimCARD:besigheimcard.de:firebaseproject-2,HskjU6kyFF:Hückelhoven:HÜCARD:huecard.de,DH72dfs2h4:Neubulach:NeubulachCARD:neubulachcard.de,Jm40sdak4a:Troisdorf Stadt:Stadtgutschein Troisdorf:stadtgutschein-troisdorf.de"
+ 
+-PATH_TO_FIREBASE_CREDENTIALS=
++JWT_SECRET=QM3do6GqDVQBsPav2ahZqca2AQcS7hOFaoBb6s1TjlgAbus8gig15ECZh1bOaVKq
++JWT_ALGO=HS256
+ 
+-GW_API_BASE=
+-GW_AUTHORIZATION_DEV=
+-GW_AUTHORIZATION_LIVE=
+-GW_AUTHORIZATION=
+-GW_PRODUCT_KEY=
++PATH_TO_FIREBASE_CREDENTIALS1=${APP_ROOT_PATH}/smartcity-cd14d-firebase-adminsdk-3i7or-689cc6afe8.json
++PATH_TO_FIREBASE_CREDENTIALS2=${APP_ROOT_PATH}/smartcity2-b4330-firebase-adminsdk-rxl0a-2e5a36f672.json
+ 
+-VALUEMASTER_PROVIDER=
+-VALUEMASTER_PASSWORD=
+-VALUEMASTER_ENCRYPTION_PASSWORD=
+-VALUEMASTER_ENCRYPTION_SALT=
+-VALUEMASTER_ENCRYPTION_LENGTH=
++GW_AUTHORIZATION_DEV="VFJPTExFWU1BS0VSREJfVEVTVC9BZG1pbmlzdHJhdG9yOkdXVE0yMDIyX1Rlc3Q="
++GW_AUTHORIZATION_LIVE="QWRtaW5pc3RyYXRvcjpHV1RNMjAyMg=="
++GW_AUTHORIZATION=${GW_AUTHORIZATION_LIVE}
++GW_PRODUCT_KEY=Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA==
+ 
+-MONTHLY_CHARGING_LIMIT=
++VALUEMASTER_PROVIDER=trolleymaker
++VALUEMASTER_PASSWORD="poiJJ#9q9"
++VALUEMASTER_ENCRYPTION_PASSWORD="Ht5#dadd!343"
++VALUEMASTER_ENCRYPTION_SALT="dKK##2k!ds"
++VALUEMASTER_ENCRYPTION_LENGTH=24
+ 
+-INTEGRATIONS_RATE_LIMIT_PER_MINUTE=
++MONTHLY_CHARGING_LIMIT=250
+ 
+-WORDPRESS_REGIONS_ENDPOINT=
++INTEGRATIONS_RATE_LIMIT_PER_MINUTE=60
+ 
+-GO_BACKEND_URL=
++WORDPRESS_REGIONS_ENDPOINT=https://regionen.trolleymaker.com/wp-json/wp/v2/regionen
++
++PORTAL_API_KEY=kRDNGnmg76hFTkqg4qBWWCnGbLrP8MWK
++
++GO_BACKEND_URL=http://localhost:4000
+diff --git a/config/cors.php b/config/cors.php
+index 698400d..18f5c33 100644
+--- a/config/cors.php
++++ b/config/cors.php
+@@ -20,7 +20,7 @@
+ 
+     'allowed_methods' => ['*'],
+ 
+-    'allowed_origins' => ['localhost', 'http://localhost', 'https://localhost', 'localhost:8080', 'http://localhost:8080', 'localhost:5173', 'http://localhost:5173',
++    'allowed_origins' => ['localhost', 'http://localhost', 'https://localhost', 'localhost:8080', 'http://localhost:8080', 'http://localhost:8081', 'localhost:5173', 'http://localhost:5173',
+                             'mycity.cards', 'http://mycity.cards', 'https://mycity.cards', 'https://mycity.cards/', 'backend.mycity.cards', 'https://backend.mycity.cards',
+                             'dev.mycity.cards', 'http://dev.mycity.cards', 'https://dev.mycity.cards', 'https://dev.mycity.cards/', 'dev-backend.mycity.cards', 'https://dev-backend.mycity.cards',
+                             'beta.mycity.cards', 'http://beta.mycity.cards', 'https://beta.mycity.cards', 'https://beta.mycity.cards/', 'beta-backend.mycity.cards', 'https://beta-backend.mycity.cards',
+diff --git a/routes/api.php b/routes/api.php
+index 96ea672..c317155 100644
+--- a/routes/api.php
++++ b/routes/api.php
+@@ -376,7 +376,7 @@ function handleGetPartners($request) {
+             'Accept' => 'application/json',
+             'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+             'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-        ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++        ])->post(env('GW_API_BASE') . '/query', [
+             "query" => "SELECT b.*, a.GGUID as ADDRESSGGUID FROM BONI b LINK_JOIN(linkattribute='TMBONUS') ADDRESS a WHERE a.GGUID IN (" .
+                 $gguids
+                 . ") AND b.GWSSTATUS = 'aktiviert' ORDER BY GWSTYPE"
+@@ -594,7 +594,7 @@ function _getSuggestedValuesForAddress($fieldsToGet = []) {
+ 
+ function _getSuggestedValues($objectType, $fieldsToGet = []) {
+ 
+-    $getUrl = 'https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/' . $objectType . '/schema';
++    $getUrl = env('GW_API_BASE') . '/type/' . $objectType . '/schema';
+ 
+     $gwResponse = Http::withHeaders([
+         'Content-Type' => 'application/json; charset=utf-8',
+@@ -669,7 +669,7 @@ function _getSuggestedTypesForAddress() {
+ 
+ function _getSuggestedTypes($objectType) {
+ 
+-    $getUrl = 'https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/' . $objectType . '/schema';
++    $getUrl = env('GW_API_BASE') . '/type/' . $objectType . '/schema';
+ 
+     $gwResponse = Http::withHeaders([
+         'Content-Type' => 'application/json; charset=utf-8',
+@@ -735,7 +735,7 @@ function _getGwFirebaseClientsForFirebaseIDs($select = '*', $firebaseIDs = NULL)
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => $query
+     ]);
+ 
+@@ -767,7 +767,7 @@ function getGWAllPushNotifications($select = '*') {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => $query
+     ]);
+ 
+@@ -815,7 +815,7 @@ function getGwFirebaseClientsForFirebaseIDs($select = '*', $firebaseIDs = NULL)
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => $query
+     ]);
+ 
+@@ -956,7 +956,7 @@ function _handleAddCard($request)
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='])
+-        ->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/ADDRESS/' . $addressGguid . '/dossier?gguid2=' . $cardData->GGUID . '&attribute=TMKVWADRESSE&object-type2=KARTENVERWALTUNG');
++        ->post(env('GW_API_BASE') . '/type/ADDRESS/' . $addressGguid . '/dossier?gguid2=' . $cardData->GGUID . '&attribute=TMKVWADRESSE&object-type2=KARTENVERWALTUNG');
+ 
+     if ($addNewCardtoAdressResponse->failed()) {
+         Log::error("Fehler beim Verknüpfen der Karte: " . $addNewCardtoAdressResponse->body());
+@@ -998,7 +998,7 @@ function getGwNutzernameForEMail($select = '*', $email = NULL) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++   ])->post(env('GW_API_BASE') . '/query', [
+         'query' => $query
+     ]);
+ 
+@@ -1042,7 +1042,7 @@ function getGwAddressForLoginEMail($select, $email = "") {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => $query
+     ]);
+ 
+@@ -1093,7 +1093,7 @@ function getGwCustomerPersonalDataForEMail($select, $email = "") {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => $query
+     ]);
+ 
+@@ -1144,7 +1144,7 @@ function getGwAllPublicPartnersByRegion($region, $select = "*", $showOnlyWhiteLa
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => $query
+     ]);
+ 
+@@ -1200,7 +1200,7 @@ function getGwInterestAndPartnerPersonalData($select, $email, $isContact = NULL,
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => $query
+     ]);
+ 
+@@ -1244,7 +1244,7 @@ function getGwUserGguid($email)
+                 'Authorization'     => 'Basic ' . env("GW_AUTHORIZATION"),
+                 'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA==',
+             ])->post(
+-            'https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query',
++            env('GW_API_BASE') . '/query',
+             [
+                 'query' => $query,
+             ]);
+@@ -1304,7 +1304,7 @@ function getGwContractorPersonalData($select, $email, $isContact = NULL, $isComp
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => $query
+     ]);
+ 
+@@ -1331,7 +1331,7 @@ function getGwPersonalDataByGGUID($gguid) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address/' . $gguid);
++    ])->get(env('GW_API_BASE') . '/type/address/' . $gguid);
+ 
+     if($gwResponse->failed() || !property_exists(json_decode($gwResponse), 'fields')) {
+         $error_obj = new stdClass();
+@@ -1357,7 +1357,7 @@ function getGwTransactionByGGUID($transactionGguid) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/transaktionsdaten/' . $transactionGguid);
++    ])->get(env('GW_API_BASE') . '/type/transaktionsdaten/' . $transactionGguid);
+ 
+     if($gwResponse->failed() || !property_exists(json_decode($gwResponse), 'fields')) {
+         $error_obj = new stdClass();
+@@ -1383,7 +1383,7 @@ function getGwBranchUsers($gguid) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => 'SELECT * FROM address WHERE PRIMARYORGANISATION=0x' . $gguid . ' AND GWSTYPE="Partnerschaft" AND (TMARTDERPARTNERSCHAFT="Partner" OR TMARTDERPARTNERSCHAFT="Partner und Auftraggeber") AND TMMODULEPARTNER LIKE "%GutscheinCARD%" AND GWISCONTACT=true ORDER BY INSERTTIMESTAMP'
+     ]);
+ 
+@@ -1411,7 +1411,7 @@ function getGwContactPersonsForCompanyGGUID($company_gguid) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => 'SELECT * FROM address WHERE PRIMARYORGANISATION=0x' . $company_gguid . ' AND GWISCONTACT=true ORDER BY INSERTTIMESTAMP'
+     ]);
+ 
+@@ -1450,7 +1450,7 @@ function getRegionData($region_name, $card_name = NULL, $fieldsToGet = [], ) {
+ 
+     $url .= http_build_query($parameters);
+ 
+-    $getRegionData = Http::withHeaders([
++    $getRegionData = Http::withoutVerifying()->withHeaders([
+         'Content-Type' => 'application/json; charset=utf-8',
+         'Accept' => 'application/json',
+     ])->get($url);
+@@ -1508,7 +1508,7 @@ function checkIfEMailExists($email) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => 'SELECT NAME FROM address WHERE (MAILFIELDSTR5="' . $email . '" OR MAILFIELDSTR3="' . $email . '" OR TMADMINUSER="' . $email . '") AND (GWSTYPE="Partnerschaft" OR GWSTYPE="Partner" OR GWSTYPE="Kunde" OR GWSTYPE="Arbeitgeber (MitarbeiterCARD)" OR GWSTYPE="Interessent")'
+     ]);
+ 
+@@ -1556,7 +1556,7 @@ function getDocumentsForCompany($companyGguid, $documentTypesToSelect = NULL, $f
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/document/full?linked-to=0x' . $companyGguid .'&linked-to-type=ADDRESS&order-by=DOCDATE desc');
++    ])->get(env('GW_API_BASE') . '/type/document/full?linked-to=0x' . $companyGguid .'&linked-to-type=ADDRESS&order-by=DOCDATE desc');
+ 
+     if($gwResponse->failed()) {
+         if($gwResponse->status() == 503) {
+@@ -1685,7 +1685,7 @@ function _createRecordInGw($fields, $objectType)
+                                               'Authorization'     => 'Basic ' . env("GW_AUTHORIZATION"),
+                                               'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+                                           ]
+-    )->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/' . $objectType, [
++    )->post(env('GW_API_BASE') . '/type/' . $objectType, [
+         'fields' => $fields
+     ]
+     );
+@@ -1732,7 +1732,7 @@ function getCardForCardID($cardID) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         "query" => $query
+     ]);
+ 
+@@ -1775,7 +1775,7 @@ function getCardsForCardIDs($cardIDs) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => 'SELECT KVWKARTENNUMMER, KVWKARTEREGISTRIERT FROM kartenverwaltung WHERE KVWKARTENNUMMER IN (' . implode(',',$cardIDs) . ')'
+     ]);
+ 
+@@ -1841,7 +1841,7 @@ function _getAddressForCardGGUID($cardGguid, $linkedToAttribute) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address/full?linked-to=' . $cardGguid .'&linked-to-type=KARTENVERWALTUNG&linked-to-attributes=' . $linkedToAttribute);
++    ])->get(env('GW_API_BASE') . '/type/address/full?linked-to=' . $cardGguid .'&linked-to-type=KARTENVERWALTUNG&linked-to-attributes=' . $linkedToAttribute);
+ 
+     if($gwResponse->failed()) {
+         if($gwResponse->status() == 503) {
+@@ -1891,7 +1891,7 @@ function getCardsForAddressGGUID($addressGguid, $linkedToAttribute, $showOnlyAct
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/kartenverwaltung/full?linked-to=' . $addressGguid .'&linked-to-type=ADDRESS&linked-to-attributes=' . $linkedToAttribute);
++    ])->get(env('GW_API_BASE') . '/type/kartenverwaltung/full?linked-to=' . $addressGguid .'&linked-to-type=ADDRESS&linked-to-attributes=' . $linkedToAttribute);
+ 
+     if($gwResponse->failed()) {
+         if($gwResponse->status() == 503) {
+@@ -2001,7 +2001,7 @@ function _handleCustomerLogin($request, $loginFromAPI) {
+ 
+     $white_label_website_url = NULL;
+ 
+-    $getRegionData = Http::withHeaders([
++    $getRegionData = Http::withoutVerifying()->withHeaders([
+         'Content-Type' => 'application/json; charset=utf-8',
+         'Accept' => 'application/json',
+     ])->get(config('services.wordpress.regions.endpoint') . '_fields=acf.white_label_website_url,acf.terminalgroupid_gutschein,acf.terminalgroupid_mitarbeitercard&region_name=' . $personal_data->NCREGION);
+@@ -2247,7 +2247,7 @@ function _handlePartnerLogin($request, $generateJWT = false, $checkForNewPortal
+     $terminalgroupid_gutschein = NULL;
+     $terminalgroupid_mitarbeitercard = NULL;
+ 
+-    $getRegionData = Http::withHeaders([
++    $getRegionData = Http::withoutVerifying()->withHeaders([
+         'Content-Type' => 'application/json; charset=utf-8',
+         'Accept' => 'application/json',
+     ])->get(config('services.wordpress.regions.endpoint') . '_fields=acf.white_label_website_url,acf.terminalgroupid_gutschein,acf.terminalgroupid_mitarbeitercard&region_name=' . $company_data->NCREGION);
+@@ -2817,7 +2817,7 @@ function _handleEmployerLogin($request) {
+         return returnErrorObject($usernameLinkExists);
+     }
+ 
+-    $getRegionData = Http::withHeaders([
++    $getRegionData = Http::withoutVerifying()->withHeaders([
+         'Content-Type' => 'application/json; charset=utf-8',
+         'Accept' => 'application/json',
+     ])->get(config('services.wordpress.regions.endpoint') . '_fields=acf.white_label_website_url,acf.terminalgroupid_gutschein,acf.terminalgroupid_mitarbeitercard&region_name=' . $personal_data->NCREGION);
+@@ -2973,7 +2973,7 @@ function _handleEmployerLogin($request) {
+     if(isError($personal_data) || $personal_data == NULL) {
+         return returnErrorObject($personal_data);
+     }
+-
++    Log::error('PERSONAL_DATA: ' . print_r($personal_data, true));
+ 
+     $session_token = (string) Str::uuid();
+     $role = UserRoles::TROLLEYMAKER;
+@@ -3000,7 +3000,7 @@ function _handleEmployerLogin($request) {
+         'user_role' => $role,
+         'partner_user_role' => NULL,
+         'trolleymaker_user_role' => $trolleymaker_role,
+-        'company_gguid' => $personal_data->PRIMARYORGANISATION,
++        'company_gguid' => ($personal_data->PRIMARYORGANISATION ?? $personal_data->GGUID),
+         'contact_person_gguid' => $personal_data->GGUID,
+         'terminalgroupid_gutschein' => NULL,
+         'terminalgroupid_mitarbeitercard' => NULL,
+@@ -3639,7 +3639,7 @@ function _handleGetPartnerTransactions($request) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => 'SELECT GGUID, COMPNAME, GWSTYPE, TMARTDERPARTNERSCHAFT, NCORTDERANMELDUNG, TMISTTESTDATENSATZ, GWISCOMPANY FROM address WHERE ((GWSTYPE="Partnerschaft" AND (TMARTDERPARTNERSCHAFT="Partner" OR TMARTDERPARTNERSCHAFT="Partner und Auftraggeber")) OR GWSTYPE="Partner" OR GWSTYPE="Arbeitgeber (MitarbeiterCARD)") AND NCORTDERANMELDUNG="' . $card_name . '" AND GWISCOMPANY = true AND TMISTTESTDATENSATZ != true'
+     ]);
+ 
+@@ -3671,7 +3671,7 @@ function _handleGetPartnerTransactions($request) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => 'SELECT COUNT(GGUID) AS amount_cards FROM kartenverwaltung WHERE KVWORTDERANMELDUNG="' . $card_name . '" AND KVWISTTESTKARTE != true'
+     ]);
+ 
+@@ -3704,7 +3704,7 @@ function getCardsAndAddressForEmployer($employerAddressGguid) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         "query" => "SELECT a.GGUID as AGGUID, a.NAME, a.CHRISTIANNAME, a.TMNOTES3, a.GWPERSONNELNUMBER, a.TMCHRISTIANNAMEAG, a.TMNAMEAG, kvw.* FROM address a LINK_JOIN(linkattribute='TMKVWADRESSE') kartenverwaltung kvw WHERE kvw.IsLinkedToWhere(address p:WHERE p.GGUID = 0x" . $employerAddressGguid . ";LinkAttribute='TMKARTEARBEITGE')"
+     ]);
+ 
+@@ -4593,7 +4593,7 @@ function _handleCustomerRegistration($request){
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => 'SELECT TMNUTZERMAIL, TMNUTZERNAME FROM NUTZERNAMEN WHERE TMNUTZERMAIL="' . $registerData->email . '" OR TMNUTZERNAME="' . $registerData->email . '"'
+     ]);
+ 
+@@ -4614,7 +4614,7 @@ function _handleCustomerRegistration($request){
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => 'SELECT GGUID, KVWKARTENNUMMER, KVWKARTEREGISTRIERT, KVWISTTESTKARTE FROM kartenverwaltung WHERE KVWKARTENNUMMER="' . $registerData->cardID . '"'
+     ]);
+ 
+@@ -4640,7 +4640,7 @@ function _handleCustomerRegistration($request){
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => 'SELECT * FROM address WHERE NCKARTENNUMMER="' . $registerData->cardID . '" AND GWSTYPE="Kunde"'
+     ]);
+ 
+@@ -4992,7 +4992,7 @@ function _handleCustomerRegistration($request){
+                     'Accept' => 'application/json',
+                     'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+                     'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-                ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/ADDRESS/' . $addressGGUID . '/dossier?gguid2=' . $perk->GGUID . '&attribute=Prod2Kunde&object-type2=BSPRODUCT');
++                ])->post(env('GW_API_BASE') . '/type/ADDRESS/' . $addressGGUID . '/dossier?gguid2=' . $perk->GGUID . '&attribute=Prod2Kunde&object-type2=BSPRODUCT');
+ 
+                 if($addGwLink->failed()) {
+                     Log::error("Fehler beim Erstellen einer neuen Verknüpfung von Adresse/Kunde zu Product/Perk: " . $addGwLink->body());
+@@ -5672,7 +5672,7 @@ function handleGetCustomerPersonalData($request) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address/full?linked-to=' . $headquarter_data->GGUID . '&linked-to-type=ADDRESS&linked-to-attributes=FILIALEZENTRALE&order-by=INSERTTIMESTAMP');
++    ])->get(env('GW_API_BASE') . '/type/address/full?linked-to=' . $headquarter_data->GGUID . '&linked-to-type=ADDRESS&linked-to-attributes=FILIALEZENTRALE&order-by=INSERTTIMESTAMP');
+ 
+     if($gwGetBranches->failed()) {
+         $error_obj = new stdClass();
+@@ -5922,7 +5922,7 @@ function handleGetCustomerPersonalData($request) {
+                     'Accept' => 'application/json',
+                     'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+                     'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-                ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address', [
++                ])->post(env('GW_API_BASE') . '/type/address', [
+                     'fields' => [
+                         'GWSTYPE' => 'Partnerschaft',
+                         'NCFIRMENID' => strval($partnerDataFromValueMaster->CompanyID),
+@@ -6017,7 +6017,7 @@ function handleGetCustomerPersonalData($request) {
+                         'Accept' => 'application/json',
+                         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+                         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-                    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address', [
++                    ])->post(env('GW_API_BASE') . '/type/address', [
+                         'fields' => [
+                             'TMADMINUSER' => $requestBranchUser->contactPersonEmail,
+                             'GWGENDER' => $requestBranchUser->contactPersonGender,
+@@ -6055,7 +6055,7 @@ function handleGetCustomerPersonalData($request) {
+                     'Accept' => 'application/json',
+                     'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+                     'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-                ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address/' . $tempBranch->GGUID . '/dossier?gguid2=' . $headquarter_data->GGUID . '&attribute=FILIALEZENTRALE&object-type2=ADDRESS');
++                ])->post(env('GW_API_BASE') . '/type/address/' . $tempBranch->GGUID . '/dossier?gguid2=' . $headquarter_data->GGUID . '&attribute=FILIALEZENTRALE&object-type2=ADDRESS');
+ 
+                 if($addGwLink->failed()) {
+                     Log::error("Fehler beim Erstellen einer neuen Filiale bei /partner-personal-data addGwLink (Verknüpfung erstellen): " . $addGwLink->body());
+@@ -6202,7 +6202,7 @@ function updateGwData($gwObjectType, $gguid, $fields) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/' . $gwObjectType . '/' . $gguid);
++    ])->get(env('GW_API_BASE') . '/type/' . $gwObjectType . '/' . $gguid);
+ 
+         if ($gwResponse->failed() || $gwResponse->header('ETag') == NULL || $gwResponse->header('ETag') == '') {
+                 Log::error(
+@@ -6224,7 +6224,7 @@ function updateGwData($gwObjectType, $gguid, $fields) {
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA==',
+         'If-Match' => $gwResponse->header('ETag')
+-    ])->put('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/' . $gwObjectType . '/' . $gguid, [
++    ])->put(env('GW_API_BASE') . '/type/' . $gwObjectType . '/' . $gguid, [
+         'fields' => $fields
+     ]);
+ 
+@@ -6246,7 +6246,7 @@ function deleteGwData($gwObjectType, $gguid) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->delete('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/' . $gwObjectType . '/' . $gguid);
++    ])->delete(env('GW_API_BASE') . '/type/' . $gwObjectType . '/' . $gguid);
+ 
+     if($gwDeleteResponse->failed()) {
+         Log::error("Fehler beim Löschen deleteGwData: " . $gwDeleteResponse->body());
+@@ -6263,7 +6263,7 @@ function updateGwLogo($gguid, $logoPath) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address/' . $gguid);
++    ])->get(env('GW_API_BASE') . '/type/address/' . $gguid);
+ 
+     if($gwResponse->failed() || $gwResponse->header('ETag') == NULL || $gwResponse->header('ETag') == '') {
+         Log::error('updateGwLogo: failed for getting object by gguid (' . $gguid . '): ' . $gwResponse);
+@@ -6277,7 +6277,7 @@ function updateGwLogo($gguid, $logoPath) {
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA==',
+         'If-Match' => $gwResponse->header('ETag')
+-    ])->put('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address/' . $gguid . '/image');
++    ])->put(env('GW_API_BASE') . '/type/address/' . $gguid . '/image');
+ 
+     if($gwUpdateResponse->successful()) {
+         return true;
+@@ -6309,7 +6309,7 @@ function getCardTransactionsFromGWForMultipleCards($cardIDs, $amount_of_transact
+ 
+     $response_array = [];
+ 
+-    $url = 'https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query';
++   $url = env('GW_API_BASE') . '/query';
+     if($amount_of_transactions != NULL && $amount_of_transactions > 0 && $is_amount_of_transactions_per_card == false) {
+         $url .= '?entries-per-page=' . $amount_of_transactions . '&page=1';
+     }
+@@ -6424,7 +6424,7 @@ function getPartnerTransactionsFromGW($partnerGGUID, $amount_of_transactions = N
+ 
+ function getTransactionsFromGWLinkedTo($linked_to, $company_gguid, $amount_of_transactions = NULL, $from_date = NULL, $to_date = NULL, $censor_cardId = true) {
+ 
+-    $url = 'https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/TRANSAKTIONSDATEN/full?linked-to=' . $company_gguid . '&linked-to-type=ADDRESS&linked-to-attributes=' . $linked_to . '&order-by=TADBUCHUNGSDATUM DESC';
++    $url = env('GW_API_BASE') . '/type/TRANSAKTIONSDATEN/full?linked-to=' . $company_gguid . '&linked-to-type=ADDRESS&linked-to-attributes=' . $linked_to . '&order-by=TADBUCHUNGSDATUM DESC';
+     if($amount_of_transactions != NULL && $amount_of_transactions > 0) {
+         $url .= '&entries-per-page=' . $amount_of_transactions . '&page=1';
+     }
+@@ -6548,7 +6548,7 @@ function getTransactionsFromGWByRegion($region_card_name, $amount_of_transaction
+ 
+     $response_array = [];
+ 
+-    $url = 'https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query';
++    $url = env('GW_API_BASE') . '/query';
+     if($amount_of_transactions != NULL && $amount_of_transactions > 0) {
+         $url .= '?entries-per-page=' . $amount_of_transactions . '&page=1';
+     } else {
+@@ -6736,7 +6736,7 @@ function getTransactionsFromGWByRegion($region_card_name, $amount_of_transaction
+         $registerData->password = $request->input('contactPersonPassword');
+     }
+ 
+-    $getRegionData = Http::withHeaders([
++    $getRegionData = Http::withoutVerifying()->withHeaders([
+         'Content-Type' => 'application/json; charset=utf-8',
+         'Accept' => 'application/json',
+     ])->get(config('services.wordpress.regions.endpoint') . '_fields=acf&region_name=' . $registerData->region);
+@@ -6878,7 +6878,7 @@ function getTransactionsFromGWByRegion($region_card_name, $amount_of_transaction
+             'Accept' => 'application/json',
+             'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+             'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-        ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/GWOPPORTUNITY/full?linked-to=' . $decryptedGGUID .'&linked-to-type=ADDRESS&linked-to-attributes=ACCOUNT');
++        ])->get(env('GW_API_BASE') . '/type/GWOPPORTUNITY/full?linked-to=' . $decryptedGGUID .'&linked-to-type=ADDRESS&linked-to-attributes=ACCOUNT');
+ 
+         if($checkGwOpportunityLink->failed()) {
+             Log::error("Fehler beim Abrufen der Verknüpfungen der GWOPPORTUNITY in /interest-registration für: " . $decryptedGGUID . ", Response: " . $checkGwOpportunityLink->body());
+@@ -6945,7 +6945,7 @@ function getTransactionsFromGWByRegion($region_card_name, $amount_of_transaction
+                     'Accept' => 'application/json',
+                     'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+                     'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-                ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/ADDRESS/' . $decryptedGGUID . '/dossier?gguid2=' . $createdOpportunityGGUID . '&attribute=ACCOUNT&object-type2=GWOPPORTUNITY');
++                ])->post(env('GW_API_BASE') . '/type/ADDRESS/' . $decryptedGGUID . '/dossier?gguid2=' . $createdOpportunityGGUID . '&attribute=ACCOUNT&object-type2=GWOPPORTUNITY');
+ 
+                 if($addGwLink->failed()) {
+                     Log::error("Fehler beim Erstellen einer neuen Verknüpfung von Opportunity zu Adresse: " . $addGwLink->body());
+@@ -6960,7 +6960,7 @@ function getTransactionsFromGWByRegion($region_card_name, $amount_of_transaction
+             'Accept' => 'application/json',
+             'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+             'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-        ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address', [
++        ])->post(env('GW_API_BASE') . '/type/address', [
+             'fields' => $companyFields
+         ]);
+ 
+@@ -6990,7 +6990,7 @@ function getTransactionsFromGWByRegion($region_card_name, $amount_of_transaction
+             'Accept' => 'application/json',
+             'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+             'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-        ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address', [
++        ])->post(env('GW_API_BASE') . '/type/address', [
+             'fields' => $contactPersonFields
+         ]);
+ 
+@@ -7006,7 +7006,7 @@ function getTransactionsFromGWByRegion($region_card_name, $amount_of_transaction
+                 'Accept' => 'application/json',
+                 'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+                 'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-            ])->delete('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address/' . $registerData->company_gguid);
++            ])->delete(env('GW_API_BASE') . '/type/address/' . $registerData->company_gguid);
+ 
+             if($gwDeleteFailedInterestResponse->successful()) {
+                 Log::error("Fehler bei Registrierung des Interesent bei gW: " . $gwInterestResponse->body());
+@@ -7198,7 +7198,7 @@ function getTransactionsFromGWByRegion($region_card_name, $amount_of_transaction
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address/full?linked-to=' . $company_data->GGUID . '&linked-to-type=ADDRESS&linked-to-attributes=FILIALEZENTRALE&order-by=INSERTTIMESTAMP');
++    ])->get(env('GW_API_BASE') . '/type/address/full?linked-to=' . $company_data->GGUID . '&linked-to-type=ADDRESS&linked-to-attributes=FILIALEZENTRALE&order-by=INSERTTIMESTAMP');
+ 
+     if($gwGetBranches->failed()) {
+         if($gwGetBranches->status() == 503) {
+@@ -7508,7 +7508,7 @@ function getTransactionsFromGWByRegion($region_card_name, $amount_of_transaction
+             'Accept' => 'application/json',
+             'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+             'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-        ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++        ])->post(env('GW_API_BASE') . '/query', [
+             'query' => 'SELECT NAME FROM address WHERE TMADMINUSER="' . $registerData->employerLoginEmail. '" OR (MAILFIELDSTR3="' . $registerData->employerLoginEmail . '" AND GWSTYPE="Kunde")'
+         ]);
+ 
+@@ -7816,7 +7816,7 @@ function getTransactionsFromGWByRegion($region_card_name, $amount_of_transaction
+ 
+         $fieldsToUpdate->TMPARTNERINTERESSE = 'Beides';
+ 
+-        $getRegionData = Http::withHeaders([
++        $getRegionData = Http::withoutVerifying()->withHeaders([
+             'Content-Type' => 'application/json; charset=utf-8',
+             'Accept' => 'application/json',
+         ])->get(config('services.wordpress.regions.endpoint') . '_fields=acf&region_name=' .
+@@ -7946,7 +7946,7 @@ function getTransactionsFromGWByRegion($region_card_name, $amount_of_transaction
+             'Accept' => 'application/json',
+             'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+             'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-        ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address', [
++        ])->post(env('GW_API_BASE') . '/type/address', [
+             'fields' => [
+                 'GWSTYPE' => 'Partnerschaft',
+                 'TMARTDERPARTNERSCHAFT' => 'Partner',
+@@ -8004,7 +8004,7 @@ function getTransactionsFromGWByRegion($region_card_name, $amount_of_transaction
+             'Accept' => 'application/json',
+             'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+             'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-        ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address', [
++        ])->post(env('GW_API_BASE') . '/type/address', [
+             'fields' => [
+                 'TMADMINUSER' => $registerData->employerLoginEmail,
+                 'GWGENDER' => $interest_personal_data->GWGENDER,
+@@ -8041,7 +8041,7 @@ function getTransactionsFromGWByRegion($region_card_name, $amount_of_transaction
+                 'Accept' => 'application/json',
+                 'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+                 'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-            ])->delete('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address/' . $employer_gguid);
++            ])->delete(env('GW_API_BASE') . '/type/address/' . $employer_gguid);
+ 
+             if($gwDeleteFailedEmployerResponse->successful()) {
+                 Log::error("Fehler bei Registrierung des Interesent bei gW: " . $gwDeleteFailedEmployerResponse);
+@@ -8442,7 +8442,7 @@ function _handleGetBooking($request){
+             'Accept' => 'application/json',
+             'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+             'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-        ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address/full?linked-to=' . $company_data->GGUID . '&linked-to-type=ADDRESS&linked-to-attributes=FILIALEZENTRALE&order-by=INSERTTIMESTAMP');
++        ])->get(env('GW_API_BASE') . '/type/address/full?linked-to=' . $company_data->GGUID . '&linked-to-type=ADDRESS&linked-to-attributes=FILIALEZENTRALE&order-by=INSERTTIMESTAMP');
+ 
+         if($gwGetHeadquarter->failed()) {
+             if($gwGetHeadquarter->status() == 503) {
+@@ -9332,7 +9332,7 @@ function _handleCorrectionBooking($request){
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address/' . $request->input('company_gguid') . '/image');
++    ])->get(env('GW_API_BASE') . '/type/address/' . $request->input('company_gguid') . '/image');
+ 
+     if($gwGetLogo->successful()) {
+         $logoBase64 = base64_encode($gwGetLogo);
+@@ -9372,7 +9372,7 @@ function _handleCorrectionBooking($request){
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA==',
+         'CAS-FILE-EXTENSION' => $request->employerCardsListFile->extension()
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/document/file');
++    ])->post(env('GW_API_BASE') . '/type/document/file');
+ 
+     if($addDocument->failed()) {
+         if($addDocument->status() == 503) {
+@@ -9410,7 +9410,7 @@ function _handleCorrectionBooking($request){
+             'Accept' => 'application/json',
+             'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+             'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-        ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/DOCUMENT/' . $documentGGUID . '/dossier?gguid2=' . $company_data->GGUID . '&attribute=ITDDOCADR&object-type2=ADDRESS');
++        ])->post(env('GW_API_BASE') . '/type/DOCUMENT/' . $documentGGUID . '/dossier?gguid2=' . $company_data->GGUID . '&attribute=ITDDOCADR&object-type2=ADDRESS');
+ 
+         if($addGwLink->failed()) {
+             Log::error("Fehler beim Erstellen einer neuen Verknüpfung von Ladeliste Document zu Adresse: " . $addGwLink->body());
+@@ -9453,7 +9453,7 @@ function _handleCorrectionBooking($request){
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/document/0x' . $document_gguid . '/file');
++    ])->get(env('GW_API_BASE') . '/type/document/0x' . $document_gguid . '/file');
+ 
+     if($gwGetDocument->successful()) {
+         return response($gwGetDocument);
+@@ -9854,7 +9854,7 @@ function generateContractNumber($contract_number_prefix) {
+             'Accept' => 'application/json',
+             'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+             'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-        ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++        ])->post(env('GW_API_BASE') . '/query', [
+             'query' => 'SELECT NCINTERNEID, TMVERTRAGID FROM address WHERE NCINTERNEID="' . $contractNumber . '" OR TMVERTRAGID="' . $contractNumber . '"'
+         ]);
+ 
+@@ -10251,7 +10251,7 @@ function _guessSalutationFromGW($firstName, $lastName, $gender, $title, $preferr
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address/salutation', [
++    ])->post(env('GW_API_BASE') . '/type/address/salutation', [
+         'name' =>  $lastName,
+         'christianName' => $firstName,
+         'preferredLanguage' => $preferredLanguage,
+@@ -10639,7 +10639,7 @@ function checkIfLotNumberExists($lotNumber) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         'query' => 'SELECT TMNUMMER FROM SUAITEMS WHERE GWSTYPE = "Los" AND TMNUMMER="' . $lotNumber . '"'
+     ]);
+ 
+@@ -10664,7 +10664,7 @@ function getTransactionsFromGWByRegionPaginated($region_card_name, $amount_of_pe
+ 
+     $response_array = [];
+ 
+-    $url = 'https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query';
++    $url = env('GW_API_BASE') . '/query';
+     $url .= '?entries-per-page=' . $amount_of_per_page . '&page=' . $page_number;
+ 
+     $query = 'SELECT GGUID, TADKARTENNUMMER, TADBUCHUNGSDATUM, TADBUCHUNGSARTUEBERSETZUNG, TADBUCHUNGSART, TADBETRAG, TADPARTNER, GWSTYPE, GWSSTATUS, NCREFERENZ, TMORTDERANMELDUNG, TADSTICHWORT FROM TRANSAKTIONSDATEN WHERE TMORTDERANMELDUNG="' . $region_card_name . '" AND TADBETRAG != 0';
+@@ -12218,7 +12218,7 @@ function _handleDeleteUser($request) {
+             'Accept' => 'application/json',
+             'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+             'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-        ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++        ])->post(env('GW_API_BASE') . '/query', [
+             "query" => "SELECT b.*, a.GGUID as ADDRESSGGUID FROM BONI b LINK_JOIN(linkattribute='TMBONUS') ADDRESS a WHERE a.GGUID = 0x" . $company_data->GGUID . " AND b.GWSSTATUS = 'aktiviert' ORDER BY GWSTYPE"
+         ]);
+ 
+@@ -12263,7 +12263,7 @@ function _handleDeleteUser($request) {
+             'Accept' => 'application/json',
+             'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+             'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-        ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/document/' . $documentGguid . '/file');
++        ])->get(env('GW_API_BASE') . '/type/document/' . $documentGguid . '/file');
+ 
+ 
+         if($gwGetFeatuedImage->successful()) {
+@@ -12275,6 +12275,57 @@ function _handleDeleteUser($request) {
+         }
+     })->withoutMiddleware([AuthenticateWithApiKey::class])->middleware(CheckIfApiKeyForRegion::class);
+ 
++
++
++
++    Route::get('/debug/documents-for-company/{companyGguid}', function (Request $request, string $companyGguid) {
++
++    $companyGguid = preg_replace('/^0x/i', '', $companyGguid);
++
++    $gwResponse = Http::withHeaders([
++        'Content-Type' => 'application/json; charset=utf-8',
++        'Accept' => 'application/json',
++        'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
++        'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
++    ])->get(
++        env('GW_API_BASE') . '/type/document/full?linked-to=0x' .
++        $companyGguid .
++        '&linked-to-type=ADDRESS&order-by=DOCDATE desc'
++    );
++
++    if ($gwResponse->failed()) {
++        return response()->json([
++            'status' => $gwResponse->status(),
++            'body' => $gwResponse->body(),
++        ], 500);
++    }
++
++    $documents = json_decode($gwResponse->body());
++
++    $result = [];
++
++    foreach ($documents as $document) {
++        $row = $document->fields ?? new stdClass();
++
++        $result[] = [
++            'GGUID' => $row->GGUID ?? null,
++            'GWSTYPE' => $row->GWSTYPE ?? null,
++            'GWFILETYPE' => $row->GWFILETYPE ?? null,
++            'GWSSTATUS' => $row->GWSSTATUS ?? null,
++            'DOCDATE' => $row->DOCDATE ?? null,
++            'NOTES' => $row->NOTES ?? null,
++            'would_match_titelbild_filter' =>
++                isset($row->GWSTYPE, $row->GWFILETYPE, $row->GWSSTATUS)
++                && strtolower($row->GWSTYPE) === 'titelbild'
++                && in_array(strtolower($row->GWFILETYPE), ['jpg', 'jpeg', 'png'])
++                && strtolower($row->GWSSTATUS) === 'empfangen',
++        ];
++    }
++
++    return response()->json($result, 200);
++
++})->withoutMiddleware([AuthenticateWithApiKey::class])->middleware(CheckIfApiKeyForRegion::class);
++
+     Route::get('/cards-images/{card_name_slugifyed}.png', function (Request $request, string $card_name_slugifyed) {
+         return returnFallbackImage('card', $card_name_slugifyed);
+     })->withoutMiddleware([AuthenticateWithApiKey::class]);
+@@ -12953,7 +13004,7 @@ function _handleDeleteUser($request) {
+             'Accept' => 'application/json',
+             'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+             'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-        ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/address/' . $partnerGguid . '/image');
++        ])->get(env('GW_API_BASE') . '/type/address/' . $partnerGguid . '/image');
+ 
+         if($gwGetLogo->successful()) {
+             return response($gwGetLogo->body())->header('Content-Type', 'image/jpeg');
+@@ -13055,7 +13106,7 @@ function _handleDeleteUser($request) {
+             return returnNewErrorObject('Es ist ein Fehler aufgetreten. Die Firma wurde nicht gefunden. Bitte kontaktieren Sie den Support.', 'no_region', 400 );
+         }
+ 
+-        $getRegionData = Http::withHeaders([
++        $getRegionData = Http::withoutVerifying()->withHeaders([
+             'Content-Type' => 'application/json; charset=utf-8',
+             'Accept' => 'application/json',
+         ])->get(config('services.wordpress.regions.endpoint') . '_fields=acf.logo_image_url,acf.primary_color,acf.container_color,acf.container_content_color,acf.secondary_highlight_color,acf.negative_balance_color,acf.dark_icons_in_app&region_name=' . $company_data->NCREGION);
+@@ -14272,15 +14323,13 @@ function _handleDeleteUser($request) {
+         $featured_images = getDocumentsForCompany($company_data->GGUID, ['titelbild', 'basis plus bilder', 'premium bilder'], ['jpg', 'jpeg', 'png'], 'empfangen');
+ 
+         $gwBonusResponse = Http::withHeaders([
+-                                                 'Content-Type'      => 'application/json; charset=utf-8',
+-                                                 'Accept'            => 'application/json',
+-                                                 'Authorization'     => 'Basic ' . env("GW_AUTHORIZATION"),
+-                                                 'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-                                             ]
+-        )->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
+-            "query" => "SELECT b.*, a.GGUID as ADDRESSGGUID FROM BONI b LINK_JOIN(linkattribute='TMBONUS') ADDRESS a WHERE a.GGUID = 0x" . $company_data->GGUID . " AND b.GWSSTATUS = 'aktiviert' ORDER BY GWSTYPE"
+-        ]
+-        );
++    'Content-Type' => 'application/json; charset=utf-8',
++    'Accept' => 'application/json',
++    'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
++    'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
++])->post(env('GW_API_BASE') . '/query', [
++    "query" => "SELECT b.*, a.GGUID as ADDRESSGGUID FROM BONI b LINK_JOIN(linkattribute='TMBONUS') ADDRESS a WHERE a.GGUID = 0x" . $company_data->GGUID . " AND b.GWSSTATUS = 'aktiviert' ORDER BY GWSTYPE"
++]);
+ 
+         $response->anyBonusActive = false;
+         $response->permanentBonusActive = false;
+@@ -14443,7 +14492,7 @@ function _linkCardToAddress($cardGguid, $addressGguid, $linkedToAttribute) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/KARTENVERWALTUNG/' . $cardGguid . '/dossier?gguid2=' . $addressGguid . '&attribute=' . $linkedToAttribute . '&object-type2=ADDRESS');
++    ])->post(env('GW_API_BASE') . '/type/KARTENVERWALTUNG/' . $cardGguid . '/dossier?gguid2=' . $addressGguid . '&attribute=' . $linkedToAttribute . '&object-type2=ADDRESS');
+ 
+     if($addGwLink->failed()) {
+         Log::error("Fehler beim Erstellen einer neuen Verknüpfung in _linkCardToAddress: " . $addGwLink->body());
+@@ -14475,7 +14524,7 @@ function _deleteLinkCardToAddress($cardGguid, $dossierGguid, $linkedToAttribute)
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->delete('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/KARTENVERWALTUNG/' . $cardGguid . '/dossier/' . $dossierGguid . '@TMKVWADRESSE');
++    ])->delete(env('GW_API_BASE') . '/type/KARTENVERWALTUNG/' . $cardGguid . '/dossier/' . $dossierGguid . '@TMKVWADRESSE');
+ 
+     if($addGwLink->failed()) {
+         Log::error("Fehler beim Erstellen einer neuen Verknüpfung in _linkCardToAddress: " . $addGwLink->body());
+@@ -14497,7 +14546,7 @@ function _checkIfUsernameLinkExists($addressGguid) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/NUTZERNAMEN/full?linked-to=' . $addressGguid .'&linked-to-type=ADDRESS&linked-to-attributes=TMNUTZERNAME');
++    ])->get(env('GW_API_BASE') . '/type/NUTZERNAMEN/full?linked-to=' . $addressGguid .'&linked-to-type=ADDRESS&linked-to-attributes=TMNUTZERNAME');
+ 
+     if($checkGwLink->failed()) {
+         Log::error("Fehler beim Abrufen der Verknüpfungen in _checkIfUsernameLinkExists: " . $checkGwLink->body());
+@@ -14555,7 +14604,7 @@ function _addLink($objectType, $firstGguid, $secondGguid, $secondObjectType, $li
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/' . $objectType . '/' . $firstGguid .
++    ])->post(env('GW_API_BASE') . '/type/' . $objectType . '/' . $firstGguid .
+     '/dossier?gguid2=' . $secondGguid . '&attribute=' . $linkedToAttribute . '&object-type2=' . $secondObjectType);
+ 
+     if($addGwLink->failed()) {
+@@ -14585,7 +14634,7 @@ function _getGwCompanyDataSet($addressGguid)
+                 'Authorization'     => 'Basic ' . env("GW_AUTHORIZATION"),
+                 'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA==',
+             ])->get(
+-            'https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/ADDRESS/full?linked-to=' . $addressGguid . '&linked-to-type=NUTZERNAMEN&linked-to-attributes=TMNUTZERNAME');
++            env('GW_API_BASE') . '/type/ADDRESS/full?linked-to=' . $addressGguid . '&linked-to-type=NUTZERNAMEN&linked-to-attributes=TMNUTZERNAME');
+ 
+         $usernameLink      = json_decode($checkGwLink);
+         $partnerFields     = [];
+@@ -14645,7 +14694,7 @@ function _getAddressForUsername($usernameGguid) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/ADDRESS/full?linked-to=' . $usernameGguid .'&linked-to-type=NUTZERNAMEN&linked-to-attributes=TMNUTZERNAME');
++    ])->get(env('GW_API_BASE') . '/type/ADDRESS/full?linked-to=' . $usernameGguid .'&linked-to-type=NUTZERNAMEN&linked-to-attributes=TMNUTZERNAME');
+ 
+     if($checkGwLink->failed()) {
+         Log::error("Fehler beim Abrufen der Verknüpfungen in _getAddressForUsername: " . $checkGwLink->body());
+@@ -14673,7 +14722,7 @@ function getPasswordRecordForUsernameGGUID($usernameGguid) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/PASSWORDS/full?linked-to=' . $usernameGguid .'&linked-to-type=NUTZERNAMEN&linked-to-attributes=TMPASSWORT');
++    ])->get(env('GW_API_BASE') . '/type/PASSWORDS/full?linked-to=' . $usernameGguid .'&linked-to-type=NUTZERNAMEN&linked-to-attributes=TMPASSWORT');
+ 
+     if($checkGwLink->failed()) {
+         Log::error("Fehler beim Abrufen der Verknüpfungen in getPasswordRecordForUsernameGGUID: " . $checkGwLink->body());
+@@ -14723,7 +14772,7 @@ function createGwUsernameAndPassword($addressGguid, $userEmail, $clear_password,
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/NUTZERNAMEN', [
++    ])->post(env('GW_API_BASE') . '/type/NUTZERNAMEN', [
+         'fields' => [
+             'TMNUTZERMAIL' => $userEmail,
+             'TMLETZTERLOGIN' => $lastLoginTimestamp,
+@@ -14751,7 +14800,7 @@ function createGwUsernameAndPassword($addressGguid, $userEmail, $clear_password,
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/ADDRESS/' . $addressGguid . '/dossier?gguid2=' . $usernameGguid . '&attribute=TMNUTZERNAME&object-type2=NUTZERNAMEN');
++    ])->post(env('GW_API_BASE') . '/type/ADDRESS/' . $addressGguid . '/dossier?gguid2=' . $usernameGguid . '&attribute=TMNUTZERNAME&object-type2=NUTZERNAMEN');
+ 
+     if($addUsernameAddressGwLink->failed()) {
+         Log::error("Fehler beim Erstellen einer neuen Verknüpfung in createGwUsernamePassword: " . print_r($addUsernameAddressGwLink->body(), true));
+@@ -14780,7 +14829,7 @@ function createGwPasswordForUsername($usernameGguid, $hashedPassword, $lastUpdat
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/PASSWORDS', [
++    ])->post(env('GW_API_BASE') . '/type/PASSWORDS', [
+         'fields' => [
+             'TMAENDERUNGDATE' => $lastUpdateTimestamp,
+             'TMPW' => $hashedPassword
+@@ -14806,7 +14855,7 @@ function createGwPasswordForUsername($usernameGguid, $hashedPassword, $lastUpdat
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/NUTZERNAMEN/' . $usernameGguid . '/dossier?gguid2=' . $passwordGguid . '&attribute=TMPASSWORT&object-type2=PASSWORDS');
++    ])->post(env('GW_API_BASE') . '/type/NUTZERNAMEN/' . $usernameGguid . '/dossier?gguid2=' . $passwordGguid . '&attribute=TMPASSWORT&object-type2=PASSWORDS');
+ 
+     if($addUsernamePasswordGwLink->failed()) {
+         Log::error("Fehler beim Erstellen einer neuen Verknüpfung in createGwPasswordForUsername: " . print_r($addUsernamePasswordGwLink->body(), true));
+@@ -15145,7 +15194,7 @@ function api_getIsExternalCard($cardID)
+                                         'Accept'            => 'application/json',
+                                         'Authorization'     => 'Basic ' . env("GW_AUTHORIZATION"),
+                                         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA==',
+-                                    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++                                    ])->post(env('GW_API_BASE') . '/query', [
+         "query" => $query,
+     ]);
+ 
+@@ -15176,7 +15225,7 @@ function api_getRegionId($regionName)
+                                         'Accept'            => 'application/json',
+                                         'Authorization'     => 'Basic ' . env("GW_AUTHORIZATION"),
+                                         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA==',
+-                                    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++                                    ])->post(env('GW_API_BASE') . '/query', [
+         "query" => $query,
+     ]);
+ 
+@@ -15206,7 +15255,7 @@ function api_getFullValueOnly($regionID)
+                                         'Accept'            => 'application/json',
+                                         'Authorization'     => 'Basic ' . env("GW_AUTHORIZATION"),
+                                         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA==',
+-                                    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++                                    ])->post(env('GW_API_BASE') . '/query', [
+         "query" => $query,
+     ]);
+ 
+@@ -15574,7 +15623,7 @@ function getFirebaseClientsRecipientsForPushNotification($pushNotification) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         "query" => $query
+     ]);
+ 
+@@ -15619,7 +15668,7 @@ function getGWFirebasenummerByFirebaseId($firebaseId) {
+                                         'Accept' => 'application/json',
+                                         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+                                         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-                                    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++                                    ])->post(env('GW_API_BASE') . '/query', [
+         "query" => $query
+     ]);
+ 
+@@ -15859,7 +15908,7 @@ function getGWFirebasenummerByFirebaseId($firebaseId) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/document/' . $documentGguid . '/file');
++    ])->get(env('GW_API_BASE') . '/type/document/' . $documentGguid . '/file');
+ 
+     if($gwGetLogo->successful()) {
+         return response($gwGetLogo->body())->header('Content-Type', 'image/png');
+@@ -15883,7 +15932,7 @@ function _getPerksForAddress($addressGguid) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/BSPRODUCT/full?linked-to=' . $addressGguid .'&linked-to-type=ADDRESS&linked-to-attributes=Prod2Kunde');
++    ])->get(env('GW_API_BASE') . '/type/BSPRODUCT/full?linked-to=' . $addressGguid .'&linked-to-type=ADDRESS&linked-to-attributes=Prod2Kunde');
+ 
+     if($checkGwLink->failed()) {
+         Log::error("Fehler beim Abrufen der Verknüpfungen in _getPerksForAddress: " . $checkGwLink->body());
+@@ -15906,7 +15955,7 @@ function _getPerksForAddress($addressGguid) {
+             'Accept' => 'application/json',
+             'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+             'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-        ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/BSPRODUCTGROUP/full?linked-to=' . $perk->GGUID .'&linked-to-type=BSPRODUCT&linked-to-attributes=BELONGSTOBPRBPG');
++        ])->get(env('GW_API_BASE') . '/type/BSPRODUCTGROUP/full?linked-to=' . $perk->GGUID .'&linked-to-type=BSPRODUCT&linked-to-attributes=BELONGSTOBPRBPG');
+ 
+         if($getPerkGroupLink->failed()) {
+             Log::error("Fehler beim Abrufen der Verknüpfungen in _getPerksForAddress: " . $getPerkGroupLink->body());
+@@ -15932,7 +15981,7 @@ function _getPerksForAddress($addressGguid) {
+             'Accept' => 'application/json',
+             'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+             'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-        ])->get('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/DOCUMENT/full?linked-to=' . $perk->GGUID .'&linked-to-type=BSPRODUCT&linked-to-attributes=AktionsDok2Prod');
++        ])->get(env('GW_API_BASE') . '/type/DOCUMENT/full?linked-to=' . $perk->GGUID .'&linked-to-type=BSPRODUCT&linked-to-attributes=AktionsDok2Prod');
+ 
+         if($getPerkDocuments->failed()) {
+             Log::error("Fehler beim Abrufen der Verknüpfungen in _getPerksForAddress: " . $getPerkDocuments->body());
+@@ -15976,7 +16025,7 @@ function _getNextAvailablePerk() {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         "query" => "SELECT product.* FROM BSPRODUCT product LINK_JOIN(linkattribute='BELONGSTOBPRBPG') BSPRODUCTGROUP productgroup WHERE productgroup.BPGNUMBER = '7' AND product.TMSTATUSGUTSCHEIN = 'lagernd'"
+     ]);
+ 
+@@ -16041,7 +16090,7 @@ function getAllActiveGamesAndActionsForRegion($region, $onlyShowWithActivePlayti
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         "query" => $query
+     ]);
+ 
+@@ -16110,7 +16159,7 @@ function getItemsForGamesAndActionsGguid($gamesAndActionsGguid, $customerGguid =
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         "query" => $query
+     ]);
+ 
+@@ -16194,7 +16243,7 @@ function getSuaItemByField($fieldName, $fieldValue, $gwsType) {
+         'Accept' => 'application/json',
+         'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
+         'X-CAS-PRODUCT-KEY' => 'Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=='
+-    ])->post('https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/query', [
++    ])->post(env('GW_API_BASE') . '/query', [
+         "query" => $query
+     ]);
+ 
+@@ -16258,7 +16307,7 @@ function getLinkedGamesAndActionsForSuaItem($linkedToSuaItemGguid) {
+ }
+ function getLinkedObjects($type, $linkedToGguid, $linkedToType, $linkedToAttributes, $orderBy = NULL) {
+ 
+-    $query = 'https://rest-cas.trolleymaker.com/genesisrest.svc/v6.0/type/' . $type . '/full?linked-to=' . $linkedToGguid .
++    $query = env('GW_API_BASE') . '/type/' . $type . '/full?linked-to=' . $linkedToGguid .
+         '&linked-to-type=' . $linkedToType . '&linked-to-attributes=' . $linkedToAttributes;
+     if(!empty($orderBy)) {
+         $query .= '&order-by=' . $orderBy;
+@@ -16341,3 +16390,5 @@ function sanitize_text_field($input) {
+ Route::fallback(function() {
+     return response()->json(['message' => 'Seite nicht gefunden. Wenn das Problem bestehen bleibt, kontaktieren Sie bitte support@trolleymaker.com'], 404);
+ });
++
++

@@ -1,0 +1,25 @@
+$mailbox = "support@trolleymaker.com"
+$ruleName = "CAS - Zustellfehler nicht importieren"
+
+$rule = Get-InboxRule -Mailbox $mailbox -Identity $ruleName
+
+$newWords = @(
+    "Delivery incomplete",
+    "Message not delivered",
+    "Mail System Error",
+    "Undelivered Mail Returned to Sender",
+    "Willkommen bei CAS",
+    "Quarantäne-Bericht",
+    "Ergebnis Versand des Mailings",
+    "Fälligkeit der Aufgabe",
+    "Unzustellbar"
+)
+
+$updatedWords = @($rule.SubjectContainsWords + $newWords) |
+    Where-Object { $_ -and $_.Trim() -ne "" } |
+    Select-Object -Unique
+
+Set-InboxRule `
+    -Mailbox $mailbox `
+    -Identity $ruleName `
+    -SubjectContainsWords $updatedWords

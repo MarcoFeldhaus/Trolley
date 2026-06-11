@@ -1,0 +1,2 @@
+Get-InboxRule -Mailbox support@trolleymaker.com |
+Format-List Name,Enabled,Priority,Description,From,SentTo,SubjectContainsWords,MoveToFolder,ForwardTo,RedirectTo,DeleteMessage,MarkAsRead,StopProcessingRules
