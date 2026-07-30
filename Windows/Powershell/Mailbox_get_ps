@@ -1,1 +1,0 @@
-Get-Mailbox support@trolleymaker.com | fl DisplayName,Alias,PrimarySmtpAddress,EmailAddresses,GrantSendOnBehalfTo

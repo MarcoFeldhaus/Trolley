@@ -1,0 +1,8 @@
+$base = "http://localhost:8080/genesisrest.svc/v6.0"
+$authorization = "Basic VFJPTExFWU1BS0VSX0xJVkUvQWRtaW5pc3RyYXRvcjpHV1RNMjAyMg=="
+$productKey = "Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA=="
+
+Invoke-WebRequest $base -Headers @{
+    Authorization = $authorization
+    "X-CAS-PRODUCT-KEY" = $productKey
+}

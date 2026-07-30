@@ -1,4 +1,0 @@
-Set-InboxRule `
-  -Mailbox support@trolleymaker.com `
-  -Identity "CAS - NDRs nicht importieren" `
-  -SubjectContainsWords "Undeliverable","Unzustellbar","Nicht zustellbar","Delivery Status Notification","Mail delivery failed","Delivery has failed","Returned mail","failure notice","Delivery delayed","Quarantäne Bericht"

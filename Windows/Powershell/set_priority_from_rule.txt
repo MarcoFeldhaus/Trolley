@@ -1,7 +1,0 @@
-$mailbox = "support@trolleymaker.com"
-$ruleName = "CAS - NDRs nicht importieren"
-
-Set-InboxRule `
-    -Mailbox $mailbox `
-    -Identity $ruleName `
-    -Priority 1

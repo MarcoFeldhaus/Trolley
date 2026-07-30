@@ -1,6 +1,0 @@
-$mailbox = "support@trolleymaker.com"
-$ruleName = "CAS - NDRs nicht importieren"
-
-$rule = Get-InboxRule -Mailbox $mailbox -Identity $ruleName
-
-$rule.SubjectContainsWords
