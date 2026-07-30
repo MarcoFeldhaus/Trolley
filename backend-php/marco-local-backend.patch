@@ -1,125 +1,5 @@
-diff --git a/.env.example b/.env.example
-index 2dd5012..be8d82c 100644
---- a/.env.example
-+++ b/.env.example
-@@ -1,63 +1,68 @@
- APP_NAME=mycity.cards
--APP_ENV=development
--APP_KEY=
--APP_DEBUG=true
--APP_URL=http://localhost
-+APP_ENV=production
-+APP_KEY=base64:R2omkCe0p91Z5r//z4pe7NDu73MYKvrGaStLQeKqbWM=
-+APP_DEBUG=false
-+APP_URL=https://backend-php.mycity.cards
- 
--APP_ROOT_PATH=
-+APP_ROOT_PATH=/var/customers/webs/trolleymakerPROD/backend-php.mycity.cards
- 
--LOG_CHANNEL=
--LOG_DEPRECATIONS_CHANNEL=
--LOG_LEVEL=
-+LOG_CHANNEL=stack
-+LOG_DEPRECATIONS_CHANNEL=null
-+LOG_LEVEL=warning
- 
--DB_CONNECTION=
--DB_DATABASE=
--DB_FOREIGN_KEYS=
-+DB_CONNECTION=mysql
-+DB_HOST=localhost
-+DB_PORT=3306
-+DB_DATABASE=trolleymakerPRODsql1
-+DB_USERNAME=trolleymakerPRODsql1
-+DB_PASSWORD="!SimpliProdlQsazMebcu2025#"
- 
--BROADCAST_DRIVER=
--CACHE_DRIVER=
--FILESYSTEM_DISK=
--QUEUE_CONNECTION=
--SESSION_DRIVER=
--SESSION_LIFETIME=
- 
--SESSION_DOMAIN=
-+BROADCAST_DRIVER=log
-+CACHE_DRIVER=file
-+FILESYSTEM_DISK=local
-+QUEUE_CONNECTION=sync
-+SESSION_DRIVER=cookie
-+SESSION_LIFETIME=10080
- 
--MAIL_MAILER=
--MAIL_HOST=
--MAIL_PORT=
--MAIL_USERNAME=
--MAIL_PASSWORD=
--MAIL_ENCRYPTION=
--MAIL_FROM_ADDRESS=
--MAIL_FROM_NAME=
--MAIL_MASTER_TO_ADDRESS=
--MAIL_ERROR_NOTIFICATION_TO_ADDRESS=
-+SESSION_DOMAIN=localhost
- 
--REGIONS_API_KEYS=
--PORTAL_API_KEY=
-+MAIL_MAILER=smtp
-+MAIL_HOST=w01a55a7.kasserver.com
-+MAIL_PORT=587
-+MAIL_USERNAME=m0738b05
-+MAIL_PASSWORD="N0A1cN2(QBZ2JH@FfkC5"
-+MAIL_ENCRYPTION=tls
-+MAIL_FROM_ADDRESS="noreply@mycity.cards"
-+MAIL_FROM_NAME="mycity.cards"
-+MAIL_MASTER_TO_ADDRESS="support@trolleymaker.com"
-+MAIL_ERROR_NOTIFICATION_TO_ADDRESS="technik@trolleymaker.com"
- 
--JWT_SECRET=
--JWT_ALGO=
-+REGIONS_API_KEYS="keof83FGrd:trolleymaker:SmartcityCARD & APP:trolleymaker.com:firebaseproject-2,urtbc61mgo:Testregion:TestCARD:wl-test.trolleymaker.com:firebaseproject-2,7YAIE2HjsI:Ettenheim:EttenheimCARD:ettenheimcard.de:firebaseproject-1,ahvkiEKx6C:Würmtal:WürmtalCARD:wuermtalcard.de:firebaseproject-1,rPBdss58E0:Lahr:LahrCARD:lahrcard.de:firebaseproject-1,3rc6N6AKpL:Schwabach:SchwabachCARD:schwabachcard.de:firebaseproject-1,fBfdipZqpE:Herbolzheim:Herbolzheim Karte:herbolzheim-karte.de:firebaseproject-1,Gvp6P54G5r:Leinfelden-Echterdingen:LE CARD:le-card.de:firebaseproject-1,jKoewf9N3r:Wunsiedel:WunCARD:wuncard.de:firebaseproject-1,tbZ38d9Xep:Kenzingen:KenzingenCARD:kenzingencard.de:firebaseproject-1,fhe3oZBR8r:Landshut:LandshutCARD:landshutcard.de:firebaseproject-1,GuRN894Nfg:Plettenberg:ViertälerCARD:viertaelercard.de:firebaseproject-1,o3pgfe4RtT:Balingen:BalingenCARD:balingencard.de:firebaseproject-1,rzBZRhfbeP:Troisdorf:TroCARD:trocard.de:firebaseproject-1,gHRgRnfGnR:Neuried:NeuriedCARD:neuriedcard.de:firebaseproject-1,eufJrNBeqF:Abensberg:AbensbergCARD:abensbergcard.de:firebaseproject-1,tbrWl4fUTe:Calw:CalwCARD:calwcard.de:firebaseproject-2,grGe3JbrTr:Henstedt-Ulzburg:Henstedt-Ulzburg SmartCARD:hu-smartcard.de:firebaseproject-1,fne433nfTv:Flensburg:FördeCARD:foerdecard.com:firebaseproject-1,PwF12Beut3:Ratingen:RatingenCARD:ratingen-card.de:firebaseproject-1,fRtf63uirN:Haslach:HaslachCARD:haslachcard.de:firebaseproject-2,hjQdFbh2We:Erlebnisregion Europa-Park:Erlebnisregion Europa-Park CARD:erlebnisregion-europaparkcard.de:firebaseproject-2,JgI8nfTl1q:Rotenburg an der Wümme:SR CARD:srcard.de:firebaseproject-2,AgHjZ7uU23:Freiburg im Breisgau:ECHT FREIBURG CARD:echtfreiburgcard.de:firebaseproject-2,Klz7gH5j33:Pfullingen:PfulbenCARD:pfulbencard.de:firebaseproject-2,LO9zGhij3df:Baden-Baden:Baden-Baden CARD:baden-baden-card.de:firebaseproject-2,U8ioO3Rj9z:Dettingen an der Erms:DETTINGEN ERMSCARD:dettingen-ermscard.de:firebaseproject-2,UiOP89xCAa:Stuttgart Mitte:0711CARD:0711card.de:firebaseproject-2,OeRT6hJj8a:Bad Waldsee:Bad Waldsee CityCARD:badwaldseecitycard.de:firebaseproject-2,XcV6gHJ8il:Besigheim:BesigheimCARD:besigheimcard.de:firebaseproject-2,HskjU6kyFF:Hückelhoven:HÜCARD:huecard.de,DH72dfs2h4:Neubulach:NeubulachCARD:neubulachcard.de,Jm40sdak4a:Troisdorf Stadt:Stadtgutschein Troisdorf:stadtgutschein-troisdorf.de"
- 
--PATH_TO_FIREBASE_CREDENTIALS=
-+JWT_SECRET=QM3do6GqDVQBsPav2ahZqca2AQcS7hOFaoBb6s1TjlgAbus8gig15ECZh1bOaVKq
-+JWT_ALGO=HS256
- 
--GW_API_BASE=
--GW_AUTHORIZATION_DEV=
--GW_AUTHORIZATION_LIVE=
--GW_AUTHORIZATION=
--GW_PRODUCT_KEY=
-+PATH_TO_FIREBASE_CREDENTIALS1=${APP_ROOT_PATH}/smartcity-cd14d-firebase-adminsdk-3i7or-689cc6afe8.json
-+PATH_TO_FIREBASE_CREDENTIALS2=${APP_ROOT_PATH}/smartcity2-b4330-firebase-adminsdk-rxl0a-2e5a36f672.json
- 
--VALUEMASTER_PROVIDER=
--VALUEMASTER_PASSWORD=
--VALUEMASTER_ENCRYPTION_PASSWORD=
--VALUEMASTER_ENCRYPTION_SALT=
--VALUEMASTER_ENCRYPTION_LENGTH=
-+GW_AUTHORIZATION_DEV="VFJPTExFWU1BS0VSREJfVEVTVC9BZG1pbmlzdHJhdG9yOkdXVE0yMDIyX1Rlc3Q="
-+GW_AUTHORIZATION_LIVE="QWRtaW5pc3RyYXRvcjpHV1RNMjAyMg=="
-+GW_AUTHORIZATION=${GW_AUTHORIZATION_LIVE}
-+GW_PRODUCT_KEY=Kundenportalintegration_REST+SOAP_B13A_rSU3yvHCvcXZDkhqaNkGsogfLwHg5H0+l+2N49fiUjZk505BBfyeo9UHun/cTnFSw9qnKk70WW9fXyS44xc3lA==
- 
--MONTHLY_CHARGING_LIMIT=
-+VALUEMASTER_PROVIDER=trolleymaker
-+VALUEMASTER_PASSWORD="poiJJ#9q9"
-+VALUEMASTER_ENCRYPTION_PASSWORD="Ht5#dadd!343"
-+VALUEMASTER_ENCRYPTION_SALT="dKK##2k!ds"
-+VALUEMASTER_ENCRYPTION_LENGTH=24
- 
--INTEGRATIONS_RATE_LIMIT_PER_MINUTE=
-+MONTHLY_CHARGING_LIMIT=250
- 
--WORDPRESS_REGIONS_ENDPOINT=
-+INTEGRATIONS_RATE_LIMIT_PER_MINUTE=60
- 
--GO_BACKEND_URL=
-+WORDPRESS_REGIONS_ENDPOINT=https://regionen.trolleymaker.com/wp-json/wp/v2/regionen
-+
-+PORTAL_API_KEY=kRDNGnmg76hFTkqg4qBWWCnGbLrP8MWK
-+
-+GO_BACKEND_URL=http://localhost:4000
 diff --git a/config/cors.php b/config/cors.php
-index 698400d..18f5c33 100644
+index 698400d..122b850 100644
 --- a/config/cors.php
 +++ b/config/cors.php
 @@ -20,7 +20,7 @@
@@ -127,12 +7,12 @@ index 698400d..18f5c33 100644
      'allowed_methods' => ['*'],
  
 -    'allowed_origins' => ['localhost', 'http://localhost', 'https://localhost', 'localhost:8080', 'http://localhost:8080', 'localhost:5173', 'http://localhost:5173',
-+    'allowed_origins' => ['localhost', 'http://localhost', 'https://localhost', 'localhost:8080', 'http://localhost:8080', 'http://localhost:8081', 'localhost:5173', 'http://localhost:5173',
++    'allowed_origins' => ['localhost', 'http://localhost', 'https://localhost', 'localhost:8080', 'http://localhost:8081', 'localhost:5173', 'http://localhost:5173',
                              'mycity.cards', 'http://mycity.cards', 'https://mycity.cards', 'https://mycity.cards/', 'backend.mycity.cards', 'https://backend.mycity.cards',
                              'dev.mycity.cards', 'http://dev.mycity.cards', 'https://dev.mycity.cards', 'https://dev.mycity.cards/', 'dev-backend.mycity.cards', 'https://dev-backend.mycity.cards',
                              'beta.mycity.cards', 'http://beta.mycity.cards', 'https://beta.mycity.cards', 'https://beta.mycity.cards/', 'beta-backend.mycity.cards', 'https://beta-backend.mycity.cards',
 diff --git a/routes/api.php b/routes/api.php
-index 96ea672..c317155 100644
+index 96ea672..21010cf 100644
 --- a/routes/api.php
 +++ b/routes/api.php
 @@ -376,7 +376,7 @@ function handleGetPartners($request) {
@@ -414,6 +294,15 @@ index 96ea672..c317155 100644
          'contact_person_gguid' => $personal_data->GGUID,
          'terminalgroupid_gutschein' => NULL,
          'terminalgroupid_mitarbeitercard' => NULL,
+@@ -3071,7 +3071,7 @@ function getBalanceAmountForCardID($cardID) {
+ }
+ 
+ function getAllBalances($cardID) {
+-    $valueMasterResponse = Http::withHeaders([
++    $valueMasterResponse = Http::withoutVerifying()->withHeaders([
+         'provider' => 'trolleymaker',
+         'password' => 'poiJJ#9q9'
+     ])->post('https://valuemaster.brain-behind.com/CU_WebAPI.asmx/CU_Check_Balance_Array', [
 @@ -3639,7 +3639,7 @@ function _handleGetPartnerTransactions($request) {
          'Accept' => 'application/json',
          'Authorization' => 'Basic ' . env("GW_AUTHORIZATION"),
@@ -990,6 +879,15 @@ index 96ea672..c317155 100644
  
      if($addUsernamePasswordGwLink->failed()) {
          Log::error("Fehler beim Erstellen einer neuen Verknüpfung in createGwPasswordForUsername: " . print_r($addUsernamePasswordGwLink->body(), true));
+@@ -15108,7 +15157,7 @@ function _checkIfBookingIsAllowedForCard($cardID, $partnerRegionName, $partnerCa
+ }
+ 
+ function api_getBalanceAmount($cardID) {
+-    $valueMasterResponse = Http::withHeaders([
++    $valueMasterResponse = Http::withoutVerifying()->withHeaders([
+         'provider' => 'trolleymaker',
+         'password' => 'poiJJ#9q9'
+     ])->post('https://valuemaster.brain-behind.com/CU_WebAPI.asmx/CU_Check_Balance_Array', [
 @@ -15145,7 +15194,7 @@ function api_getIsExternalCard($cardID)
                                          'Accept'            => 'application/json',
                                          'Authorization'     => 'Basic ' . env("GW_AUTHORIZATION"),

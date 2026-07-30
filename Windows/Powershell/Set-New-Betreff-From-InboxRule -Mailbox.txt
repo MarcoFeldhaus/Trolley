@@ -1,0 +1,25 @@
+Set-InboxRule -Mailbox support@trolleymaker.com `
+  -Identity "CAS - NDRs nicht importieren" `
+  -SubjectContainsWords @(
+    "Undeliverable",
+    "Unzustellbar",
+    "Nicht zustellbar",
+    "Delivery Status Notification",
+    "Delivery has failed",
+    "Mail delivery failed",
+    "Returned mail",
+    "failure notice",
+    "Delivery delayed",
+    "Delivery incomplete",
+    "Message not delivered",
+    "Mail System Error",
+    "Undelivered Mail Returned to Sender",
+    "Willkommen bei CAS",
+    "Quarantäne-Bericht",
+    "Ergebnis Versand des Mailings",
+    "Fälligkeit der Aufgabe",
+    "[ECHT FREIBURG CARD] Produkt im Lieferrückstand",
+    "Undelivered Mails Returned to Sender",
+    "Undelivered E-Mail returned to Sender",
+"[ECHT FREIBURG CARD] Produkt nicht vorrätig"
+  )

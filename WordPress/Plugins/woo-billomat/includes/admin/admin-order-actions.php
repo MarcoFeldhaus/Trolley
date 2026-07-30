@@ -95,22 +95,33 @@ class WCB_Admin_Order_Actions {
   }
 
   public static function download_invoice() {
+    if(empty($_GET['action']) || !check_admin_referer($_GET['action']) || empty($_GET['order_id'])) {
+      wp_die(__('You are not authorized to perform this action.', 'woocommerce-billomat'));
+    }
+
     $order_id = $_GET['order_id'];
     $order = new WC_Order($order_id);
 
     // Check if user is authorized to download invoice
     $user_invoice_authorized = false;
-    if(current_user_can('manage_woocommerce_orders') || current_user_can('edit_shop_orders')) {
-      // User is admin - grant permission
-      $user_invoice_authorized = true;
-    } else {
-      // Check non-admin user permission
-      if($order->customer_id === get_current_user_id()) {
+    if(is_user_logged_in()) {
+      // Logged-in user: check if admin or order owner
+      if(current_user_can('manage_woocommerce_orders') || current_user_can('edit_shop_orders')) {
+        // User is admin - grant permission
         $user_invoice_authorized = true;
+      } else {
+        // Check if user is the order customer
+        if($order->customer_id === get_current_user_id()) {
+          $user_invoice_authorized = true;
+        }
       }
+    } else {
+      // Not logged in: allow access via valid nonce (guest checkout)
+      // The nonce check above already validates this request
+      $user_invoice_authorized = true;
     }
 
-    if(empty($_GET['action']) || !is_user_logged_in() || !check_admin_referer($_GET['action']) || empty($_GET['order_id']) || !$user_invoice_authorized) {
+    if(!$user_invoice_authorized) {
       wp_die(__('You are not authorized to perform this action.', 'woocommerce-billomat'));
     }
 

@@ -450,63 +450,85 @@ function callback_input_region_api_key() {
           echo '<p style="color: red; margin-top: 5px; font-weight: bold;">' . $warning . '</p>';
      }
      
-     if (!empty($api_key_trimmed)) {
-          $key_length = strlen($api_key_trimmed);
+     // Validierungsmessage Container
+     echo '<p id="api-key-validation" style="margin-top: 5px;"></p>';
+     
+     // Test-Button
+     echo '<br><button type="button" class="button" id="test-api-key-btn" style="margin-top: 10px;">API-Key testen</button>';
+     echo '<div id="test-api-key-result" style="margin-top: 10px;"></div>';
+     
+     // JavaScript für Live-Validierung und Test
+     echo '<script>
+     jQuery(document).ready(function($) {
           
-          if ($key_length >= 10) {
-               echo '<p style="color: green; margin-top: 5px;">✅ API-Key-Format OK (mind. 10 Zeichen)</p>';
-          } else {
-               echo '<p style="color: red; margin-top: 5px;"><strong>❌ Format falsch:</strong> API-Key sollte mind. 10 Zeichen haben (aktuell: ' . $key_length . ')</p>';
+          // Funktion zur Validierung und Anzeige der Nachricht
+          function validateApiKey() {
+               var apiKey = $("#region_api_key").val().trim();
+               var validationEl = $("#api-key-validation");
+               
+               if (!apiKey) {
+                    validationEl.html("<p style=\"color: #999; margin: 0;\">ℹ️ Bitte einen API-Key eingeben</p>");
+                    return;
+               }
+               
+               var keyLength = apiKey.length;
+               
+               if (keyLength >= 10) {
+                    validationEl.html("<p style=\"color: green; margin: 0;\">✅ API-Key-Format OK (mind. 10 Zeichen) - ' . $key_length . ' Zeichen</p>");
+               } else {
+                    validationEl.html("<p style=\"color: red; margin: 0;\"><strong>❌ Format falsch:</strong> API-Key sollte mind. 10 Zeichen haben (aktuell: " + keyLength + ")</p>");
+               }
           }
           
-          // Test-Button
-          echo '<br><button type="button" class="button" id="test-api-key-btn" style="margin-top: 10px;">API-Key testen</button>';
-          echo '<div id="test-api-key-result" style="margin-top: 10px;"></div>';
+          // Initial validieren
+          validateApiKey();
           
-          // JavaScript für Test
-          echo '<script>
-          jQuery(document).ready(function($) {
-               $("#test-api-key-btn").on("click", function(e) {
-                    e.preventDefault();
-                    var apiKey = $("#region_api_key").val().trim();
-                    var regionName = "' . get_white_label_region_name() . '";
-                    
-                    if (!apiKey) {
-                         $("#test-api-key-result").html("<p style=\"color: red;\">❌ API-Key ist leer!</p>");
-                         return;
-                    }
-                    
-                    if (apiKey.length < 10) {
-                         $("#test-api-key-result").html("<p style=\"color: red;\">❌ API-Key hat falsches Format (mind. 10 Zeichen erforderlich)</p>");
-                         return;
-                    }
-                    
-                    $("#test-api-key-result").html("<p>🔄 Testen gegen Region: <strong>" + regionName + "</strong>...</p>");
-                    
-                    $.ajax({
-                         url: "https://backend.mycity.cards/api/v1/partners?region_name=" + encodeURIComponent(regionName),
-                         type: "GET",
-                         headers: {
-                              "Accept": "application/json",
-                              "X-API-KEY": apiKey
-                         },
-                         success: function(data) {
-                              $("#test-api-key-result").html("<p style=\"color: green;\">✅ API-Key funktioniert! (" + data.length + " Partner gefunden)</p>");
-                         },
-                         error: function(xhr) {
-                              var errorMsg = xhr.status + " - ";
-                              if (xhr.responseJSON && xhr.responseJSON.errorMessage) {
-                                   errorMsg += xhr.responseJSON.errorMessage;
-                              } else {
-                                   errorMsg += xhr.statusText;
-                              }
-                              $("#test-api-key-result").html("<p style=\"color: red;\">❌ API-Key ungültig: <strong>" + errorMsg + "</strong></p><p style=\"font-size: 0.9em; color: #666;\">Überprüfen Sie: 1) Ist der Key für die Region \"" + regionName + "\" gültig? 2) Wurde der Key korrekt eingegeben (ohne Leerzeichen)?</p>");
+          // Live-Validierung bei Eingabe
+          $("#region_api_key").on("input", function() {
+               validateApiKey();
+          });
+          
+          // Test-Button Funktionalität
+          $("#test-api-key-btn").on("click", function(e) {
+               e.preventDefault();
+               var apiKey = $("#region_api_key").val().trim();
+               var regionName = "' . get_white_label_region_name() . '";
+               
+               if (!apiKey) {
+                    $("#test-api-key-result").html("<p style=\"color: red;\">❌ API-Key ist leer!</p>");
+                    return;
+               }
+               
+               if (apiKey.length < 10) {
+                    $("#test-api-key-result").html("<p style=\"color: red;\">❌ API-Key hat falsches Format (mind. 10 Zeichen erforderlich)</p>");
+                    return;
+               }
+               
+               $("#test-api-key-result").html("<p>🔄 Testen gegen Region: <strong>" + regionName + "</strong>...</p>");
+               
+               $.ajax({
+                    url: "https://backend.mycity.cards/api/v1/partners?region_name=" + encodeURIComponent(regionName),
+                    type: "GET",
+                    headers: {
+                         "Accept": "application/json",
+                         "X-API-KEY": apiKey
+                    },
+                    success: function(data) {
+                         $("#test-api-key-result").html("<p style=\"color: green;\">✅ API-Key funktioniert! (" + data.length + " Partner gefunden)</p>");
+                    },
+                    error: function(xhr) {
+                         var errorMsg = xhr.status + " - ";
+                         if (xhr.responseJSON && xhr.responseJSON.errorMessage) {
+                              errorMsg += xhr.responseJSON.errorMessage;
+                         } else {
+                              errorMsg += xhr.statusText;
                          }
-                    });
+                         $("#test-api-key-result").html("<p style=\"color: red;\">❌ API-Key ungültig: <strong>" + errorMsg + "</strong></p><p style=\"font-size: 0.9em; color: #666;\">Überprüfen Sie: 1) Ist der Key für die Region \"" + regionName + "\" gültig? 2) Wurde der Key korrekt eingegeben (ohne Leerzeichen)?</p>");
+                    }
                });
           });
-          </script>';
-     }
+     });
+     </script>';
 }
 
 
@@ -1310,53 +1332,119 @@ function replace_legal_texts_shortcodes($html) {
      return $html;
 }*/
 
-function white_label_get_impressum_shortcode() { 
-     $html = file_get_contents('https://rechtliches.trolleymaker.com/impressum.html');
-     return $html;
+function white_label_get_impressum_shortcode()  {
+    $response = wp_remote_get(
+       'https://rechtliches.trolleymaker.com/impressum.html',
+        array( 'timeout' => 15 )
+    );
+
+    if ( is_wp_error( $response ) ) {
+        return '';
+    }
+
+    return wp_remote_retrieve_body( $response );
 }
 add_shortcode('white_label_impressum', 'white_label_get_impressum_shortcode');
 
 
-function white_label_get_datenschutzerklaerung_shortcode() { 
-     $html = file_get_contents('https://rechtliches.trolleymaker.com/datenschutzerklaerung.html');
-     return $html;
+function white_label_get_datenschutzerklaerung_shortcode() {
+    $response = wp_remote_get(
+       'https://rechtliches.trolleymaker.com/datenschutzerklaerung.html',
+        array( 'timeout' => 15 )
+    );
+
+    if ( is_wp_error( $response ) ) {
+        return '';
+    }
+
+    return wp_remote_retrieve_body( $response );
 }
 add_shortcode('white_label_datenschutzerklaerung', 'white_label_get_datenschutzerklaerung_shortcode');
 
 
-function white_label_get_datenschutzhinweise_shortcode() { 
-     $html = file_get_contents('https://rechtliches.trolleymaker.com/datenschutzhinweise.html');
-     return $html;
+
+function white_label_get_datenschutzhinweise_shortcode() {
+    $response = wp_remote_get(
+       'https://rechtliches.trolleymaker.com/datenschutzhinweise.html',
+        array( 'timeout' => 15 )
+    );
+
+    if ( is_wp_error( $response ) ) {
+        return '';
+    }
+
+    return wp_remote_retrieve_body( $response );
 }
 add_shortcode('white_label_datenschutzhinweise', 'white_label_get_datenschutzhinweise_shortcode');
 
+function white_label_get_teilnahmebedingungen_shortcode() {
+    $response = wp_remote_get(
+        'https://rechtliches.trolleymaker.com/teilnahmebedingungen.html',
+        array( 'timeout' => 15 )
+    );
 
-function white_label_get_teilnahmebedingungen_shortcode() { 
-     $html = file_get_contents('https://rechtliches.trolleymaker.com/teilnahmebedingungen.html');
-     return $html;
+    if ( is_wp_error( $response ) ) {
+        return '';
+    }
+
+    return wp_remote_retrieve_body( $response );
 }
 add_shortcode('white_label_teilnahmebedingungen', 'white_label_get_teilnahmebedingungen_shortcode');
 
 
+function white_label_get_einwilligungserklaerung_shortcode() {
+    $response = wp_remote_get(
+        'https://rechtliches.trolleymaker.com/einwilligungserklaerung.html',
+        array( 'timeout' => 15 )
+    );
 
-function white_label_get_einwilligungserklaerung_shortcode() { 
-     $html = file_get_contents('https://rechtliches.trolleymaker.com/einwilligungserklaerung.html');
-     return $html;
+    if ( is_wp_error( $response ) ) {
+        return '';
+    }
+
+    return wp_remote_retrieve_body( $response );
 }
 add_shortcode('white_label_einwilligungserklaerung', 'white_label_get_einwilligungserklaerung_shortcode');
 
 
-function white_label_get_agb_partner_and_mitarbeitercard_shortcode() { 
-     $html = file_get_contents('https://rechtliches.trolleymaker.com/agb-allgemein.html');
-     return $html;
+function white_label_get_agb_partner_and_mitarbeitercard_shortcode() {
+    $url = 'https://rechtliches.trolleymaker.com/agb-allgemein.html';
+
+    $response = wp_remote_get($url, array(
+        'timeout' => 15,
+    ));
+
+    if (is_wp_error($response)) {
+        return '<p>Die AGB konnten derzeit nicht geladen werden.</p>';
+    }
+
+    $code = wp_remote_retrieve_response_code($response);
+    $html = wp_remote_retrieve_body($response);
+
+    if ($code < 200 || $code >= 300 || empty($html)) {
+        return '<p>Die AGB konnten derzeit nicht geladen werden.</p>';
+    }
+
+    return $html;
 }
-add_shortcode('white_label_agb_partner_and_mitarbeitercard', 'white_label_get_agb_partner_and_mitarbeitercard_shortcode');
+
+add_shortcode(
+    'white_label_agb_partner_and_mitarbeitercard',
+    'white_label_get_agb_partner_and_mitarbeitercard_shortcode'
+);
 
 
+function white_label_get_agb_shortcode()  {
+    $response = wp_remote_get(
+        'https://rechtliches.trolleymaker.com/agb.html',
+        array( 'timeout' => 15 )
+    );
 
-function white_label_get_agb_shortcode() { 
-     $html = file_get_contents('https://rechtliches.trolleymaker.com/agb.html');
-     return $html;
+    if ( is_wp_error( $response ) ) {
+        return '';
+    }
+
+    return wp_remote_retrieve_body( $response );
 }
 add_shortcode('white_label_agb', 'white_label_get_agb_shortcode');
 

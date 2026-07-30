@@ -1,5 +1,5 @@
 $mailbox = "support@trolleymaker.com"
-$ruleName = "CAS - Zustellfehler nicht importieren"
+$ruleName = "CAS - NDRs nicht importieren"
 
 $rule = Get-InboxRule -Mailbox $mailbox -Identity $ruleName
 
