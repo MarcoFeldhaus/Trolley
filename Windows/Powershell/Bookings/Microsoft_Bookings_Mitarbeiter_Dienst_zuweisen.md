@@ -22,7 +22,16 @@ Nach Ausgabe des Codes die angezeigte Anmeldeseite öffnen, den Code eingeben un
 
 ---
 
-## 2. Graph-Anmeldung kontrollieren
+## 2. Anmeldung an Microsoft Graph ohne Device Code
+
+```powershell
+Connect-MgGraph `
+    -Scopes "Bookings.ReadWrite.All","Bookings.Manage.All"
+```
+
+---
+
+## 3. Graph-Anmeldung kontrollieren
 
 ```powershell
 Get-MgContext |
@@ -45,7 +54,7 @@ Erwartet werden insbesondere:
 
 ---
 
-## 3. Alle erreichbaren Bookings-Kalender auflisten
+## 4. Alle erreichbaren Bookings-Kalender auflisten
 
 ```powershell
 Get-MgBookingBusiness |
@@ -57,7 +66,7 @@ Die Spalte `Id` enthält in dieser Umgebung in der Regel die Bookings-Kalenderad
 
 ---
 
-## 4. Prüfen, in welchen Kalendern Hannah als Mitarbeiterin vorhanden ist
+## 5. Prüfen, in welchen Kalendern Hannah als Mitarbeiterin vorhanden ist
 
 Dieser Befehl liest die Rohdaten direkt über Microsoft Graph aus. Nicht erreichbare Bookings-Einträge werden als Warnung ausgegeben.
 
@@ -107,7 +116,7 @@ $MitarbeiterStatus |
 
 ---
 
-## 5. Den Zieldienst in allen Kalendern suchen
+## 6. Den Zieldienst in allen Kalendern suchen
 
 Dieser Befehl verändert nichts. Er sucht ausschließlich Dienste, deren Name mit `Unverbindliche Infos zur Teilnahme` beginnt.
 
@@ -151,7 +160,7 @@ $GefundeneDienste |
 
 ---
 
-## 6. Hannah dem Zieldienst in allen erreichbaren Kalendern zuweisen
+## 7. Hannah dem Zieldienst in allen erreichbaren Kalendern zuweisen
 
 Der Befehl:
 
@@ -277,7 +286,7 @@ $ErgebnisZuweisung |
 
 ---
 
-## 7. Aktuelle Zuweisung vollständig kontrollieren
+## 8. Aktuelle Zuweisung vollständig kontrollieren
 
 Dieser Prüfbefehl liest jeden erreichbaren Kalender erneut aus und zeigt, ob Hannah tatsächlich dem Zieldienst zugeordnet ist.
 
@@ -368,9 +377,9 @@ $KontrolleZuweisung |
 
 ---
 
-## 8. Hannah ab 21.08.2026 aus dem Zieldienst aller erreichbaren Kalender entfernen
+## 9. Hannah ab 21.08.2026 aus dem Zieldienst aller erreichbaren Kalender entfernen
 
-> Dieser Befehl entfernt Hannah sofort beim Ausführen. Er sollte am 21.08.2026 ausgeführt werden. Für einen Testlauf kann er vorher ausgeführt und anschließend mit Abschnitt 6 wieder rückgängig gemacht werden.
+> Dieser Befehl entfernt Hannah sofort beim Ausführen. Er sollte am 21.08.2026 ausgeführt werden. Für einen Testlauf kann er vorher ausgeführt und anschließend mit Abschnitt 7 wieder rückgängig gemacht werden.
 
 Der Befehl entfernt ausschließlich Hannahs kalenderbezogene Mitarbeiter-ID. Alle anderen dem Dienst zugeordneten Mitarbeiter bleiben erhalten.
 
@@ -485,9 +494,9 @@ $ErgebnisEntfernung |
 
 ---
 
-## 9. Entfernung kontrollieren
+## 10. Entfernung kontrollieren
 
-Nach dem Entfernen Abschnitt 7 erneut ausführen. Bei allen erreichbaren Zieldiensten muss dann stehen:
+Nach dem Entfernen Abschnitt 8 erneut ausführen. Bei allen erreichbaren Zieldiensten muss dann stehen:
 
 ```text
 Zugeordnet : False
@@ -504,13 +513,13 @@ Die Ausgabe enthält gleichzeitig:
 
 ---
 
-## 10. Nach einem Test wieder hinzufügen
+## 11. Nach einem Test wieder hinzufügen
 
-Wurde Abschnitt 8 nur zu Testzwecken ausgeführt, anschließend Abschnitt 6 erneut ausführen. Bereits vorhandene Zuordnungen werden dabei nicht doppelt angelegt.
+Wurde Abschnitt 9 nur zu Testzwecken ausgeführt, anschließend Abschnitt 7 erneut ausführen. Bereits vorhandene Zuordnungen werden dabei nicht doppelt angelegt.
 
 ---
 
-## 11. Graph-Sitzung beenden
+## 12. Graph-Sitzung beenden
 
 ```powershell
 Disconnect-MgGraph
