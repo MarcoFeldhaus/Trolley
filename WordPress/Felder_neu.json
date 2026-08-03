@@ -1,0 +1,114 @@
+{
+
+  "gguid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+
+  "partnerId": "P-00042",
+
+  "companyName": "Café Beispiel",
+
+  "category": "Gastronomie",
+
+  "street": "Musterstraße 1",
+
+  "zip": "12345",
+
+  "city": "Musterstadt",
+
+  "country": "AT",
+
+  "phone": "+43 123 456789",
+
+  "email": "info@example.com",
+
+  "website": "https://example.com",
+
+  "latitude": 47.0707,
+
+  "longitude": 15.4395,
+
+  "categories": ["Gastronomie", "Café"],
+
+  "canAddVoucher": true,
+
+  "canRedeemVoucher": true,
+
+  "instagramUrl": "https://instagram.com/example",
+
+  "facebookUrl": null,
+
+  "calendarBookingUrl": null,
+
+  "infoText": "Traditioneller Familienbetrieb.",
+
+  "logoUrl": "https://backend.mycity.cards/api/v1/partners/a1b2c3d4-e5f6-7890-abcd-ef1234567890/logo.png",
+
+  "closedMonday": false,
+
+  "closedTuesday": false,
+
+  "closedWednesday": false,
+
+  "closedThursday": false,
+
+  "closedFriday": false,
+
+  "closedSaturday": false,
+
+  "closedSunday": true,
+
+  "openingHours": {
+
+    "mon": [{ "start": "08:00", "end": "18:00" }],
+
+    "tue": [{ "start": "08:00", "end": "18:00" }],
+
+    "wed": [{ "start": "08:00", "end": "18:00" }],
+
+    "thu": [{ "start": "08:00", "end": "18:00" }],
+
+    "fri": [{ "start": "08:00", "end": "22:00" }],
+
+    "sat": [{ "start": "09:00", "end": "22:00" }],
+
+    "sun": []
+
+  },
+
+  "companyOpenHoursAdditionalInfo": "Feiertags geschlossen",
+
+  "companyOpenHoursOnlyByArrangement": false,
+
+  "anyBonusActive": true,
+
+  "boni": [
+
+    {
+
+      "type": "discount",
+
+      "title": "Happy Hour -20%",
+
+      "description": "20% Rabatt auf alle Getränke während der Happy Hour.",
+
+      "startDate": "2026-08-01",
+
+      "endDate": "2026-12-31",
+
+      "startTime": "17:00",
+
+      "endTime": "19:00",
+
+      "weekdays": [1, 2, 3, 4, 5]
+
+    }
+
+  ],
+
+  "featuredImageUrls": [
+
+    "https://backend.mycity.cards/api/v1/partners/a1b2c3d4-e5f6-7890-abcd-ef1234567890/titelbild.jpg"
+
+  ]
+
+}
+ 
