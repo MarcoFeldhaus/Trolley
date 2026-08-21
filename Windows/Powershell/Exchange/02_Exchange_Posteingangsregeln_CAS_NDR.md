@@ -110,7 +110,7 @@ Dieser Block erhält alle vorhandenen Begriffe und ergänzt einen neuen Wert ohn
 ```powershell
 $Mailbox  = "support@trolleymaker.com"
 $RuleName = "CAS - NDRs nicht importieren"
-$NewWord  = "Automatic reply: Delivery failed"
+$NewWord  = "Mitarbeiter soll aus der Ladeliste entfernt werden"
 
 $Rule = Get-InboxRule `
     -Mailbox $Mailbox `

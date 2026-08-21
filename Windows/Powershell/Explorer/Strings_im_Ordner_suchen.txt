@@ -1,0 +1,86 @@
+PRÜFUNG AUF STRING IM ORDNER
+============================================================
+
+Zweck
+-----
+Mit diesem PowerShell-Befehl wird der komplette Projektordner
+TRIGGER_LOKAL rekursiv nach verbliebenen Verweisen auf den alten
+Hostnamen TM-NB-00037 durchsucht.
+
+Damit lassen sich Fundstellen in PowerShell-, SQL-, Text- und anderen
+Dateien erkennen, bevor die Umstellung auf TM-NB-00038 abgeschlossen wird.
+
+
+PowerShell-Befehl
+-----------------
+Get-ChildItem "C:\Users\m.feldhaus\DEVELOPMENT\Microsoft_SQL_Snippets\TRIGGER_LOKAL" -Recurse -File |
+    Select-String -Pattern "TM-NB-00037"
+
+
+Was der Befehl macht
+--------------------
+1. Get-ChildItem durchsucht den angegebenen Projektordner.
+2. -Recurse durchsucht auch alle Unterordner.
+3. -File berücksichtigt nur Dateien.
+4. Select-String sucht in allen gefundenen Dateien nach:
+       TM-NB-00037
+
+
+Erwartete Ausgabe
+-----------------
+Für jede Fundstelle werden normalerweise unter anderem angezeigt:
+
+- Dateipfad
+- Zeilennummer
+- gefundene Textzeile
+
+Beispiel:
+
+C:\...\sync-address-full.ps1:47:
+$connStr = "Server=TM-NB-00037\SQLDEV;..."
+
+
+Bewertung
+---------
+Wenn keine Ausgabe erscheint:
+    Im durchsuchten Projektordner wurde TM-NB-00037 nicht mehr gefunden.
+
+Wenn Fundstellen erscheinen:
+    Jede Fundstelle einzeln prüfen und, sofern sie tatsächlich noch auf
+    den alten lokalen SQL-Host verweist, auf TM-NB-00038 anpassen.
+
+
+Wichtiger Hinweis
+-----------------
+Nicht automatisch jede Fundstelle ersetzen.
+
+Treffer können auch in:
+- Kommentaren
+- Dokumentationen
+- alten Sicherungsdateien
+- Beispielen
+
+vorkommen.
+
+Produktive Verbindungsangaben sollten dagegen auf den aktuellen lokalen
+Host zeigen:
+
+    TM-NB-00038\SQLDEV
+
+
+Empfohlener Kontrollbefehl nach der Bereinigung
+------------------------------------------------
+Den gleichen Suchbefehl erneut ausführen:
+
+Get-ChildItem "C:\Users\m.feldhaus\DEVELOPMENT\Microsoft_SQL_Snippets\TRIGGER_LOKAL" -Recurse -File |
+    Select-String -Pattern "TM-NB-00037"
+
+Ziel:
+    Keine relevanten produktiven Fundstellen mehr.
+
+
+Stand
+-----
+Projekt: CAS-PROD -> CAS-TEST-Lokal / TRIGGER_LOKAL
+Aktueller lokaler Host: TM-NB-00038
+Alter Hostname: TM-NB-00037
